@@ -1,0 +1,113 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+  }
+  
+  .movie-detail {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #282c34;
+    padding: 15px 20px;
+    color: white;
+  }
+  
+  .logo img {
+    height: 50px;
+  }
+  
+  .navbar ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+  }
+  
+  .navbar a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  
+  .navbar a:hover {
+    color: #61dafb;
+  }
+  
+  .breadcrumb {
+    margin: 15px 0;
+  }
+  
+  .movie-info {
+    display: flex;
+    margin-bottom: 30px;
+  }
+  
+  .poster img {
+    width: 250px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .details {
+    margin-left: 20px;
+  }
+  
+  .details h1 {
+    font-size: 2rem;
+    margin: 0;
+  }
+  
+  .details p {
+    line-height: 1.6;
+  }
+  
+  .schedule {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
+  
+  .schedule h2 {
+    margin-bottom: 15px;
+  }
+  
+  .dates, .times {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .date, .time {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #61dafb;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    
+  }
+  
+  .date:hover, .time:hover {
+    background-color: #21a1f1;
+    transform: scale(1.05);
+  }
+  
+  .active {
+    background-color: #21a1f1;
+    font-weight: bold;
+  }
+  
+  .selected {
+    margin-top: 15px;
+    font-weight: bold;
+  }
