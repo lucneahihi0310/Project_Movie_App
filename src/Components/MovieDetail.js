@@ -10,17 +10,28 @@ const MovieDetail = () => {
 
   const [selectedDate, setSelectedDate] = useState(schedule[0]);
   const [selectedTime, setSelectedTime] = useState("");
+  const [showModal, setShowModal] = useState(false);
+
 
   const handleDateChange = (date) => {
     const newDate = schedule.find((d) => d.date === date);
-    console.log("Selected Date:", newDate);
     setSelectedDate(newDate);
     setSelectedTime(""); // Reset thời gian khi chọn ngày mới
   };
 
   const handleTimeChange = (time) => {
     setSelectedTime(time);
+    setShowModal(true); // Hiển thị thông báo đã chọn thoi gian
   };
+
+  const handleConfirm = () => {
+    setShowModal(false); // ��n thông báo đã chọn thoi gian
+    alert("ban da xac nhan dat ve thanh cong")
+  }
+
+  const handleCancel = () => {
+    setShowModal(false); // ��n thông báo đã hủy chọn thoi gian
+  }
 
   return (
     <div className="movie-detail">
@@ -96,6 +107,20 @@ const MovieDetail = () => {
             </p>
           )}
         </div>
+        {showModal && (
+            <div className="modal">
+                <div className="modal-content">
+                    <h3>Bạn đang đặt vé xem phim</h3>
+                    <p><strong>Tên phim:</strong> Linh Miêu</p>
+                    <p><strong>Ngày chiếu:</strong> {selectedDate.date}</p>
+                    <p><strong>Giờ chiếu:</strong> {selectedTime}</p>
+                    <div className="modal-actions">
+                    <button className="confirm" onClick={handleConfirm}>Đồng ý</button>
+                    <button className="cancel" onClick={handleCancel}>Hủy</button>
+                 </div>
+                </div>
+            </div>
+        )}
       </main>
     </div>
   );

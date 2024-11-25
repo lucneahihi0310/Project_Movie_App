@@ -24,7 +24,7 @@ body {
     height: 50px;
   }
   
-  .navbar ul {
+  .navbar ul{
     list-style: none;
     display: flex;
     gap: 20px;
@@ -67,6 +67,10 @@ body {
   .details p {
     line-height: 1.6;
   }
+  .details ul li{
+    line-height: 2;
+
+  }
   
   .schedule {
     background-color: white;
@@ -99,7 +103,8 @@ body {
   
   .date:hover, .time:hover {
     background-color: #21a1f1;
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
   }
   
   .active {
@@ -111,3 +116,57 @@ body {
     margin-top: 15px;
     font-weight: bold;
   }
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  }
+  
+  .modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .confirm, .cancel {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .confirm {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .cancel {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .confirm:hover {
+    background-color: #45a049;
+  }
+  
+  .cancel:hover {
+    background-color: #e53935;
+  }
+  
+  
