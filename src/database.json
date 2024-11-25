@@ -1,0 +1,90 @@
+{
+    "cinema": {
+      "name": "Rạp Chiếu Phim Hưng Thịnh",
+      "address": "123, Hà Đông, Hà Nội",
+      "contact": {
+        "phone": "0123456789",
+        "email": "contact@rapchieuphim.vn"
+      }
+    },
+    "genres": [
+      { "id": 1, "name": "Hành động" },
+      { "id": 2, "name": "Khoa học viễn tưởng" },
+      { "id": 3, "name": "Hoạt hình" },
+      { "id": 4, "name": "Phiêu lưu" }
+    ],
+    "languages": [
+      { "id": 1, "name": "Tiếng Anh" },
+      { "id": 2, "name": "Tiếng Việt lồng tiếng" },
+      { "id": 3, "name": "Tiếng Việt phụ đề" }
+    ],
+    "movies": [
+      {
+        "id": 1,
+        "title": "Avatar 2: Dòng Chảy Của Nước",
+        "genre_ids": [1, 2],
+        "duration": 192,
+        "rating": "PG-13",
+        "language_id": 1,
+        "poster": "link_to_avatar2_poster.jpg"
+      },
+      {
+        "id": 2,
+        "title": "Mèo Đi Hia: Điều Ước Cuối Cùng",
+        "genre_ids": [3, 4],
+        "duration": 102,
+        "rating": "PG",
+        "language_id": 2,
+        "poster": "link_to_puss_in_boots_poster.jpg"
+      }
+    ],
+    "screens": [
+      {
+        "id": 1,
+        "name": "Phòng Chiếu Số 1",
+        "seating_capacity": 120,
+        "type": "2D"
+      },
+      {
+        "id": 2,
+        "name": "Phòng Chiếu Số 2",
+        "seating_capacity": 80,
+        "type": "3D"
+      }
+    ],
+    "showtimes": [
+      {
+        "id": 1,
+        "movie_id": 1,
+        "screen_id": 1,
+        "start_time": "2024-11-24T10:00:00",
+        "end_time": "2024-11-24T13:12:00",
+        "price": 100000
+      },
+      {
+        "id": 2,
+        "movie_id": 2,
+        "screen_id": 2,
+        "start_time": "2024-11-24T14:00:00",
+        "end_time": "2024-11-24T15:42:00",
+        "price": 80000
+      }
+    ],
+    "tickets": [
+      {
+        "id": 1,
+        "showtime_id": 1,
+        "seat_number": "A1",
+        "customer_name": "Nguyễn Văn A",
+        "status": "Booked"
+      },
+      {
+        "id": 2,
+        "showtime_id": 2,
+        "seat_number": "B5",
+        "customer_name": "Trần Thị B",
+        "status": "Available"
+      }
+    ]
+  }
+  
