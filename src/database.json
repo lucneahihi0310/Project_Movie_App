@@ -1,4 +1,30 @@
 {
+    "accounts": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "hashed_password_1",
+      "role": "admin",
+      "dob": "1990-01-01",
+      "address": "123, Hà Đông, Hà Nội",
+      "email": "admin@rapchieuphim.vn",
+      "phone": "0901234567",
+      "full_name": "Nguyễn Quang Huy",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "username": "user123",
+      "password": "hashed_password_2",
+      "role": "customer",
+      "dob": "1990-01-01",
+      "address": "123, Hà Đông, Hà Nội",
+      "email": "user123@gmail.com",
+      "phone": "0912345678",
+      "full_name": "Lê Văn Khách",
+      "status": "active"
+    }
+  ],
     "cinema": {
       "name": "Rạp Chiếu Phim Hưng Thịnh",
       "address": "123, Hà Đông, Hà Nội",
