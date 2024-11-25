@@ -1,0 +1,9 @@
+.carousel-image {
+  transition: opacity 1s ease-in-out;
+}
+
+.carousel-item-next,
+.carousel-item-prev,
+.carousel-item.active {
+  transition: transform 1s ease, opacity 1s ease;
+}
