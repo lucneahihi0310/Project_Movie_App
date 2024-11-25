@@ -2,6 +2,8 @@ import "./App.css";
 import Footer from "./Components/pages/Footer";
 import Header from "./Components/pages/Header";
 import HomePage from "./Components/pages/HomePage";
+import React from "react";
+import MovieDetail from "./Components/MovieDetail";
 
 function App() {
   return (
@@ -9,6 +11,7 @@ function App() {
       <Header />
       <HomePage />
       <Footer />
+      <MovieDetail/>
     </>
   );
 }
