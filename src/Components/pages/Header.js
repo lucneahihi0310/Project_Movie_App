@@ -1,11 +1,10 @@
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import logo from "../assets/Logo/black_on_trans.png";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { Link } from "react-router-dom";
-import "../assets/Header.css";
+import "../../CSS/Header.css";
 
 function Header() {
   return (
@@ -28,7 +27,7 @@ function Header() {
             href="#home"
             className="d-flex align-items-center nav-image"
           >
-            <img src={logo} alt="Beta Cinemas" />
+            <img src="../assets/Logo/black_on_trans.png" alt="Beta Cinemas" />
           </Navbar.Brand>
 
           <Navbar.Toggle aria-controls="basic-navbar-nav" />

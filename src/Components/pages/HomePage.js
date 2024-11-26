@@ -1,22 +1,31 @@
 import Carousel from "react-bootstrap/Carousel";
-import banner1 from "../assets/Banner/banner1.jpg";
-import banner2 from "../assets/Banner/banner2.jpg";
-import banner3 from "../assets/Banner/banner3.jpg";
 import { FaPlay } from "react-icons/fa";
-import "../assets/HomePage.css";
+import "../../CSS/HomePage.css";
 
 function HomePage() {
   return (
     <>
       <Carousel slide interval={5000}>
         <Carousel.Item>
-          <img className="d-block w-100" src={banner1} alt="First slide" />
+          <img
+            className="d-block w-100"
+            src="../assets/Banner/banner1.jpg"
+            alt="First slide"
+          />
         </Carousel.Item>
         <Carousel.Item>
-          <img className="d-block w-100" src={banner2} alt="Second slide" />
+          <img
+            className="d-block w-100"
+            src="../assets/Banner/banner2.jpg"
+            alt="Second slide"
+          />
         </Carousel.Item>
         <Carousel.Item>
-          <img className="d-block w-100" src={banner3} alt="Third slide" />
+          <img
+            className="d-block w-100"
+            src="../assets/Banner/banner3.jpg"
+            alt="Third slide"
+          />
         </Carousel.Item>
       </Carousel>
 
