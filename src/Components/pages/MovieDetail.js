@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../CSS/MovieDetail.css";
+import "../../CSS/MovieDetail.css";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 const MovieDetail = () => {
