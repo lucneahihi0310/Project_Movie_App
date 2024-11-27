@@ -36,7 +36,7 @@ function Header() {
               <Nav.Link href="#lichchieu">Lịch Chiếu Theo Rạp</Nav.Link>
               <Nav.Link href="#phim">Phim</Nav.Link>
               <Nav.Link as={Link} to={"/info"}>Rạp</Nav.Link>
-              <Nav.Link href="#giave">Giá Vé</Nav.Link>
+              <Nav.Link as={Link} to={"/price"}>Giá Vé</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>

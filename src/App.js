@@ -4,6 +4,7 @@ import Header from "./Components/pages/Header";
 import Footer from "./Components/pages/Footer";
 import { publicRoutes } from "./Components/router/index.js";
 import CinemaInfo from "./Components/pages/CinemaInfo";
+import TicketPricing from "./Components/pages/TicketPricing";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           );
         })}
         <Route path="/info" element={<CinemaInfo />} />
+        <Route path="/price" element={<TicketPricing />} />
       </Routes>
       <Footer />
     </Router>
