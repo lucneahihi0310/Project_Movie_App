@@ -7,6 +7,7 @@ function Footer() {
     fetch('http://localhost:3001/cinema')
       .then((response) => response.json())
       .then((data) => {
+        setCinema(data);
       })
       .catch((error) => console.error('Lỗi khi gọi API:', error));
   }, []);
