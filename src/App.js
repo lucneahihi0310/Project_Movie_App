@@ -1,18 +1,23 @@
-import "./App.css";
-import Footer from "./Components/pages/Footer";
-import Header from "./Components/pages/Header";
-import HomePage from "./Components/pages/HomePage";
 import React from "react";
-import MovieDetail from "./Components/pages/MovieDetail";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Header from "./Components/pages/Header";
+import Footer from "./Components/pages/Footer";
+import { publicRoutes } from "./Components/router/index.js";
 
 function App() {
   return (
-    <>
+    <Router>
       <Header />
-      {/* <HomePage /> */}
+      <Routes>
+        {publicRoutes.map((route, index) => {
+          const Component = route.component;
+          return (
+            <Route key={index} path={route.path} element={<Component />} />
+          );
+        })}
+      </Routes>
       <Footer />
-      <MovieDetail />
-    </>
+    </Router>
   );
 }
 
