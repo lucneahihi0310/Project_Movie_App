@@ -31,7 +31,8 @@
     "contact": {
       "phone": "0123456789",
       "email": "contact@rapchieuphim.vn"
-    }
+    },
+    "description": "Chào mừng đến với Rạp Chiếu Phim Movie88, nơi mang đến những trải nghiệm điện ảnh tuyệt vời. Chúng tôi cung cấp các bộ phim mới nhất và không gian giải trí thoải mái cho mọi lứa tuổi."
   },
   "genres": [
     { "id": 1, "name": "Hành động" },

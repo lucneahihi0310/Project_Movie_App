@@ -24,7 +24,7 @@ function Header() {
       <Navbar expand="lg" className="bg-white border-bottom">
         <Container>
           <Navbar.Brand
-            href="#home"
+            as={Link} to={"/"}
             className="d-flex align-items-center nav-image"
           >
             <img src="../assets/Logo/black_on_trans.png" alt="Beta Cinemas" />
@@ -35,7 +35,7 @@ function Header() {
             <Nav className="fw-bold fs-5 custom-nav">
               <Nav.Link href="#lichchieu">Lịch Chiếu Theo Rạp</Nav.Link>
               <Nav.Link href="#phim">Phim</Nav.Link>
-              <Nav.Link href="#rap">Rạp</Nav.Link>
+              <Nav.Link as={Link} to={"/info"}>Rạp</Nav.Link>
               <Nav.Link href="#giave">Giá Vé</Nav.Link>
             </Nav>
           </Navbar.Collapse>

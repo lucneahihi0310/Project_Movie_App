@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./Components/pages/Header";
 import Footer from "./Components/pages/Footer";
 import { publicRoutes } from "./Components/router/index.js";
+import CinemaInfo from "./Components/pages/CinemaInfo";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             <Route key={index} path={route.path} element={<Component />} />
           );
         })}
+        <Route path="/info" element={<CinemaInfo />} />
       </Routes>
       <Footer />
     </Router>
