@@ -1,7 +1,7 @@
 {
   "accounts": [
     {
-      "id": 1,
+      "id": "1",
       "username": "admin",
       "password": "hashed_password_1",
       "role": 1,
@@ -13,7 +13,7 @@
       "status": "active"
     },
     {
-      "id": 2,
+      "id": "2",
       "username": "user123",
       "password": "hashed_password_2",
       "role": 2,
@@ -27,11 +27,11 @@
   ],
   "roles": [
     {
-      "id": 1,
-      "name": "admin"  
+      "id": "1",
+      "name": "admin"
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "customer"
     }
   ],
@@ -90,9 +90,9 @@
   ],
   "movies": [
     {
-      "id": 1,
+      "id": "1",
       "title": "Linh Miêu",
-      "director": "Lưu Thành Luân",
+      "director": "Lưu Thành Luận",
       "actor": "Hồng Đào, Thiên An, Thuỳ Tiên, Văn Anh, Samuel An,...",
       "description": "Linh Miêu: Quỷ Nhập Tràng lấy cảm hứng từ truyền thuyết dân gian về “quỷ nhập tràng” để xây dựng cốt truyện. Phim lồng ghép những nét văn hóa đặc trưng của Huế như nghệ thuật khảm sành - một văn hóa đặc sắc của thời nhà Nguyễn, đề cập đến các vấn đề về giai cấp và quan điểm trọng nam khinh nữ. Đặc biệt, hình ảnh rước kiệu thây ma và những hình nhân giấy không chỉ biểu trưng cho tai ương hay điềm dữ mà còn là hiện thân của nghiệp quả.",
       "genre_ids": [
@@ -107,7 +107,7 @@
       ]
     },
     {
-      "id": 2,
+      "id": "2",
       "title": "Quỷ Treo Đầu",
       "genre_ids": [
         5
@@ -124,7 +124,7 @@
       ]
     },
     {
-      "id": 3,
+      "id": "3",
       "title": "BLUE PERIOD",
       "genre_ids": [
         6
@@ -141,7 +141,7 @@
       ]
     },
     {
-      "id": 4,
+      "id": "4",
       "title": "CƯỜI XUYÊN BIÊN GIỚI",
       "genre_ids": [
         7
@@ -160,13 +160,13 @@
   ],
   "screens": [
     {
-      "id": 1,
+      "id": "1",
       "name": "Phòng Chiếu Số 1",
       "seating_capacity": 120,
       "type": "2D"
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "Phòng Chiếu Số 2",
       "seating_capacity": 80,
       "type": "3D"
@@ -174,7 +174,7 @@
   ],
   "showtimes": [
     {
-      "id": 1,
+      "id": "1",
       "movie_id": 1,
       "screen_id": 1,
       "start_time": "2024-11-24T10:00:00",
@@ -182,7 +182,7 @@
       "price": 100000
     },
     {
-      "id": 2,
+      "id": "2",
       "movie_id": 2,
       "screen_id": 2,
       "start_time": "2024-11-24T14:00:00",
@@ -192,14 +192,14 @@
   ],
   "tickets": [
     {
-      "id": 1,
+      "id": "1",
       "showtime_id": 1,
       "seat_number": "A1",
       "customer_name": "Nguyễn Văn A",
       "status": "Booked"
     },
     {
-      "id": 2,
+      "id": "2",
       "showtime_id": 2,
       "seat_number": "B5",
       "customer_name": "Trần Thị B",
@@ -208,7 +208,7 @@
   ],
   "ticketPricing": [
     {
-      "id": 1,
+      "id": "1",
       "type": "Người Lớn",
       "price": 100000,
       "ageGroup": "18+",
@@ -218,7 +218,7 @@
       ]
     },
     {
-      "id": 2,
+      "id": "2",
       "type": "Trẻ Em",
       "price": 50000,
       "ageGroup": "5-12",
@@ -228,7 +228,7 @@
       ]
     },
     {
-      "id": 3,
+      "id": "3",
       "type": "Sinh Viên / Học Sinh",
       "price": 70000,
       "ageGroup": "12-22",
