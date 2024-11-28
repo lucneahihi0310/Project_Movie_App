@@ -116,6 +116,7 @@ const LoginRegister = () => {
                             <a href="#" onClick={() => setCurrentForm("login")}>
                                 Quay lại Đăng nhập
                             </a>
+                            <a>dijem Huu SY</a>
                         </p>
                     </form>
                 )}
