@@ -11,49 +11,24 @@ function HomePage() {
   const [selectedMovieType, setSelectedMovieType] = useState(1);
 
   useEffect(() => {
-    const handleFetchData = async () => {
+    const fetchAllData = async () => {
       try {
-        const request = await axios.get("http://localhost:3001/movies");
-        if (request.status === 200) {
-          const response = request.data;
-          setData(response);
-        }
+        const [moviesResponse, movieTypesResponse, genresResponse] =
+          await Promise.all([
+            axios.get("http://localhost:3001/movies"),
+            axios.get("http://localhost:3001/movietypes"),
+            axios.get("http://localhost:3001/genres"),
+          ]);
+        setData(moviesResponse.data);
+        setMovieType(movieTypesResponse.data);
+        setCategory(genresResponse.data);
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     };
-    handleFetchData();
+    fetchAllData();
   }, []);
 
-  useEffect(() => {
-    const handleFetchMovieTypeData = async () => {
-      try {
-        const request = await axios.get("http://localhost:3001/movietypes");
-        if (request.status === 200) {
-          const response = request.data;
-          setMovieType(response);
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    handleFetchMovieTypeData();
-  }, []);
-
-  useEffect(() => {
-    const handleFetchGenresData = async () => {
-      try {
-        const request = await axios.get("http://localhost:3001/genres");
-        if (request.status === 200) {
-          const response = request.data;
-          setCategory(response);
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    handleFetchGenresData();
-  }, []);
   const handleMovieTypeFilter = (type) => {
     setSelectedMovieType(type.id);
   };
@@ -102,9 +77,10 @@ function HomePage() {
             filteredData.map((movie) => {
               const { id, title, genre_ids, duration, poster } = movie;
 
-              const genres = category.filter((genre) =>
-                genre_ids.includes(genre.id)
-              );
+              const getGenreNames = (genreIds) =>
+                genreIds
+                  .map((id) => category.find((genre) => genre.id === id)?.name)
+                  .join(", ");
 
               return (
                 <div className="movie-item" key={id}>
@@ -120,10 +96,7 @@ function HomePage() {
                   <a href="#">{title}</a>
                   <ul>
                     <li>
-                      <span>Thể loại:</span>{" "}
-                      {genres.length > 0
-                        ? genres.map((genre) => genre.name).join(", ")
-                        : "N/A"}
+                      <span>Thể loại:</span> {getGenreNames(movie.genre_ids)}
                     </li>
                     <li>
                       <span>Thời lượng:</span> {duration || "N/A"} phút
