@@ -45,9 +45,18 @@
     "description": "Chào mừng đến với Rạp Chiếu Phim Movie88, nơi mang đến những trải nghiệm điện ảnh tuyệt vời. Chúng tôi cung cấp các bộ phim mới nhất và không gian giải trí thoải mái cho mọi lứa tuổi."
   },
   "movietypes": [
-    { "id": 1, "name": "Phim đang chiếu" },
-    { "id": 2, "name": "Phim sắp chiếu" },
-    { "id": 3, "name": "Suất chiếu đặc biệt" }
+    {
+      "id": 1,
+      "name": "Phim đang chiếu"
+    },
+    {
+      "id": 2,
+      "name": "Phim sắp chiếu"
+    },
+    {
+      "id": 3,
+      "name": "Suất chiếu đặc biệt"
+    }
   ],
   "genres": [
     {
@@ -100,7 +109,7 @@
       "director": "Lưu Thành Luân",
       "actor": "Hồng Đào, Thiên An, Thuỳ Tiên, Văn Anh, Samuel An,...",
       "description": "Linh Miêu: Quỷ Nhập Tràng lấy cảm hứng từ truyền thuyết dân gian về “quỷ nhập tràng” để xây dựng cốt truyện. Phim lồng ghép những nét văn hóa đặc trưng của Huế như nghệ thuật khảm sành - một văn hóa đặc sắc của thời nhà Nguyễn, đề cập đến các vấn đề về giai cấp và quan điểm trọng nam khinh nữ. Đặc biệt, hình ảnh rước kiệu thây ma và những hình nhân giấy không chỉ biểu trưng cho tai ương hay điềm dữ mà còn là hiện thân của nghiệp quả.",
-      "genre_ids": [5, 6],
+      "genre_ids": [5],
       "duration": 109,
       "rating": "C18",
       "language_id": 3,
@@ -114,7 +123,7 @@
     {
       "id": 2,
       "title": "Quỷ Treo Đầu",
-      "genre_ids": [5, 6],
+      "genre_ids": [5],
       "description": "Petai & Nicha - cặp đôi trẻ đẹp liên tục bị quấy phá sau khi chuyển đến ngôi nhà gia truyền của Nicha. Từ những tiếng động cót két chói tai đến những cái chết mất xác; tất cả đều xuất phát từ một lời nguyền cổ xưa ma quái.",
       "director": "Bo Nipan Chawcharernpon",
       "actor": "Khun Chanon Ukkharachata, Aniporn Chalermburanawong",
