@@ -6,12 +6,14 @@ import { publicRoutes } from "./Components/router/index.js";
 import CinemaInfo from "./Components/pages/CinemaInfo";
 import TicketPricing from "./Components/pages/TicketPricing";
 import AdminMovies from "./Components/AdminPage/AdminMovies.js";
+import LoginRegister from "./Components/pages/LoginRegister.js";
 
 function App() {
   return (
     <Router>
       <Header />
       <Routes>
+        <Route path="/login" element={<LoginRegister/>} />
         {publicRoutes.map((route, index) => {
           const Component = route.component;
           return (
