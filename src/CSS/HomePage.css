@@ -20,7 +20,7 @@
   margin-bottom: 20px;
 }
 
-.navi a {
+.home-page-content .navi a {
   text-decoration: none;
   color: #333;
   font-size: 16px;
@@ -31,24 +31,23 @@
   transition: 0.3s;
 }
 
-.navi a:hover,
-.navi a.active {
-  color: #007bff;
+.home-page-content .navi a:hover,
+.home-page-content .navi a.actived {
   border-bottom: 2px solid #007bff;
 }
 
 .movie-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
+  justify-items: start;
 }
 
 .movie-item {
   background-color: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 240px;
+  width: 100%;
   text-align: left;
   padding: 15px;
   position: relative;
@@ -61,6 +60,9 @@
 .image-container img {
   display: block;
   width: 100%;
+  height: 20rem;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
 
 .overlay-icon {
@@ -80,14 +82,9 @@
   text-decoration: none;
   font-weight: bold;
 }
+
 .movie-item a:hover {
   text-decoration: underline;
-}
-.movie-item img {
-  border-radius: 10px;
-  width: 100%;
-  height: auto;
-  margin-bottom: 10px;
 }
 
 .movie-item h5 {
@@ -95,21 +92,20 @@
   color: #333;
   margin: 10px 0;
 }
-
 .movie-item ul {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 10px 0 0 0;
 }
 
 .movie-item ul li {
-  font-size: 14px;
-  margin: 5px 0;
-  color: #555;
+  margin-bottom: 5px;
 }
 
 .movie-item ul li span {
   font-weight: bold;
-  color: #333;
-  min-width: 120px;
+}
+
+.carousel-item img {
+  object-fit: contain;
 }
