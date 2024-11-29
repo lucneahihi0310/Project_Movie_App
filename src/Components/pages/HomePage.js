@@ -43,7 +43,11 @@ function HomePage() {
 
   const getGenreNames = (genreIds) =>
     genreIds
+<<<<<<< HEAD
       .map((id) => genres.find((genre) => genre.id === id)?.name)
+=======
+      .map((id) => category.find((genre) => genre.id == id)?.name)
+>>>>>>> main
       .join(", ");
 
   const openModal = (movie) => {

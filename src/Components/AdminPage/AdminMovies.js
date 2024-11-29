@@ -121,11 +121,12 @@ function AdminMovies() {
         });
         setShowModal(false);
     };
+
     const getGenreNames = (genreIds) =>
-        genreIds.map((id) => genres.find((genre) => genre.id === id)?.name).join(", ");
+        genreIds.map((id) => genres.find((genre) => genre.id == id)?.name).join(", ");
 
     const getLanguageName = (languageId) =>
-        languages.find((language) => language.id === languageId)?.name;
+        languages.find((language) => language.id == languageId)?.name;
 
     return (
         <div className="container my-5">
