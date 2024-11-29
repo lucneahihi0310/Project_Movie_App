@@ -3,36 +3,62 @@ import { FaPlay } from "react-icons/fa";
 import "../../CSS/HomePage.css";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Modal, Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
 
 function HomePage() {
   const [data, setData] = useState([]);
   const [movieType, setMovieType] = useState([]);
-  const [genres, setGenres] = useState([]);
+  const [category, setCategory] = useState([]);
+  const [reload, setReload] = useState(true);
   const [selectedMovieType, setSelectedMovieType] = useState(1);
 
-  const [showModal, setShowModal] = useState(false);
-  const [videoUrl, setVideoUrl] = useState("");
-  const [selectedMovie, setSelectedMovie] = useState(null);
+  useEffect(() => {
+    const handleFetchData = async () => {
+      try {
+        const request = await axios.get("http://localhost:3001/movies");
+        if (request.status === 200) {
+          const response = request.data;
+          setData(response);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    setReload(false);
+    handleFetchData();
+  }, [reload]);
 
   useEffect(() => {
-    fetch("http://localhost:3001/movies")
-      .then((response) => response.json())
-      .then((data) => setData(data))
-      .catch((error) => console.error("Error fetching movies:", error));
+    const handleFetchMovieTypeData = async () => {
+      try {
+        const request = await axios.get("http://localhost:3001/movietypes");
+        if (request.status === 200) {
+          const response = request.data;
+          setMovieType(response);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    setReload(false);
+    handleFetchMovieTypeData();
+  }, [reload]);
 
-    fetch("http://localhost:3001/genres")
-      .then((response) => response.json())
-      .then((data) => setGenres(data))
-      .catch((error) => console.error("Error fetching genres:", error));
-
-    fetch("http://localhost:3001/movietypes")
-      .then((response) => response.json())
-      .then((data) => setMovieType(data))
-      .catch((error) => console.error("Error fetching movie types:", error));
-  }, []);
-
+  useEffect(() => {
+    const handleFetchGenresData = async () => {
+      try {
+        const request = await axios.get("http://localhost:3001/genres");
+        if (request.status === 200) {
+          const response = request.data;
+          setCategory(response);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    setReload(false);
+    handleFetchGenresData();
+  }, [reload]);
   const handleMovieTypeFilter = (type) => {
     setSelectedMovieType(type.id);
   };
@@ -43,21 +69,8 @@ function HomePage() {
 
   const getGenreNames = (genreIds) =>
     genreIds
-      .map((id) => genres.find((genre) => genre.id === id)?.name)
+      .map((id) => category.find((genre) => genre.id === id)?.name)
       .join(", ");
-
-  const openModal = (movie) => {
-    setVideoUrl(movie.video_url);
-    setSelectedMovie(movie);
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setVideoUrl("");
-    setSelectedMovie(null);
-  };
-
   return (
     <>
       <Carousel slide interval={5000}>
@@ -105,14 +118,11 @@ function HomePage() {
                       }
                       alt={movie.title}
                     />
-                    <div
-                      className="overlay-icon"
-                      onClick={() => openModal(movie)}
-                    >
+                    <div className="overlay-icon">
                       <FaPlay size={40} color="white" />
                     </div>
                   </div>
-                  <Link to={`/movie/${movie.id}`}> {movie.title}</Link>
+                  <a href="#">{movie.title}</a>
                   <ul>
                     <li>
                       <span>Thể loại:</span> {getGenreNames(movie.genre_ids)}
@@ -133,23 +143,6 @@ function HomePage() {
           )}
         </div>
       </div>
-
-      <Modal show={showModal} onHide={closeModal} centered size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Trailer: {selectedMovie?.title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <iframe
-            width="100%"
-            height="415"
-            src={videoUrl}
-            title="Movie Trailer"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          ></iframe>
-        </Modal.Body>
-      </Modal>
     </>
   );
 }

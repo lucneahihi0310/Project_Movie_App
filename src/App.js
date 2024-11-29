@@ -14,7 +14,7 @@ function App() {
     <Router>
       <Header />
       <Routes>
-        <Route path="/login" element={<LoginRegister />} />
+        <Route path="/login" element={<LoginRegister/>} />
         {publicRoutes.map((route, index) => {
           const Component = route.component;
           return (
@@ -24,7 +24,7 @@ function App() {
         <Route path="/info" element={<CinemaInfo />} />
         <Route path="/price" element={<TicketPricing />} />
         <Route path="/managermovies" element={<AdminMovies />} />
-        <Route path="/movie/:id" element={<MovieDetail />} />
+        <Route path="/movie" element={<MovieDetail/>} />
       </Routes>
       <Footer />
     </Router>
