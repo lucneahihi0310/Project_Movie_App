@@ -1,74 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../../CSS/MovieDetail.css";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
+import { useParams } from "react-router-dom";
 const MovieDetail = () => {
-  const schedule = [
-    {
-      date: "25/11 - T2",
-      times: [
-        "11:30",
-        "13:30",
-        "15:30",
-        "16:20",
-        "17:30",
-        "19:30",
-        "20:30",
-        "21:30",
-      ],
-    },
-    {
-      date: "26/11 - T3",
-      times: [
-        "09:30",
-        "10:00",
-        "14:00",
-        "18:00",
-        "19:00",
-        "21:00",
-        "22:30",
-        "23:30",
-      ],
-    },
-    {
-      date: "27/11 - T4",
-      times: [
-        "08:00",
-        "09:00",
-        "10:00",
-        "11:00",
-        "12:00",
-        "15:00",
-        "19:00",
-        "22:00",
-      ],
-    },
-  ];
-
-  const [selectedDate, setSelectedDate] = useState(schedule[0]);
-  const [selectedTime, setSelectedTime] = useState("");
-  const [showModal, setShowModal] = useState(false);
-
-  const handleDateChange = (date) => {
-    const newDate = schedule.find((d) => d.date === date);
-    setSelectedDate(newDate);
-    setSelectedTime(""); // Reset thời gian khi chọn ngày mới
-  };
-
-  const handleTimeChange = (time) => {
-    setSelectedTime(time);
-    setShowModal(true); // Hiển thị thông báo đã chọn thoi gian
-  };
-
-  const handleConfirm = () => {
-    setShowModal(false); // ��n thông báo đã chọn thoi gian
-    alert("ban da xac nhan dat ve thanh cong");
-  };
-
-  const handleCancel = () => {
-    setShowModal(false); // ��n thông báo đã hủy chọn thoi gian
-  };
-
+  const { id } = useParams();
+  const [movie, setMovie] = useState([]);
+  useEffect(() => {
+    fetch(`http://localhost:3001/movies/${id}`)
+      .then((response) => response.json())
+      .then((data) => setMovie(data))
+      .catch((error) => console.error("Error fetching movie:", error));
+  }, [id]);
+  if (!movie) {
+    return <div>Đang tải thông tin phim...</div>;
+  }
   return (
     <div className="movie-detail">
       <main className="content">
@@ -133,63 +77,10 @@ const MovieDetail = () => {
         <div className="schedule">
           <h2>Chọn Lịch Chiếu</h2>
 
-          <div className="dates">
-            {schedule.map((item) => (
-              <button
-                key={item.date}
-                className={`date ${
-                  item.date === selectedDate.date ? "active" : ""
-                }`}
-                onClick={() => handleDateChange(item.date)}
-              >
-                {item.date}
-              </button>
-            ))}
-          </div>
+          <div className="dates"></div>
 
-          <div className="times">
-            {selectedDate.times.map((time) => (
-              <button
-                key={time}
-                className={`time ${time === selectedTime ? "active" : ""}`}
-                onClick={() => handleTimeChange(time)}
-              >
-                {time}
-              </button>
-            ))}
-          </div>
-
-          {selectedTime && (
-            <p className="selected">
-              Bạn đã chọn: <strong>{selectedDate.date}</strong> lúc{" "}
-              <strong>{selectedTime}</strong>
-            </p>
-          )}
+          <div className="times"></div>
         </div>
-        {showModal && (
-          <div className="modal">
-            <div className="modal-content">
-              <h3>Bạn đang đặt vé xem phim</h3>
-              <p>
-                <strong>Tên phim:</strong> Linh Miêu
-              </p>
-              <p>
-                <strong>Ngày chiếu:</strong> {selectedDate.date}
-              </p>
-              <p>
-                <strong>Giờ chiếu:</strong> {selectedTime}
-              </p>
-              <div className="modal-actions">
-                <button className="confirm" onClick={handleConfirm}>
-                  Đồng ý
-                </button>
-                <button className="cancel" onClick={handleCancel}>
-                  Hủy
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );
