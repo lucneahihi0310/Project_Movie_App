@@ -5,9 +5,9 @@ import Footer from "./Components/pages/Footer";
 import { publicRoutes } from "./Components/router/index.js";
 import CinemaInfo from "./Components/pages/CinemaInfo";
 import TicketPricing from "./Components/pages/TicketPricing";
-import AdminMovies from "./Components/AdminPage/AdminMovies.js";
 import LoginRegister from "./Components/pages/LoginRegister.js";
 import MovieDetail from "./Components/pages/MovieDetail.js";
+import AdminMovies from "./Components/AdminPage/AdminMovies.js";
 
 function App() {
   return (
