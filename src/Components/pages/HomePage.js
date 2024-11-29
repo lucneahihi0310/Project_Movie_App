@@ -8,6 +8,7 @@ function HomePage() {
   const [data, setData] = useState([]);
   const [movieType, setMovieType] = useState([]);
   const [category, setCategory] = useState([]);
+  const [reload, setReload] = useState(true);
   const [selectedMovieType, setSelectedMovieType] = useState(1);
 
   useEffect(() => {
@@ -22,8 +23,10 @@ function HomePage() {
         console.log(e);
       }
     };
+
+    setReload(false);
     handleFetchData();
-  }, []);
+  }, [reload]);
 
   useEffect(() => {
     const handleFetchMovieTypeData = async () => {
@@ -37,8 +40,9 @@ function HomePage() {
         console.log(e);
       }
     };
+    setReload(false);
     handleFetchMovieTypeData();
-  }, []);
+  }, [reload]);
 
   useEffect(() => {
     const handleFetchGenresData = async () => {
@@ -52,8 +56,9 @@ function HomePage() {
         console.log(e);
       }
     };
+    setReload(false);
     handleFetchGenresData();
-  }, []);
+  }, [reload]);
   const handleMovieTypeFilter = (type) => {
     setSelectedMovieType(type.id);
   };
@@ -62,6 +67,10 @@ function HomePage() {
     (movie) => movie.movie_type === selectedMovieType
   );
 
+  const getGenreNames = (genreIds) =>
+    genreIds
+      .map((id) => category.find((genre) => genre.id === id)?.name)
+      .join(", ");
   return (
     <>
       <Carousel slide interval={5000}>
@@ -100,33 +109,26 @@ function HomePage() {
         <div className="movie-list">
           {filteredData.length > 0 ? (
             filteredData.map((movie) => {
-              const { id, title, genre_ids, duration, poster } = movie;
-
-              const genres = category.filter((genre) =>
-                genre_ids.includes(genre.id)
-              );
-
               return (
-                <div className="movie-item" key={id}>
+                <div className="movie-item" key={movie.id}>
                   <div className="image-container">
                     <img
-                      src={poster[1] || "https://via.placeholder.com/200x300"}
-                      alt={title}
+                      src={
+                        movie.poster[1] || "https://via.placeholder.com/200x300"
+                      }
+                      alt={movie.title}
                     />
                     <div className="overlay-icon">
                       <FaPlay size={40} color="white" />
                     </div>
                   </div>
-                  <a href="#">{title}</a>
+                  <a href="#">{movie.title}</a>
                   <ul>
                     <li>
-                      <span>Thể loại:</span>{" "}
-                      {genres.length > 0
-                        ? genres.map((genre) => genre.name).join(", ")
-                        : "N/A"}
+                      <span>Thể loại:</span> {getGenreNames(movie.genre_ids)}
                     </li>
                     <li>
-                      <span>Thời lượng:</span> {duration || "N/A"} phút
+                      <span>Thời lượng:</span> {movie.duration || "N/A"} phút
                     </li>
                     <li>
                       <span>Ngày khởi chiếu:</span>{" "}
