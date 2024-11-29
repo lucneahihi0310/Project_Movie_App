@@ -7,7 +7,7 @@ import CinemaInfo from "./Components/pages/CinemaInfo";
 import TicketPricing from "./Components/pages/TicketPricing";
 import LoginRegister from "./Components/pages/LoginRegister.js";
 import MovieDetail from "./Components/pages/MovieDetail.js";
-import MovieList from "./Components/AdminPage/MovieList.js";
+import AdminMovies from "./Components/AdminPage/AdminMovies.js";
 
 function App() {
   return (
@@ -23,7 +23,7 @@ function App() {
         })}
         <Route path="/info" element={<CinemaInfo />} />
         <Route path="/price" element={<TicketPricing />} />
-        <Route path="/managermovies" element={<MovieList />} />
+        <Route path="/managermovies" element={<AdminMovies />} />
         <Route path="/movie" element={<MovieDetail/>} />
       </Routes>
       <Footer />
