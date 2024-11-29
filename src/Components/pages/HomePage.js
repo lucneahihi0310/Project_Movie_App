@@ -69,7 +69,7 @@ function HomePage() {
 
   const getGenreNames = (genreIds) =>
     genreIds
-      .map((id) => category.find((genre) => genre.id === id)?.name)
+      .map((id) => category.find((genre) => genre.id == id)?.name)
       .join(", ");
   return (
     <>
