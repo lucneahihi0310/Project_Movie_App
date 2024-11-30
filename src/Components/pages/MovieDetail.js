@@ -1,74 +1,58 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../../CSS/MovieDetail.css";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
+import { useParams } from "react-router-dom";
 const MovieDetail = () => {
-  const schedule = [
-    {
-      date: "25/11 - T2",
-      times: [
-        "11:30",
-        "13:30",
-        "15:30",
-        "16:20",
-        "17:30",
-        "19:30",
-        "20:30",
-        "21:30",
-      ],
-    },
-    {
-      date: "26/11 - T3",
-      times: [
-        "09:30",
-        "10:00",
-        "14:00",
-        "18:00",
-        "19:00",
-        "21:00",
-        "22:30",
-        "23:30",
-      ],
-    },
-    {
-      date: "27/11 - T4",
-      times: [
-        "08:00",
-        "09:00",
-        "10:00",
-        "11:00",
-        "12:00",
-        "15:00",
-        "19:00",
-        "22:00",
-      ],
-    },
+  const { id } = useParams();
+  const [movie, setMovie] = useState(null);
+  const [genres, setGenres] = useState([]);
+  const [languages, setLanguages] = useState([]);
+  const [showtimes, setShowtimes] = useState([]);
+
+  const [selectedDate, setSelectedDate] = useState("30/11 - T7");
+
+  const dates = [
+    { id: 1, label: "30/11 - T7" },
+    { id: 2, label: "01/12 - CN" },
+    { id: 3, label: "02/12 - T2" },
+    { id: 4, label: "03/12 - T3" },
   ];
 
-  const [selectedDate, setSelectedDate] = useState(schedule[0]);
-  const [selectedTime, setSelectedTime] = useState("");
-  const [showModal, setShowModal] = useState(false);
+  const timeSlots = [
+    { time: "09:30 NORMAL", seats: "132 ghế trống" },
+    { time: "11:40 NORMAL", seats: "136 ghế trống" },
+    { time: "14:15 NORMAL", seats: "170 ghế trống" },
+    { time: "20:00 NORMAL", seats: "156 ghế trống" },
+  ];
+  useEffect(() => {
+    fetch(`http://localhost:3001/movies/${id}`)
+      .then((response) => response.json())
+      .then((data) => setMovie(data))
+      .catch((error) => console.error("Error fetching movie:", error));
+    fetch("http://localhost:3001/genres")
+      .then((response) => response.json())
+      .then((data) => setGenres(data))
+      .catch((error) => console.error("Error fetching genres:", error));
 
-  const handleDateChange = (date) => {
-    const newDate = schedule.find((d) => d.date === date);
-    setSelectedDate(newDate);
-    setSelectedTime(""); // Reset thời gian khi chọn ngày mới
-  };
+    fetch("http://localhost:3001/languages")
+      .then((response) => response.json())
+      .then((data) => setLanguages(data))
+      .catch((error) => console.error("Error fetching languages:", error));
+    fetch(`http://localhost:3001/showtimes?movie_id=${id}`)
+      .then((response) => response.json())
+      .then((data) => setShowtimes(data))
+      .catch((error) => console.error("Error fetching showtimes:", error));
+  }, [id]);
+  if (!movie) {
+    return <p>Loading movie details...</p>;
+  }
 
-  const handleTimeChange = (time) => {
-    setSelectedTime(time);
-    setShowModal(true); // Hiển thị thông báo đã chọn thoi gian
-  };
+  const getGenreNames = (genreIds) =>
+    genreIds
+      .map((id) => genres.find((genre) => genre.id == id)?.name)
+      .join(", ");
 
-  const handleConfirm = () => {
-    setShowModal(false); // ��n thông báo đã chọn thoi gian
-    alert("ban da xac nhan dat ve thanh cong");
-  };
-
-  const handleCancel = () => {
-    setShowModal(false); // ��n thông báo đã hủy chọn thoi gian
-  };
-
+  const getLanguageName = (languageId) =>
+    languages.find((language) => language.id == languageId)?.name;
   return (
     <div className="movie-detail">
       <main className="content">
@@ -79,117 +63,79 @@ const MovieDetail = () => {
         <div className="movie-info">
           <div className="poster">
             <img
-              src="../assets/Banner/linhmieu_poster.jpg"
-              alt="Linh Miêu Poster"
+              src={movie.poster[1]}
+              alt={`${movie.title} Poster`}
+              className="poster-image"
             />
           </div>
+
           <div className="details">
-            <h1>Linh Miêu</h1>
-            <p>
-              Linh Miêu: Quỷ Nhập Tràng lấy cảm hứng từ truyền thuyết dân gian
-              về “quỷ nhập tràng” để xây dựng cốt truyện. Phim lồng ghép những
-              nét văn hóa đặc trưng của Huế như nghệ thuật khảm sành - một văn
-              hóa đặc sắc của thời nhà Nguyễn, đề cập đến các vấn đề về giai cấp
-              và quan điểm trọng nam khinh nữ. Đặc biệt, hình ảnh rước kiệu thây
-              ma và những hình nhân giấy không chỉ biểu trưng cho tai ương hay
-              điềm dữ mà còn là hiện thân của nghiệp quả.
-            </p>
+            <h1>{movie.title}</h1>
+            <p>{movie.description}</p>
             <ul class="list-unstyled row">
               <li class="col-md-3 col-sm-5">
                 <strong>ĐẠO DIỄN:</strong>
               </li>
-              <li class="col-md-9 col-sm-7">Lưu Thành Luân</li>
+              <li class="col-md-9 col-sm-7">{movie.director}</li>
 
               <li class="col-md-3 col-sm-5">
                 <strong>DIỄN VIÊN:</strong>
               </li>
-              <li class="col-md-9 col-sm-7">
-                Hồng Đào, Thiên An, Thùy Tiên, Văn Anh, Samuel An,...
-              </li>
+              <li class="col-md-9 col-sm-7">{movie.actor}</li>
 
               <li class="col-md-3 col-sm-5">
                 <strong>THỂ LOẠI:</strong>
               </li>
-              <li class="col-md-9 col-sm-7">Kinh dị</li>
+              <li class="col-md-9 col-sm-7">
+                {getGenreNames(movie.genre_ids)}
+              </li>
 
               <li class="col-md-3 col-sm-5">
                 <strong>THỜI LƯỢNG:</strong>
               </li>
-              <li class="col-md-9 col-sm-7">109 phút</li>
+              <li class="col-md-9 col-sm-7">{movie.duration} phút</li>
 
               <li class="col-md-3 col-sm-5">
                 <strong>NGÔN NGỮ:</strong>
               </li>
-              <li class="col-md-9 col-sm-7">Tiếng Việt</li>
+              <li class="col-md-9 col-sm-7">
+                {getLanguageName(movie.language_id)}
+              </li>
 
               <li class="col-md-3 col-sm-5">
                 <strong>NGÀY KHỞI CHIẾU:</strong>
               </li>
-              <li class="col-md-9 col-sm-7">22/11/2024</li>
+              <li class="col-md-9 col-sm-7">{movie.release_date}</li>
             </ul>
           </div>
         </div>
 
-        <div className="schedule">
-          <h2>Chọn Lịch Chiếu</h2>
-
-          <div className="dates">
-            {schedule.map((item) => (
-              <button
-                key={item.date}
-                className={`date ${
-                  item.date === selectedDate.date ? "active" : ""
+        <div className="container">
+          <div className="date-selector">
+            {dates.map((date) => (
+              <div
+                key={date.id}
+                className={`date-item ${
+                  selectedDate === date.label ? "active" : ""
                 }`}
-                onClick={() => handleDateChange(item.date)}
+                onClick={() => setSelectedDate(date.label)}
               >
-                {item.date}
-              </button>
-            ))}
-          </div>
-
-          <div className="times">
-            {selectedDate.times.map((time) => (
-              <button
-                key={time}
-                className={`time ${time === selectedTime ? "active" : ""}`}
-                onClick={() => handleTimeChange(time)}
-              >
-                {time}
-              </button>
-            ))}
-          </div>
-
-          {selectedTime && (
-            <p className="selected">
-              Bạn đã chọn: <strong>{selectedDate.date}</strong> lúc{" "}
-              <strong>{selectedTime}</strong>
-            </p>
-          )}
-        </div>
-        {showModal && (
-          <div className="modal">
-            <div className="modal-content">
-              <h3>Bạn đang đặt vé xem phim</h3>
-              <p>
-                <strong>Tên phim:</strong> Linh Miêu
-              </p>
-              <p>
-                <strong>Ngày chiếu:</strong> {selectedDate.date}
-              </p>
-              <p>
-                <strong>Giờ chiếu:</strong> {selectedTime}
-              </p>
-              <div className="modal-actions">
-                <button className="confirm" onClick={handleConfirm}>
-                  Đồng ý
-                </button>
-                <button className="cancel" onClick={handleCancel}>
-                  Hủy
-                </button>
+                {date.label}
               </div>
+            ))}
+          </div>
+          <div className="schedule">
+            <h2>2D PHỤ ĐỀ</h2>
+            <div className="time-slot">
+              {timeSlots.map((slot, index) => (
+                <div key={index} className="time-box">
+                  <p>{slot.time}</p>
+                  <span>{slot.seats}</span>
+                </div>
+              ))}
             </div>
           </div>
-        )}
+        </div>
       </main>
     </div>
   );
