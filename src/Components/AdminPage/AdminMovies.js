@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Badge } from "react-bootstrap";
+import { Table, Button, Modal, Form, Badge, Container, Row, Col } from "react-bootstrap";
+import { FaEdit, FaTrashAlt, FaPlus } from "react-icons/fa";
+import { fetchData, postData, updateData, deleteData } from "../API/ApiService";
 
 function AdminMovies() {
     const [movies, setMovies] = useState([]);
@@ -15,25 +17,24 @@ function AdminMovies() {
         genre_ids: [],
         duration: "",
         rating: "",
-        language_id: [],
+        language_id: "",
         poster: [],
     });
+
     useEffect(() => {
-        fetch("http://localhost:3001/movies")
-            .then((response) => response.json())
+        fetchData("movies")
             .then((data) => setMovies(data))
             .catch((error) => console.error("Error fetching movies:", error));
 
-        fetch("http://localhost:3001/genres")
-            .then((response) => response.json())
+        fetchData("genres")
             .then((data) => setGenres(data))
             .catch((error) => console.error("Error fetching genres:", error));
 
-        fetch("http://localhost:3001/languages")
-            .then((response) => response.json())
+        fetchData("languages")
             .then((data) => setLanguages(data))
             .catch((error) => console.error("Error fetching languages:", error));
     }, []);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setNewMovie({ ...newMovie, [name]: value });
@@ -51,11 +52,7 @@ function AdminMovies() {
         };
 
         if (editMovie) {
-            fetch(`http://localhost:3001/movies/${editMovie.id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(movieToSubmit),
-            })
+            updateData("movies", editMovie.id, movieToSubmit)
                 .then(() => {
                     setMovies((prevMovies) =>
                         prevMovies.map((movie) =>
@@ -66,12 +63,7 @@ function AdminMovies() {
                 })
                 .catch((error) => console.error("Error updating movie:", error));
         } else {
-            fetch("http://localhost:3001/movies", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...movieToSubmit, id: movies.length + 1 }),
-            })
-                .then((response) => response.json())
+            postData("movies", { ...movieToSubmit, id: movies.length + 1 })
                 .then((data) => {
                     setMovies([...movies, data]);
                     resetForm();
@@ -79,18 +71,19 @@ function AdminMovies() {
                 .catch((error) => console.error("Error adding movie:", error));
         }
     };
+
     const handleDelete = (id) => {
-        fetch(`http://localhost:3001/movies/${id}`, {
-            method: "DELETE",
-        })
+        deleteData("movies", id)
             .then(() => setMovies((prevMovies) => prevMovies.filter((movie) => movie.id !== id)))
             .catch((error) => console.error("Error deleting movie:", error));
     };
+
     const handleEdit = (movie) => {
         setEditMovie(movie);
         setNewMovie(movie);
         setShowModal(true);
     };
+
     const handleCreate = () => {
         setEditMovie(null);
         setNewMovie({
@@ -106,6 +99,7 @@ function AdminMovies() {
         });
         setShowModal(true);
     };
+
     const resetForm = () => {
         setEditMovie(null);
         setNewMovie({
@@ -129,13 +123,20 @@ function AdminMovies() {
         languages.find((language) => language.id == languageId)?.name;
 
     return (
-        <div className="container my-5">
-            <h1>Quản Lý Phim</h1>
-            <Button variant="primary" className="mb-3" onClick={handleCreate}>
-                Thêm Phim Mới
-            </Button>
-            <Table striped bordered hover>
-                <thead>
+        <Container className="my-5">
+            <h1 className="text-center mb-4" style={{ color: "#3a3a3a" }}>Quản Lý Phim</h1>
+            <Row className="mb-3">
+                <Col md={12} className="text-end">
+                    <Button
+                        variant="primary"
+                        onClick={handleCreate}
+                    >
+                        <FaPlus /> Thêm Phim Mới
+                    </Button>
+                </Col>
+            </Row>
+            <Table striped bordered hover responsive className="text-center">
+                <thead className="table-dark">
                     <tr>
                         <th>ID</th>
                         <th>Poster</th>
@@ -164,11 +165,20 @@ function AdminMovies() {
                             <td>{getLanguageName(movie.language_id)}</td>
                             <td>{movie.duration} phút</td>
                             <td>
-                                <Button variant="warning" className="me-2" onClick={() => handleEdit(movie)}>
-                                    Sửa
+                                <Button
+                                    variant="warning"
+                                    className="me-2"
+                                    onClick={() => handleEdit(movie)}
+                                    style={{ backgroundColor: "#ffc107", border: "none" }}
+                                >
+                                    <FaEdit /> Sửa
                                 </Button>
-                                <Button variant="danger" onClick={() => handleDelete(movie.id)}>
-                                    Xóa
+                                <Button
+                                    variant="danger"
+                                    onClick={() => handleDelete(movie.id)}
+                                    style={{ backgroundColor: "#dc3545", border: "none" }}
+                                >
+                                    <FaTrashAlt /> Xóa
                                 </Button>
                             </td>
                         </tr>
@@ -228,40 +238,28 @@ function AdminMovies() {
                             />
                         </Form.Group>
                         <Form.Group className="mb-3">
-                            <Form.Label>Rating</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="rating"
-                                value={newMovie.rating}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
                             <Form.Label>Ngôn Ngữ</Form.Label>
-                            <Form.Select
+                            <Form.Control
+                                as="select"
                                 name="language_id"
                                 value={newMovie.language_id}
                                 onChange={handleInputChange}
                             >
-                                <option value="">Chọn Ngôn Ngữ</option>
                                 {languages.map((language) => (
                                     <option key={language.id} value={language.id}>
                                         {language.name}
                                     </option>
                                 ))}
-                            </Form.Select>
+                            </Form.Control>
                         </Form.Group>
                         <Form.Group className="mb-3">
-                            <Form.Label>Thể Loại (IDs, cách nhau bởi dấu phẩy)</Form.Label>
+                            <Form.Label>Thể Loại</Form.Label>
                             <Form.Control
                                 type="text"
                                 name="genre_ids"
                                 value={newMovie.genre_ids.join(", ")}
                                 onChange={(e) =>
-                                    setNewMovie({
-                                        ...newMovie,
-                                        genre_ids: e.target.value.split(",").map(Number),
-                                    })
+                                    setNewMovie({ ...newMovie, genre_ids: e.target.value.split(",").map(Number) })
                                 }
                             />
                         </Form.Group>
@@ -287,7 +285,7 @@ function AdminMovies() {
                     </Button>
                 </Modal.Footer>
             </Modal>
-        </div>
+        </Container>
     );
 }
 
