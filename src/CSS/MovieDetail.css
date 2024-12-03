@@ -171,4 +171,73 @@
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
+.breadcrumb a {
+  text-decoration: none;
+  color: black;
+}
+.breadcrumb .highlight {
+  color: #03599d;
+}
+.custom-modal .modal-header {
+  border-bottom: none;
+  text-align: center;
+}
 
+.custom-modal .modal-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.custom-modal .modal-body table {
+  width: 100%;
+  margin: 0 auto;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.custom-modal .modal-body table th,
+.custom-modal .modal-body table td {
+  padding: 10px;
+  border: none;
+}
+
+.custom-modal .modal-body table th {
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.custom-modal .modal-body table td {
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.custom-modal .modal-body h5 {
+  font-size: 2rem;
+  color: #03599d;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.5rem;
+  text-align: center;
+}
+
+.custom-modal .modal-footer {
+  justify-content: center;
+  border-top: none;
+}
+
+.custom-modal .btn-primary {
+  background: linear-gradient(90deg, #1a73e8, #0079bf);
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 15rem;
+  height: 3rem;
+}
+. .custom-modal .btn-primary:hover {
+  background: linear-gradient(90deg, #0079bf, #1a73e8);
+}

@@ -3,6 +3,10 @@
   margin-right: 2rem;
   color: black;
 }
+.navbar .custom-nav .nav-link:hover,
+.navbar .custom-nav .nav-link.active {
+  color: #03599d;
+}
 
 .navbar #basic-navbar-nav {
   margin-left: 20rem;

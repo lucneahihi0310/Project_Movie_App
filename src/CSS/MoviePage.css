@@ -1,16 +1,6 @@
-.carousel-image {
-  transition: opacity 1s ease-in-out;
-}
-
-.carousel-item-next,
-.carousel-item-prev,
-.carousel-item.active {
-  transition: transform 1s ease-in-out, opacity 1s ease-in-out;
-}
-
-.home-page-content {
+.movie-page-content {
   color: #333;
-  margin: 3rem auto;
+  margin: 0 auto;
   max-width: 1200px;
 }
 .navi {
@@ -19,10 +9,10 @@
   margin-bottom: 20px;
 }
 
-.home-page-content .navi a {
+.movie-page-content .navi a {
   text-decoration: none;
   color: #333;
-  font-size: 16px;
+  font-size: 1.5rem;
   font-weight: bold;
   margin: 0 15px;
   padding: 10px 20px;
@@ -30,8 +20,8 @@
   transition: 0.3s;
 }
 
-.home-page-content .navi a:hover,
-.home-page-content .navi a.actived {
+.movie-page-content .navi a:hover,
+.movie-page-content .navi a.actived {
   border-bottom: 2px solid #007bff;
   color: #007bff;
 }
@@ -43,10 +33,7 @@
   justify-items: start;
 }
 
-.movie-item {
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.movie-items {
   width: 100%;
   text-align: left;
   padding: 15px;
@@ -77,34 +64,30 @@
   opacity: 1;
 }
 
-.movie-item a {
+.movie-items a {
   text-decoration: none;
   font-weight: bold;
 }
 
-.movie-item a:hover {
+.movie-items a:hover {
   text-decoration: underline;
 }
 
-.movie-item h5 {
+.movie-items h5 {
   font-size: 18px;
   color: #333;
   margin: 10px 0;
 }
-.movie-item ul {
+.movie-items ul {
   list-style: none;
   padding: 0;
   margin: 10px 0 0 0;
 }
 
-.movie-item ul li {
+.movie-items ul li {
   margin-bottom: 5px;
 }
 
-.movie-item ul li span {
+.movie-items ul li span {
   font-weight: bold;
-}
-
-.carousel-item img {
-  object-fit: contain;
 }

@@ -5,6 +5,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { Link } from "react-router-dom";
 import "../../CSS/Header.css";
+import { NavLink } from "react-router-dom";
 
 function Header() {
   return (
@@ -34,12 +35,16 @@ function Header() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="fw-bold fs-5 custom-nav">
-              <Nav.Link href="#lichchieu">Lịch Chiếu Theo Rạp</Nav.Link>
-              <Nav.Link href="#phim">Phim</Nav.Link>
-              <Nav.Link as={Link} to={"/info"}>
+              <Nav.Link as={NavLink} to="/lichchieu" activeClassName="active">
+                Lịch Chiếu Theo Rạp
+              </Nav.Link>
+              <Nav.Link as={NavLink} to="/movie" activeClassName="active">
+                Phim
+              </Nav.Link>
+              <Nav.Link as={NavLink} to="/info" activeClassName="active">
                 Rạp
               </Nav.Link>
-              <Nav.Link as={Link} to={"/price"}>
+              <Nav.Link as={NavLink} to="/price" activeClassName="active">
                 Giá Vé
               </Nav.Link>
             </Nav>

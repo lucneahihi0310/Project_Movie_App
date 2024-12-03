@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../../CSS/MovieDetail.css";
 import { useParams } from "react-router-dom";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Table } from "react-bootstrap";
+import { IoTicketOutline } from "react-icons/io5";
 const MovieDetail = () => {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
@@ -94,8 +95,9 @@ const MovieDetail = () => {
   return (
     <div className="movie-detail">
       <main className="content">
-        <div className="breadcrumb">
-          <a href="#">Home</a> &gt; Linh Miêu
+        <div className="breadcrumb" style={{ fontSize: "1.5rem" }}>
+          <a href="#">Home</a> &gt;{" "}
+          <span className="highlight">{movie.title}</span>
         </div>
 
         <div className="movie-info">
@@ -194,42 +196,47 @@ const MovieDetail = () => {
               ></iframe>
             </div>
           </div>
-          <Modal show={selectedShowtime} onHide={handleCloseModal} centered>
+          <Modal
+            show={selectedShowtime}
+            onHide={handleCloseModal}
+            centered
+            className="custom-modal"
+            size="lg"
+          >
             <Modal.Header closeButton>
-              <Modal.Title>Bạn đang đặt vé</Modal.Title>
+              <Modal.Title>Bạn đang đặt vé xem phim</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               {selectedShowtime && (
                 <>
-                  <h5
-                    style={{
-                      textAlign: "center",
-                      borderBottom: "1px solid grey",
-                      color: "#03599d",
-                      fontSize: "2rem",
-                    }}
-                  >
-                    {movie.title}
-                  </h5>
-                  <p>
-                    <strong>Rạp:</strong> {cinema.name}
-                  </p>
-                  <p>
-                    <strong>Ngày:</strong> {selectedShowtime.date}
-                  </p>
-                  <p>
-                    <strong>Giờ:</strong>{" "}
-                    {formatTime(selectedShowtime.start_time)}
-                  </p>
-                  <p>
-                    <strong>Giá vé:</strong>{" "}
-                    {selectedShowtime.price.toLocaleString()} VNĐ
-                  </p>
+                  <h5>{movie.title}</h5>
+                  <Table striped bordered hover>
+                    <thead>
+                      <tr>
+                        <th>Rạp chiếu</th>
+                        <th>Ngày chiếu</th>
+                        <th>Giờ chiếu</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{cinema.name}</td>
+                        <td>{selectedShowtime.date}</td>
+                        <td>{formatTime(selectedShowtime.start_time)}</td>
+                      </tr>
+                    </tbody>
+                  </Table>
                 </>
               )}
             </Modal.Body>
             <Modal.Footer>
-              <Button variant="primary">Đặt vé</Button>
+              <Button variant="primary">
+                {" "}
+                <IoTicketOutline
+                  style={{ marginRight: "8px", fontSize: "1.5rem" }}
+                />
+                Đặt vé
+              </Button>
             </Modal.Footer>
           </Modal>
           ;
