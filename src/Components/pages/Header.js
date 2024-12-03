@@ -12,7 +12,7 @@ function Header() {
       <Container fluid className="bg-black">
         <Row className="d-flex justify-content-end py-2">
           <Col className="text-right Sig">
-            <Link to="" className="text-white me-3">
+            <Link to="/login" className="text-white me-3">
               Đăng Nhập
             </Link>
             <Link to="" className="text-white">
@@ -21,7 +21,7 @@ function Header() {
           </Col>
         </Row>
       </Container>
-      <Navbar expand="lg" className="bg-white border-bottom">
+      <Navbar expand="lg" className="bg-white border-bottom" style={{ marginBottom: "30px" }}>
         <Container>
           <Navbar.Brand
             as={Link}
