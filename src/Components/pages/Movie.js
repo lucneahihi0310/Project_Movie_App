@@ -1,7 +1,7 @@
 import { FaPlay } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import "../../CSS/MoviePage.css";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { IoTicketOutline } from "react-icons/io5";
 
@@ -14,22 +14,11 @@ function MoviePage() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [cinema, setCinema] = useState([]);
+  const [showTime, setShowTime] = useState([]);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedShowtime, setSelectedShowtime] = useState(null);
+  const [language, setLanguage] = useState([]);
 
-  const [selectedDate, setSelectedDate] = useState("30/11 - T7");
-
-  const dates = [
-    { id: 1, label: "30/11 - T7" },
-    { id: 2, label: "01/12 - CN" },
-    { id: 3, label: "02/12 - T2" },
-    { id: 4, label: "03/12 - T3" },
-  ];
-
-  const timeSlots = [
-    { time: "09:30 NORMAL", seats: "132 ghế trống" },
-    { time: "11:40 NORMAL", seats: "136 ghế trống" },
-    { time: "14:15 NORMAL", seats: "170 ghế trống" },
-    { time: "20:00 NORMAL", seats: "156 ghế trống" },
-  ];
   useEffect(() => {
     fetch("http://localhost:3001/movies")
       .then((response) => response.json())
@@ -50,17 +39,55 @@ function MoviePage() {
       .then((response) => response.json())
       .then((data) => setCinema(data))
       .catch((error) => console.error("Error fetching showtimes:", error));
+
+    fetch(`http://localhost:3001/languages`)
+      .then((response) => response.json())
+      .then((data) => setLanguage(data))
+      .catch((error) => console.error("Error fetching showtimes:", error));
   }, []);
+
+  useEffect(() => {
+    if (showTime.length > 0) {
+      const earliestDate = showTime.map((showtime) => showtime.date).sort()[0];
+      setSelectedDate(earliestDate);
+    }
+  }, [showTime]);
 
   const handleMovieTypeFilter = (type) => {
     setSelectedMovieType(type.id);
   };
 
   const handleBookTicket = (movie) => {
-    setSelectedMovie(movie); // Set the selected movie
-    setShowBookingModal(true); // Show the booking modal
+    setSelectedMovie(movie);
+
+    fetch(`http://localhost:3001/showtimes?movie_id=${movie.id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setShowTime(data);
+        setShowBookingModal(true);
+        setShowModal(false);
+        setSelectedShowtime(null);
+      });
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", {
+      weekday: "long",
+      day: "2-digit",
+      month: "2-digit",
+    });
+  };
+
+  const formatTime = (timeString) => {
+    const time = new Date(`1970-01-01T${timeString}Z`);
+    return time.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  };
+  console.log(showTime);
   const filteredData = data.filter(
     (movie) => movie.movie_type == selectedMovieType
   );
@@ -70,16 +97,40 @@ function MoviePage() {
       .map((id) => genres.find((genre) => genre.id == id)?.name)
       .join(", ");
 
+  const getLanguageName = (languageId) =>
+    language.find((language) => language.id == languageId)?.name;
+
   const openModal = (movie) => {
     setSelectedMovie(movie);
     setShowModal(true);
+    setShowBookingModal(false);
+    setSelectedShowtime(null);
   };
 
   const closeModal = () => {
     setShowModal(false);
     setShowBookingModal(false);
+    setSelectedShowtime(null);
     setSelectedMovie(null);
   };
+
+  const handleShowtimeClick = (showtimes) => {
+    setSelectedShowtime(showtimes);
+    setShowModal(false);
+    setShowBookingModal(false);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedShowtime(null);
+  };
+
+  const handleDateClick = (date) => {
+    setSelectedDate(date);
+  };
+
+  const filteredShowtimes = showTime.filter(
+    (showtimes) => showtimes.date === selectedDate
+  );
 
   return (
     <>
@@ -146,7 +197,7 @@ function MoviePage() {
               );
             })
           ) : (
-            <p>Loading movies...</p>
+            <p>Đang load phim</p>
           )}
         </div>
       </div>
@@ -173,33 +224,96 @@ function MoviePage() {
           <Modal.Title>Lịch chiếu: {selectedMovie?.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <h5 style={{ margin: "1rem", textAlign: "center" }}>{cinema.name}</h5>
+          <h5 style={{ margin: "1rem", textAlign: "center", fontSize: "2rem" }}>
+            {cinema.name}
+          </h5>
           <div className="container">
             <div className="date-selector">
-              {dates.map((date) => (
-                <div
-                  key={date.id}
-                  className={`date-item ${
-                    selectedDate === date.label ? "active" : ""
-                  }`}
-                  onClick={() => setSelectedDate(date.label)}
-                >
-                  {date.label}
-                </div>
-              ))}
-            </div>
-            <div className="schedule">
-              <h2>2D PHỤ ĐỀ</h2>
-              <div className="time-slot">
-                {timeSlots.map((slot, index) => (
-                  <div key={index} className="time-box">
-                    <p>{slot.time}</p>
+              {showTime
+                .map((s) => s.date)
+                .filter((value, index, self) => self.indexOf(value) === index)
+                .map((date) => (
+                  <div
+                    key={date}
+                    className={`date-item ${
+                      selectedDate === date ? "active" : ""
+                    }`}
+                    onClick={() => handleDateClick(date)}
+                  >
+                    {formatDate(date)}
                   </div>
                 ))}
+            </div>
+            <div className="schedule">
+              {[...new Set(filteredData.map((movie) => movie.language_id))].map(
+                (languageId) => (
+                  <h2 key={languageId}>{getLanguageName(languageId)}</h2>
+                )
+              )}
+              <div className="time-slot">
+                {filteredShowtimes.length > 0 ? (
+                  filteredShowtimes.map((show) => (
+                    <div
+                      key={show.id}
+                      className="time-box"
+                      onClick={() => handleShowtimeClick(show)}
+                    >
+                      <p>{formatTime(show.start_time)}</p>
+                      <span>Giá vé: {show.price.toLocaleString()} VNĐ</span>
+                    </div>
+                  ))
+                ) : (
+                  <p style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
+                    Không có lịch chiếu
+                  </p>
+                )}
               </div>
             </div>
           </div>
         </Modal.Body>
+      </Modal>
+      <Modal
+        show={selectedShowtime}
+        onHide={handleCloseModal}
+        centered
+        className="custom-modal"
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Bạn đang đặt vé xem phim</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedShowtime && (
+            <>
+              <h5>{selectedMovie?.title}</h5>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>Rạp chiếu</th>
+                    <th>Ngày chiếu</th>
+                    <th>Giờ chiếu</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{cinema.name}</td>
+                    <td>{selectedShowtime.date}</td>
+                    <td>{formatTime(selectedShowtime.start_time)}</td>
+                  </tr>
+                </tbody>
+              </Table>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary">
+            {" "}
+            <IoTicketOutline
+              style={{ marginRight: "8px", fontSize: "1.5rem" }}
+            />
+            Đặt vé
+          </Button>
+        </Modal.Footer>
       </Modal>
     </>
   );

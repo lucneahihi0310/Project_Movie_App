@@ -239,7 +239,6 @@ const MovieDetail = () => {
               </Button>
             </Modal.Footer>
           </Modal>
-          ;
         </div>
       </main>
     </div>

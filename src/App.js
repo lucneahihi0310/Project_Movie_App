@@ -12,6 +12,7 @@ import LanguagesManager from "./Components/AdminPage/LanguagesManager.js";
 import GenresManager from "./Components/AdminPage/GenresManager.js";
 import MovieTypesManager from "./Components/AdminPage/MovieTypesManager.js";
 import ScreensManager from "./Components/AdminPage/ScreensManager.js";
+import Page404 from "./Components/pages/Page404.js";
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
             <Route key={index} path={route.path} element={<Component />} />
           );
         })}
-        <Route path="/movie" element={<MoviePage />} />
+        <Route path="/moviene" element={<MoviePage />} />
         <Route path="/info" element={<CinemaInfo />} />
         <Route path="/price" element={<TicketPricing />} />
         <Route path="/managermovies" element={<AdminMovies />} />
@@ -33,6 +34,7 @@ function App() {
         <Route path="/genres" element={<GenresManager />} />
         <Route path="/movietypes" element={<MovieTypesManager />} />
         <Route path="/screens" element={<ScreensManager />} />
+        <Route path="*" element={<Page404 />} />
       </Routes>
       <Footer />
     </Router>

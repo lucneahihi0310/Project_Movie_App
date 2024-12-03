@@ -38,7 +38,7 @@ function Header() {
               <Nav.Link as={NavLink} to="/lichchieu" activeClassName="active">
                 Lịch Chiếu Theo Rạp
               </Nav.Link>
-              <Nav.Link as={NavLink} to="/movie" activeClassName="active">
+              <Nav.Link as={NavLink} to="/moviene" activeClassName="active">
                 Phim
               </Nav.Link>
               <Nav.Link as={NavLink} to="/info" activeClassName="active">
