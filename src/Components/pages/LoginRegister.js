@@ -17,6 +17,9 @@ const LoginRegister = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [resetToken, setResetToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,7 +96,60 @@ const LoginRegister = () => {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+
+    if (!email.trim()) {
+      setErrorMessage("Email không được để trống");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message || "Yêu cầu đặt lại mật khẩu đã được gửi.");
+        setCurrentForm("resetPassword");
+      } else {
+        setErrorMessage(data.message || "Đã xảy ra lỗi khi gửi yêu cầu!");
+      }
+    } catch (error) {
+      console.error("Error in forgot password:", error);
+      setErrorMessage("Không thể kết nối đến server, vui lòng thử lại.");
+    }
   };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+
+    if (newPassword !== confirmNewPassword) {
+      setErrorMessage("Mật khẩu không khớp!");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), resetToken, newPassword }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message || "Mật khẩu đã được thay đổi.");
+        setCurrentForm("login");
+      } else {
+        setErrorMessage(data.message || "Đã xảy ra lỗi khi thay đổi mật khẩu!");
+      }
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      setErrorMessage("Không thể kết nối đến server, vui lòng thử lại.");
+    }
+  };
+
 
   return (
     <div className="login-register-container">
@@ -289,29 +345,85 @@ const LoginRegister = () => {
               </Modal.Footer>
             </Modal>
             {currentForm === "forgotPassword" && (
-              <Form onSubmit={handleForgotPassword}>
-                <h2>Quên mật khẩu</h2>
-                <p>Vui lòng nhập email để đặt lại mật khẩu</p>
-                <InputGroup className="mb-3">
-                  <InputGroup.Text>
-                    <i className="bi bi-envelope"></i>
-                  </InputGroup.Text>
-                  <Form.Control
-                    type="email"
-                    placeholder="Email"
-                    required
-                  />
-                </InputGroup>
-                <Button type="submit" className="btn-warning w-100">
-                  <i className="bi bi-envelope-fill"></i> Gửi yêu cầu
-                </Button>
-                <div className="mt-3">
-                  <a style={{ textDecoration: "none" }} href="#" onClick={() => setCurrentForm("login")}>
-                    <i className="bi bi-box-arrow-in-left"></i> Quay lại Đăng nhập
-                  </a>
-                </div>
-              </Form>
+              <>
+                <Form onSubmit={handleForgotPassword}>
+                  {errorMessage && <div className="text-danger">{errorMessage}</div>}
+
+                  <h2 className="mb-4">Quên mật khẩu</h2>
+
+                  <InputGroup className="mb-3">
+                    <InputGroup.Text>
+                      <i className="bi bi-envelope"></i>
+                    </InputGroup.Text>
+                    <Form.Control
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Nhập email"
+                      required
+                    />
+                  </InputGroup>
+
+                  <Button variant="primary" type="submit" className="w-100">
+                    Gửi yêu cầu đặt lại mật khẩu
+                  </Button>
+                </Form>
+              </>
             )}
+
+            {currentForm === "resetPassword" && (
+              <>
+                <Form onSubmit={handleResetPassword}>
+                  {errorMessage && <div className="text-danger">{errorMessage}</div>}
+
+                  <h2 className="mb-4">Đặt lại mật khẩu</h2>
+
+                  <InputGroup className="mb-3">
+                    <InputGroup.Text>
+                      <i className="bi bi-key"></i>
+                    </InputGroup.Text>
+                    <Form.Control
+                      type="text"
+                      value={resetToken}
+                      onChange={(e) => setResetToken(e.target.value)}
+                      placeholder="Nhập mã reset"
+                      required
+                    />
+                  </InputGroup>
+
+                  <InputGroup className="mb-3">
+                    <InputGroup.Text>
+                      <i className="bi bi-lock"></i>
+                    </InputGroup.Text>
+                    <Form.Control
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Nhập mật khẩu mới"
+                      required
+                    />
+                  </InputGroup>
+
+                  <InputGroup className="mb-3">
+                    <InputGroup.Text>
+                      <i className="bi bi-lock-fill"></i>
+                    </InputGroup.Text>
+                    <Form.Control
+                      type="password"
+                      value={confirmNewPassword}
+                      onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      placeholder="Xác nhận mật khẩu mới"
+                      required
+                    />
+                  </InputGroup>
+
+                  <Button variant="primary" type="submit" className="w-100">
+                    Đặt lại mật khẩu
+                  </Button>
+                </Form>
+              </>
+            )}
+
           </div>
         </Card.Body>
       </Card>

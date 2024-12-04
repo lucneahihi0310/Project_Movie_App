@@ -15,11 +15,11 @@
     {
       "id": "2",
       "username": "user123",
-      "password": "hashed_password_2",
+      "password": "luc",
       "role": "2",
       "dob": "1990-01-01",
       "address": "123, Hà Đông, Hà Nội",
-      "email": "lucduogty@gmail.com",
+      "email": "lucduongty@gmail.com",
       "phone": "0912345678",
       "full_name": "Lê Văn Khách",
       "status": "active"
