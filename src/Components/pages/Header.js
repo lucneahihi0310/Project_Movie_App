@@ -74,16 +74,12 @@ function Header() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="fw-bold fs-5 custom-nav">
-              <Nav.Link as={NavLink} to="/lichchieu" activeClassName="active">
-                Lịch Chiếu Theo Rạp
-              </Nav.Link>
-              <Nav.Link as={NavLink} to="/moviene" activeClassName="active">
-                Phim
-              </Nav.Link>
-              <Nav.Link as={NavLink} to="/info" activeClassName="active">
+              <Nav.Link href="#lichchieu">Lịch Chiếu Theo Rạp</Nav.Link>
+              <Nav.Link href="#phim">Phim</Nav.Link>
+              <Nav.Link as={Link} to={"/info"}>
                 Rạp
               </Nav.Link>
-              <Nav.Link as={NavLink} to="/price" activeClassName="active">
+              <Nav.Link as={Link} to={"/price"}>
                 Giá Vé
               </Nav.Link>
             </Nav>
