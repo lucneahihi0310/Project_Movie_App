@@ -3,7 +3,7 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "../../CSS/Header.css";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -12,6 +12,7 @@ function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const sessionUser = JSON.parse(sessionStorage.getItem("account"));
@@ -46,7 +47,7 @@ function Header() {
                 onClick={handleLogout}
                 className="text-white text-decoration-none"
               >
-                <i class="bi bi-box-arrow-right"></i>
+                <i className="bi bi-box-arrow-right"></i>
               </Link>
             </Col>
           ) : (
@@ -74,12 +75,30 @@ function Header() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="fw-bold fs-5 custom-nav">
-              <Nav.Link href="#lichchieu">Lịch Chiếu Theo Rạp</Nav.Link>
-              <Nav.Link href="#phim">Phim</Nav.Link>
-              <Nav.Link as={Link} to={"/info"}>
+              <Nav.Link
+                href="#lichchieu"
+                className={location.hash === "#lichchieu" ? "active-tab" : ""}
+              >
+                Lịch Chiếu Theo Rạp
+              </Nav.Link>
+              <Nav.Link
+                href="#phim"
+                className={location.hash === "#phim" ? "active-tab" : ""}
+              >
+                Phim
+              </Nav.Link>
+              <Nav.Link
+                as={Link}
+                to={"/info"}
+                className={location.pathname === "/info" ? "active-tab" : ""}
+              >
                 Rạp
               </Nav.Link>
-              <Nav.Link as={Link} to={"/price"}>
+              <Nav.Link
+                as={Link}
+                to={"/price"}
+                className={location.pathname === "/price" ? "active-tab" : ""}
+              >
                 Giá Vé
               </Nav.Link>
             </Nav>

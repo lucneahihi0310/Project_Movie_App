@@ -23,3 +23,8 @@
 .Sig a {
   text-decoration: none;
 }
+.custom-nav .active-tab {
+  font-weight: bold;
+  color: #000;
+  border-bottom: 3px solid #000;
+}
