@@ -2,8 +2,8 @@
   max-width: 500px;
   margin: auto;
   padding: 20px;
-  background-color: #f9f9f9; /* Màu nền xám nhạt */
-  border: 2px solid #ddd; /* Đường viền xám nhạt */
+  background-color: #f9f9f9;
+  border: 2px solid #ddd;
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -21,19 +21,19 @@
   border: none;
   cursor: pointer;
   background-color: transparent;
-  color: #555; /* Màu chữ xám trung bình */
+  color: #555; 
   transition: all 0.3s;
 }
 
 .tabs .active-tab {
   font-weight: bold;
-  color: #000; /* Màu đen cho tab đang hoạt động */
-  border-bottom: 3px solid #000; /* Đường gạch chân màu đen */
+  color: #000; 
+  border-bottom: 3px solid #000;
 }
 
 .form-container h2 {
   text-align: center;
-  color: #333; /* Màu xám đậm */
+  color: #333;
   margin-bottom: 20px;
 }
 
@@ -42,16 +42,16 @@ select {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
-  border: 1px solid #ddd; /* Viền xám nhạt */
+  border: 1px solid #ddd;
   border-radius: 5px;
-  background-color: #fff; /* Màu nền trắng */
+  background-color: #fff;
 }
 
 button {
   width: 100%;
   padding: 10px;
-  background-color: #333; /* Màu xám đậm */
-  color: #fff; /* Màu chữ trắng */
+  background-color: #333;
+  color: #fff;
   border: none;
   border-radius: 5px;
   font-size: 16px;
@@ -60,14 +60,14 @@ button {
 }
 
 button:hover {
-  background-color: #555; /* Màu xám trung bình khi hover */
+  background-color: #555;
 }
 
 .forgot-password {
   display: block;
   margin: 10px 0;
   text-align: center;
-  color: #333; /* Màu xám đậm */
+  color: #333;
 }
 
 .terms {
@@ -77,7 +77,7 @@ button:hover {
 }
 
 .terms label a {
-  color: #dd1b1b; /* Màu đen cho liên kết */
+  color: #dd1b1b;
   text-decoration: none;
 }
 
