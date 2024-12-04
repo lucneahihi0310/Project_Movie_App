@@ -2,8 +2,8 @@
   max-width: 500px;
   margin: auto;
   padding: 20px;
-  background-color: #fff5e6; /* Màu nền nhạt có không khí Tết */
-  border: 2px solid #ffb74d; /* Đường viền màu vàng cam */
+  background-color: #f9f9f9; /* Màu nền xám nhạt */
+  border: 2px solid #ddd; /* Đường viền xám nhạt */
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -21,19 +21,19 @@
   border: none;
   cursor: pointer;
   background-color: transparent;
-  color: #333;
+  color: #555; /* Màu chữ xám trung bình */
   transition: all 0.3s;
 }
 
 .tabs .active-tab {
   font-weight: bold;
-  color: #d32f2f; /* Màu đỏ Tết */
-  border-bottom: 3px solid #d32f2f;
+  color: #000; /* Màu đen cho tab đang hoạt động */
+  border-bottom: 3px solid #000; /* Đường gạch chân màu đen */
 }
 
 .form-container h2 {
   text-align: center;
-  color: #d32f2f; /* Màu chủ đạo Tết */
+  color: #333; /* Màu xám đậm */
   margin-bottom: 20px;
 }
 
@@ -42,30 +42,32 @@ select {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
-  border: 1px solid #ddd;
+  border: 1px solid #ddd; /* Viền xám nhạt */
   border-radius: 5px;
+  background-color: #fff; /* Màu nền trắng */
 }
 
 button {
   width: 100%;
   padding: 10px;
-  background-color: #d32f2f;
-  color: #fff;
+  background-color: #333; /* Màu xám đậm */
+  color: #fff; /* Màu chữ trắng */
   border: none;
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 button:hover {
-  background-color: #b71c1c;
+  background-color: #555; /* Màu xám trung bình khi hover */
 }
 
 .forgot-password {
   display: block;
   margin: 10px 0;
   text-align: center;
-  color: #d32f2f;
+  color: #333; /* Màu xám đậm */
 }
 
 .terms {
@@ -75,7 +77,8 @@ button:hover {
 }
 
 .terms label a {
-  color: #d32f2f;
+  color: #dd1b1b; /* Màu đen cho liên kết */
+  text-decoration: none;
 }
 
 .terms input {

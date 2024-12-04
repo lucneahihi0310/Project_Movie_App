@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Button, Form, InputGroup } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { postData, fetchData } from "../API/ApiService"; // Import your APIService functions
+import { postData, fetchData } from "../API/ApiService";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../../CSS/LoginRegister.css";
 
@@ -13,30 +13,58 @@ const LoginRegister = () => {
   const [phone, setPhone] = useState("");
   const [dob, setDob] = useState("");
   const [gender, setGender] = useState("");
+  const [remember, setRemember] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
-  // Handle form submit for login
+  useEffect(() => {
+    const rememberedAccount = localStorage.getItem("rememberedAccount");
+    if (rememberedAccount) {
+      const { email, password } = JSON.parse(rememberedAccount);
+      setEmail(email);
+      setPassword(password);
+      setRemember(true);
+    }
+
+    const account = localStorage.getItem("account");
+    if (account) {
+      navigate("/");
+    }
+  }, [navigate]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const users = await fetchData("accounts"); // Assuming 'accounts' is the endpoint for login
-      const user = users.find((user) => user.email === email && user.password === password);
-      if (user) {
-        console.log("Login successful", user);
+      const users = await fetchData("accounts");
+      const existUser = users.find(
+        (user) => user.email === email && user.password === password
+      );
+
+      if (existUser) {
+        if (remember) {
+          const userData = {
+            id: existUser.id,
+            email: existUser.email,
+            password: existUser.password,
+            full_name: existUser.full_name,
+            role: existUser.role
+          };
+          localStorage.setItem("rememberedAccount", JSON.stringify(userData));
+        } else {
+          localStorage.removeItem("rememberedAccount");
+        }
+        sessionStorage.setItem("account", JSON.stringify(existUser));
         navigate("/");
-        // Handle login success (e.g., redirect)
       } else {
-        setErrorMessage("Invalid credentials");
+        setErrorMessage("Tài khoản hoặc mật khẩu không đúng!");
       }
     } catch (error) {
-      console.error("Login error:", error);
-      setErrorMessage("An error occurred while logging in");
+      console.error("Lỗi khi đăng nhập:", error);
+      setErrorMessage("Có lỗi xảy ra, vui lòng thử lại!");
     }
   };
 
-  // Handle form submit for registration
   const handleRegister = async (e) => {
     e.preventDefault();
 
@@ -45,22 +73,19 @@ const LoginRegister = () => {
       return;
     }
 
-    const data = { name, email, password, dob, phone, gender, role: 2 }; // Assuming role 2 is for user
+    const data = { name, email, password, dob, phone, gender, role: 2 };
 
     try {
       const response = await postData("accounts", data);
       console.log("Registration successful", response);
-      // Handle registration success (e.g., redirect to login)
     } catch (error) {
       console.error("Registration error:", error);
       setErrorMessage("An error occurred while registering");
     }
   };
 
-  // Handle the form submit for forgotten password (not yet fully implemented)
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-    // Implement password reset functionality here
   };
 
   return (
@@ -113,9 +138,19 @@ const LoginRegister = () => {
                   />
                 </InputGroup>
                 {errorMessage && <p className="text-danger">{errorMessage}</p>}
-                <Form.Group className="mb-3">
-                  <Form.Check type="checkbox" label="Remember" id="remember" />
+                <Form.Group
+                  className="mb-3"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    textAlign: "left",
+                    marginLeft: "10px",
+                  }}
+                >
+                  <Form.Check.Input type="checkbox" id="remember" checked={remember} onChange={(e) => setRemember(e.target.checked)} style={{ marginRight: "10px" }} />
+                  <Form.Check.Label htmlFor="remember">Remember</Form.Check.Label>
                 </Form.Group>
+
                 <div className="forgot-password">
                   <a
                     style={{ textDecoration: "none" }}
@@ -210,58 +245,22 @@ const LoginRegister = () => {
                   <InputGroup.Text>
                     <i className="bi bi-gender-ambiguous"></i>
                   </InputGroup.Text>
-                  <Form.Select
+                  <Form.Control
+                    as="select"
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
                     required
                   >
                     <option value="">* Giới tính</option>
-                    <option value="male">Nam</option>
-                    <option value="female">Nữ</option>
-                    <option value="other">Khác</option>
-                  </Form.Select>
+                    <option value="Male">Nam</option>
+                    <option value="Female">Nữ</option>
+                    <option value="Other">Khác</option>
+                  </Form.Control>
                 </InputGroup>
                 {errorMessage && <p className="text-danger">{errorMessage}</p>}
-                <div className="terms mb-3">
-                  <Form.Check
-                    type="checkbox"
-                    label={
-                      <>
-                        Tôi cam kết tuân theo{" "}
-                        <a href="#">chính sách bảo mật</a> và{" "}
-                        <a href="#">điều khoản sử dụng</a>.
-                      </>
-                    }
-                  />
-                </div>
                 <Button type="submit" className="btn-warning w-100">
                   <i className="bi bi-person-plus-fill"></i> Đăng ký
                 </Button>
-              </Form>
-            )}
-
-            {currentForm === "forgotPassword" && (
-              <Form onSubmit={handleForgotPassword}>
-                <h2>Quên mật khẩu</h2>
-                <p>Vui lòng nhập email để đặt lại mật khẩu</p>
-                <InputGroup className="mb-3">
-                  <InputGroup.Text>
-                    <i className="bi bi-envelope"></i>
-                  </InputGroup.Text>
-                  <Form.Control
-                    type="email"
-                    placeholder="Email"
-                    required
-                  />
-                </InputGroup>
-                <Button type="submit" className="btn-warning w-100">
-                  <i className="bi bi-envelope-fill"></i> Gửi yêu cầu
-                </Button>
-                <div className="mt-3">
-                  <a href="#" onClick={() => setCurrentForm("login")}>
-                    <i className="bi bi-box-arrow-in-left"></i> Quay lại Đăng nhập
-                  </a>
-                </div>
               </Form>
             )}
           </div>
