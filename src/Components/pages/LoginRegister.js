@@ -1,128 +1,322 @@
-import React, { useState } from "react";
-// import FacebookLogin from 'react-facebook-login'; // Import thư viện Facebook Login
+import React, { useState, useEffect } from "react";
+import { Card, Button, Form, InputGroup, Modal } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { postData, fetchData } from "../API/ApiService";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import "../../CSS/LoginRegister.css";
 
 const LoginRegister = () => {
-    const [currentForm, setCurrentForm] = useState("login"); // "login", "register", "forgotPassword"
-    //   const [facebookData, setFacebookData] = useState(null); // Dữ liệu từ Facebook
+  const [currentForm, setCurrentForm] = useState("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [full_name, setFull_name] = useState("");
+  const [phone, setPhone] = useState("");
+  const [dob, setDob] = useState("");
+  const [gender, setGender] = useState("");
+  const [remember, setRemember] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Xử lý đăng nhập, đăng ký hoặc quên mật khẩu ở đây
-        console.log("Form submitted!");
-    };
+  useEffect(() => {
+    const rememberedAccount = localStorage.getItem("rememberedAccount");
+    if (rememberedAccount) {
+      const { email, password } = JSON.parse(rememberedAccount);
+      setEmail(email);
+      setPassword(password);
+      setRemember(true);
+    }
 
-    //   const responseFacebook = (response) => {
-    //     console.log("Facebook response:", response); // Xử lý phản hồi từ Facebook
-    //     if (response.status !== "unknown") {
-    //       setFacebookData(response); // Lưu dữ liệu từ Facebook vào state
-    //     } else {
-    //       console.error("Facebook login failed");
-    //     }
-    //   };
+    const account = localStorage.getItem("account");
+    if (account) {
+      navigate("/");
+    }
+  }, [navigate]);
 
-    return (
-        <div className="login-register-container">
-            <div className="tabs">
-                <button
-                    className={currentForm === "login" ? "active-tab" : ""}
-                    onClick={() => setCurrentForm("login")}
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const users = await fetchData("accounts");
+      const existUser = users.find(
+        (user) => user.email === email && user.password === password
+      );
+
+      if (existUser) {
+        if (remember) {
+          const userData = {
+            id: existUser.id,
+            email: existUser.email,
+            password: existUser.password,
+            full_name: existUser.full_name,
+            role: existUser.role
+          };
+          localStorage.setItem("rememberedAccount", JSON.stringify(userData));
+        } else {
+          localStorage.removeItem("rememberedAccount");
+        }
+        sessionStorage.setItem("account", JSON.stringify(existUser));
+        navigate("/");
+      } else {
+        setErrorMessage("Tài khoản hoặc mật khẩu không đúng!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi đăng nhập:", error);
+      setErrorMessage("Có lỗi xảy ra, vui lòng thử lại!");
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setErrorMessage("Passwords do not match");
+      return;
+    }
+
+    const data = { full_name, email, password, dob, phone, gender, role: 2 };
+
+    try {
+      const response = await postData("accounts", data);
+      console.log("Registration successful", response);
+
+      // Show the success modal
+      setShowSuccessModal(true);
+
+      // Redirect to login page after 3 seconds
+      setCurrentForm("login");
+    } catch (error) {
+      console.error("Registration error:", error);
+      setErrorMessage("An error occurred while registering");
+    }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+  };
+
+  return (
+    <div className="login-register-container">
+      <Card className="text-center border-0">
+        <Card.Body>
+          <div className="tabs mb-4">
+            <Button
+              variant="outline-danger"
+              className={`me-2 ${currentForm === "login" ? "active-tab" : ""}`}
+              onClick={() => setCurrentForm("login")}
+            >
+              <i className="bi bi-box-arrow-in-right"></i> Đăng nhập
+            </Button>
+            <Button
+              variant="outline-warning"
+              className={currentForm === "register" ? "active-tab" : ""}
+              onClick={() => setCurrentForm("register")}
+            >
+              <i className="bi bi-person-plus-fill"></i> Đăng ký
+            </Button>
+          </div>
+
+          <div className="form-container">
+            {currentForm === "login" && (
+              <Form onSubmit={handleLogin}>
+                <h2>Đăng nhập</h2>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-envelope"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </InputGroup>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-lock"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="password"
+                    placeholder="Mật khẩu"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </InputGroup>
+                {errorMessage && <p className="text-danger">{errorMessage}</p>}
+                <Form.Group
+                  className="mb-3"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    textAlign: "left",
+                    marginLeft: "10px",
+                  }}
                 >
-                    Đăng nhập
-                </button>
-                <button
-                    className={currentForm === "register" ? "active-tab" : ""}
-                    onClick={() => setCurrentForm("register")}
-                >
-                    Đăng ký
-                </button>
-            </div>
+                  <Form.Check.Input type="checkbox" id="remember" checked={remember} onChange={(e) => setRemember(e.target.checked)} style={{ marginRight: "10px" }} />
+                  <Form.Check.Label htmlFor="remember">Remember</Form.Check.Label>
+                </Form.Group>
 
-            <div className="form-container">
-                {currentForm === "login" && (
-                    <form className="login-form" onSubmit={handleSubmit}>
-                        <h2>Đăng nhập</h2>
-                        <input type="email" placeholder="Email" required />
-                        <input type="password" placeholder="Mật khẩu" required />
-                        <a
-                            href="#"
-                            className="forgot-password"
-                            onClick={() => setCurrentForm("forgotPassword")}
-                        >
-                            Quên mật khẩu?
-                        </a>
-                        <button type="submit" className="btn login-btn">
-                            Đăng nhập
-                        </button>
-                        {/* <FacebookLogin
-              appId="552157667519890" // Thay bằng app ID của bạn
-              autoLoad={false} 
-              fields="name,email,picture"
-              callback={responseFacebook} 
-              cssClass="btn facebook-btn" 
-            /> */}
-                    </form>
-                )}
+                <div className="forgot-password">
+                  <a
+                    style={{ textDecoration: "none" }}
+                    href="#"
+                    onClick={() => setCurrentForm("forgotPassword")}
+                  >
+                    <i className="bi bi-question-circle"></i> Quên mật khẩu?
+                  </a>
+                </div>
+                <Button type="submit" className="btn-danger w-100">
+                  <i className="bi bi-box-arrow-in-right"></i> Đăng nhập
+                </Button>
+              </Form>
+            )}
 
-                {currentForm === "register" && (
-                    <form className="register-form" onSubmit={handleSubmit}>
-                        <h2>Đăng ký</h2>
-                        <input type="text" placeholder="* Họ tên" required />
-                        <input type="email" placeholder="* Email" required />
-                        <input type="password" placeholder="* Mật khẩu" required />
-                        <input
-                            type="password"
-                            placeholder="* Xác nhận lại mật khẩu"
-                            required
-                        />
-                        <input type="date" placeholder="* Ngày sinh" required />
-                        <input type="tel" placeholder="* Số điện thoại" required />
-                        <select required>
-                            <option value="">* Giới tính</option>
-                            <option value="male">Nam</option>
-                            <option value="female">Nữ</option>
-                            <option value="other">Khác</option>
-                        </select>
-                        <div className="terms">
-                            <input type="checkbox" required />
-                            <label>
-                                Tôi cam kết tuân theo{" "}
-                                <a href="#">chính sách bảo mật</a> và{" "}
-                                <a href="#">điều khoản sử dụng</a>.
-                            </label>
-                        </div>
-                        <button type="submit" className="btn register-btn">
-                            Đăng ký
-                        </button>
-                        {/* <FacebookLogin
-              appId="552157667519890" // Thay bằng app ID của bạn
-              autoLoad={false}
-              fields="name,email,picture"
-              callback={responseFacebook}
-              cssClass="btn facebook-btn"
-            /> */}
-                    </form>
-                )}
-
-                {currentForm === "forgotPassword" && (
-                    <form className="forgot-password-form" onSubmit={handleSubmit}>
-                        <h2>Quên mật khẩu</h2>
-                        <p>Vui lòng nhập email để đặt lại mật khẩu</p>
-                        <input type="email" placeholder="Email" required />
-                        <button type="submit" className="btn reset-btn">
-                            Gửi yêu cầu
-                        </button>
-                        <p>
-                            <a href="#" onClick={() => setCurrentForm("login")}>
-                                Quay lại Đăng nhập
-                            </a>
-                            <a>dijem Huu SY</a>
-                        </p>
-                    </form>
-                )}
-            </div>
-        </div>
-    );
+            {currentForm === "register" && (
+              <Form onSubmit={handleRegister}>
+                <h2>Đăng ký</h2>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-person"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="text"
+                    placeholder="* Họ tên"
+                    value={full_name}
+                    onChange={(e) => setFull_name(e.target.value)}
+                    required
+                  />
+                </InputGroup>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-envelope"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="email"
+                    placeholder="* Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </InputGroup>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-lock"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="password"
+                    placeholder="* Mật khẩu"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </InputGroup>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-lock-fill"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="password"
+                    placeholder="* Xác nhận mật khẩu"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </InputGroup>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-calendar-event"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="date"
+                    placeholder="* Ngày sinh"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    required
+                  />
+                </InputGroup>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-telephone"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="tel"
+                    placeholder="* Số điện thoại"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                  />
+                </InputGroup>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-gender-ambiguous"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    as="select"
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    required
+                  >
+                    <option value="">* Giới tính</option>
+                    <option value="Male">Nam</option>
+                    <option value="Female">Nữ</option>
+                    <option value="Other">Khác</option>
+                  </Form.Control>
+                </InputGroup>
+                {errorMessage && <p className="text-danger">{errorMessage}</p>}
+                <Button type="submit" className="btn-warning w-100">
+                  <i className="bi bi-person-plus-fill"></i> Đăng ký
+                </Button>
+              </Form>
+            )}
+            <Modal
+              show={showSuccessModal}
+              onHide={() => setShowSuccessModal(false)}
+              backdrop="static"
+              centered
+            >
+              <Modal.Header closeButton>
+                <Modal.Title>Registration Successful</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <p>Your account has been successfully created. You will be redirected to the login page.</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowSuccessModal(false)}>
+                  Close
+                </Button>
+              </Modal.Footer>
+            </Modal>
+            {currentForm === "forgotPassword" && (
+              <Form onSubmit={handleForgotPassword}>
+                <h2>Quên mật khẩu</h2>
+                <p>Vui lòng nhập email để đặt lại mật khẩu</p>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-envelope"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="email"
+                    placeholder="Email"
+                    required
+                  />
+                </InputGroup>
+                <Button type="submit" className="btn-warning w-100">
+                  <i className="bi bi-envelope-fill"></i> Gửi yêu cầu
+                </Button>
+                <div className="mt-3">
+                  <a style={{ textDecoration: "none" }} href="#" onClick={() => setCurrentForm("login")}>
+                    <i className="bi bi-box-arrow-in-left"></i> Quay lại Đăng nhập
+                  </a>
+                </div>
+              </Form>
+            )}
+          </div>
+        </Card.Body>
+      </Card>
+    </div>
+  );
 };
 
 export default LoginRegister;

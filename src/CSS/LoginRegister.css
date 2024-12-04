@@ -1,141 +1,86 @@
-/* Toàn bộ container */
 .login-register-container {
-    width: 400px;
-    margin: 50px auto;
-    font-family: Arial, sans-serif;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #fff;
-    overflow: hidden;
-  }
-  
-  /* Tabs (Đăng nhập/Đăng ký) */
-  .tabs {
-    display: flex;
-    background-color: #f5f5f5;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  .tabs button {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    background-color: #f5f5f5;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .tabs button.active-tab {
-    background-color: #0056b3;
-    color: #fff;
-    font-weight: bold;
-  }
-  
-  /* Container cho form */
-  .form-container {
-    padding: 20px;
-  }
-  
-  form h2 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
-  /* Input và Select */
-  form input,
-  form select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-  }
-  
-  form select {
-    background-color: #fff;
-  }
-  
-  /* Nút Captcha */
-  .captcha-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .captcha-container img {
-    height: 40px;
-    border: 1px solid #ccc;
-  }
-  
-  .captcha-container .refresh-captcha {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  /* Điều khoản */
-  .terms {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-  }
-  
-  .terms a {
-    color: #0056b3;
-    text-decoration: none;
-  }
-  
-  .terms a:hover {
-    text-decoration: underline;
-  }
-  
-  /* Các nút hành động */
-  .btn {
-    width: 100%;
-    padding: 10px;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .login-btn {
-    background-color: #0056b3;
-    margin-bottom: 10px;
-  }
-  
-  .facebook-btn {
-    background-color: #4267b2;
-    margin-top: 10px;
-  }
-  
-  .register-btn {
-    background-color: #f44336;
-    margin-bottom: 10px;
-  }
-  
-  /* Quên mật khẩu */
-  .forgot-password {
-    display: block;
-    margin-bottom: 15px;
-    font-size: 14px;
-    color: #0056b3;
-    text-align: right;
-  }
-  
-  .forgot-password:hover {
-    text-decoration: underline;
-  }
-  .captcha-container {
-    margin-bottom: 20px;
-    text-align: center;
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+  background-color: #f9f9f9; /* Màu nền xám nhạt */
+  border: 2px solid #ddd; /* Đường viền xám nhạt */
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.captcha-container .g-recaptcha {
-    display: inline-block;
-    margin-bottom: 20px;
+.tabs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 10px;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  color: #555; /* Màu chữ xám trung bình */
+  transition: all 0.3s;
+}
+
+.tabs .active-tab {
+  font-weight: bold;
+  color: #000; /* Màu đen cho tab đang hoạt động */
+  border-bottom: 3px solid #000; /* Đường gạch chân màu đen */
+}
+
+.form-container h2 {
+  text-align: center;
+  color: #333; /* Màu xám đậm */
+  margin-bottom: 20px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd; /* Viền xám nhạt */
+  border-radius: 5px;
+  background-color: #fff; /* Màu nền trắng */
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #333; /* Màu xám đậm */
+  color: #fff; /* Màu chữ trắng */
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #555; /* Màu xám trung bình khi hover */
+}
+
+.forgot-password {
+  display: block;
+  margin: 10px 0;
+  text-align: center;
+  color: #333; /* Màu xám đậm */
+}
+
+.terms {
+  margin: 15px 0;
+  display: flex;
+  align-items: center;
+}
+
+.terms label a {
+  color: #dd1b1b; /* Màu đen cho liên kết */
+  text-decoration: none;
+}
+
+.terms input {
+  margin-right: 10px;
 }

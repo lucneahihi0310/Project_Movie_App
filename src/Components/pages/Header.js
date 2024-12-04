@@ -5,24 +5,63 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { Link } from "react-router-dom";
 import "../../CSS/Header.css";
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 function Header() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const sessionUser = JSON.parse(sessionStorage.getItem("account"));
+    const localUser = JSON.parse(localStorage.getItem("rememberedAccount"));
+
+    if (sessionUser) {
+      setIsLoggedIn(true);
+      setUsername(sessionUser.full_name);
+    } else if (localUser) {
+      setIsLoggedIn(true);
+      setUsername(localUser.full_name);
+    }
+  }, [sessionStorage.getItem("account"), localStorage.getItem("rememberedAccount")]);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("account");
+    localStorage.removeItem("rememberedAccount");
+    setIsLoggedIn(false);
+    setUsername("");
+    navigate("/login");
+  };
+
   return (
     <>
       <Container fluid className="bg-black">
         <Row className="d-flex justify-content-end py-2">
-          <Col className="text-right Sig">
-            <Link to="" className="text-white me-3">
-              Đăng Nhập
-            </Link>
-            <Link to="" className="text-white">
-              Đăng Ký
-            </Link>
-          </Col>
+          {isLoggedIn ? (
+            <Col className="text-right text-white Sig">
+              <span className="me-3">Xin chào, {username}!</span>
+              <Link
+                to="#"
+                onClick={handleLogout}
+                className="text-white text-decoration-none"
+              >
+                <i class="bi bi-box-arrow-right"></i>
+              </Link>
+            </Col>
+          ) : (
+            <Col className="text-right Sig">
+              <Link to="/login" className="text-white me-3">
+                Đăng Nhập
+              </Link>
+              <Link to="/login" className="text-white">
+                Đăng Ký
+              </Link>
+            </Col>
+          )}
         </Row>
       </Container>
-      <Navbar expand="lg" className="bg-white border-bottom">
+      <Navbar expand="lg" className="bg-white border-bottom" style={{ marginBottom: "30px" }}>
         <Container>
           <Navbar.Brand
             as={Link}
