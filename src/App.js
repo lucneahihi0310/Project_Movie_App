@@ -2,12 +2,11 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./Components/pages/Header";
 import Footer from "./Components/pages/Footer";
-import { publicRoutes } from "./Components/router/index.js";
 import CinemaInfo from "./Components/pages/CinemaInfo";
 import TicketPricing from "./Components/pages/TicketPricing";
 import LoginRegister from "./Components/pages/LoginRegister.js";
 import AdminMovies from "./Components/AdminPage/AdminMovies.js";
-import MoviePage from "./Components/pages/Movie.js";
+import MoviePage from "./Components/pages/MoviePage.js";
 import LanguagesManager from "./Components/AdminPage/LanguagesManager.js";
 import GenresManager from "./Components/AdminPage/GenresManager.js";
 import MovieTypesManager from "./Components/AdminPage/MovieTypesManager.js";
@@ -15,6 +14,7 @@ import ScreensManager from "./Components/AdminPage/ScreensManager.js";
 import Page404 from "./Components/pages/Page404.js";
 import HomePage from "./Components/pages/HomePage.js";
 import MovieDetail from "./Components/pages/MovieDetail.js";
+import AccountManager from "./Components/AdminPage/AccountManager.js";
 
 function App() {
   const account = JSON.parse(localStorage.getItem("rememberedAccount")) || JSON.parse(sessionStorage.getItem("account"));
@@ -37,6 +37,10 @@ function App() {
         <Route path="/info" element={<CinemaInfo />} />
         <Route path="/price" element={<TicketPricing />} />
         <Route
+          path="/account"
+          element={<ProtectedRoute element={<AccountManager />} allowedRoles={"1"} />}
+        />
+        <Route
           path="/managermovies"
           element={<ProtectedRoute element={<AdminMovies />} allowedRoles={"1"} />}
         />
@@ -56,7 +60,7 @@ function App() {
           path="/screens"
           element={<ProtectedRoute element={<ScreensManager />} allowedRoles={"1"} />}
         />
-        <Route path="/movie" element={<MovieDetail />} />
+        <Route path="/movie" element={<MoviePage />} />
       </Routes>
       <Footer />
     </Router>

@@ -28,3 +28,34 @@
   color: #000;
   border-bottom: 3px solid #000;
 }
+
+.dropdown-menu {
+  background-color: white !important;
+  border: none !important;
+  padding: 0;
+}
+
+.dropdown-item {
+  color: black !important;
+  padding: 10px 20px;
+  border-bottom: 1px solid #6c757d;
+}
+
+.dropdown-item:hover {
+  background-color: #495057 !important;
+  color: #ffffff !important;
+}
+
+.dropdown-divider {
+  border-top: 1px solid #6c757d; 
+}
+
+.navbar .dropdown-toggle {
+  color: black !important;
+}
+
+.dropdown-toggle::after {
+  color: black !important;
+}
+
+

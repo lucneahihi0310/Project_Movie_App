@@ -5,13 +5,13 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { Link, useLocation } from "react-router-dom";
 import "../../CSS/Header.css";
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import Dropdown from "react-bootstrap/Dropdown";
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
-  const navigate = useNavigate();
+  const [role, setRole] = useState("");
   const location = useLocation();
 
   useEffect(() => {
@@ -21,9 +21,11 @@ function Header() {
     if (sessionUser) {
       setIsLoggedIn(true);
       setUsername(sessionUser.full_name);
+      setRole(sessionUser.role);
     } else if (localUser) {
       setIsLoggedIn(true);
       setUsername(localUser.full_name);
+      setRole(localUser.role);
     }
   }, [sessionStorage.getItem("account"), localStorage.getItem("rememberedAccount")]);
 
@@ -32,7 +34,8 @@ function Header() {
     localStorage.removeItem("rememberedAccount");
     setIsLoggedIn(false);
     setUsername("");
-    navigate("/login");
+    setRole("");
+    window.location.replace("/");
   };
 
   return (
@@ -82,8 +85,9 @@ function Header() {
                 Lịch Chiếu Theo Rạp
               </Nav.Link>
               <Nav.Link
-                href="#phim"
-                className={location.hash === "#phim" ? "active-tab" : ""}
+                as={Link}
+                to={"/movie"}
+                className={location.pathname === "/movie" ? "active-tab" : ""}
               >
                 Phim
               </Nav.Link>
@@ -101,6 +105,27 @@ function Header() {
               >
                 Giá Vé
               </Nav.Link>
+              
+              {role === "1" && (
+                <Dropdown align="end">
+                  <Dropdown.Toggle
+                    variant="link"
+                    id="dropdown-management"
+                    className="nav-link"
+                  >
+                    Quản Lý
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    <Dropdown.Item as={Link} to="/account">Quản Lý Tài Khoản</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/managermovies">Quản Lý Phim</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/languages">Quản Lý Ngôn Ngữ</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/genres">Quản Lý Thể Loại</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/movietypes">Quản Lý Loại Phim</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/screens">Quản Lý Màn Hình</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              )}
             </Nav>
           </Navbar.Collapse>
         </Container>
