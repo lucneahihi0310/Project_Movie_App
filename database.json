@@ -1,10 +1,10 @@
 {
   "accounts": [
     {
-      "id": 1,
+      "id": "1",
       "username": "admin",
       "password": "hashed_password_1",
-      "role": 1,
+      "role": "1",
       "dob": "1990-01-01",
       "address": "123, Hà Đông, Hà Nội",
       "email": "admin@rapchieuphim.vn",
@@ -13,10 +13,10 @@
       "status": "active"
     },
     {
-      "id": 2,
+      "id": "2",
       "username": "user123",
       "password": "hashed_password_2",
-      "role": 2,
+      "role": "2",
       "dob": "1990-01-01",
       "address": "123, Hà Đông, Hà Nội",
       "email": "lucduogty@gmail.com",
@@ -27,11 +27,11 @@
   ],
   "roles": [
     {
-      "id": 1,
+      "id": "1",
       "name": "admin"
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "customer"
     }
   ],
@@ -104,7 +104,7 @@
   ],
   "movies": [
     {
-      "id": 1,
+      "id": "1",
       "title": "Linh Miêu",
       "director": "Lưu Thành Luân",
       "actor": "Hồng Đào, Thiên An, Thuỳ Tiên, Văn Anh, Samuel An,...",

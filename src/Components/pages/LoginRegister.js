@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Button, Form, InputGroup } from "react-bootstrap";
+import { Card, Button, Form, InputGroup, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { postData, fetchData } from "../API/ApiService";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -9,13 +9,14 @@ const LoginRegister = () => {
   const [currentForm, setCurrentForm] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [full_name, setFull_name] = useState("");
   const [phone, setPhone] = useState("");
   const [dob, setDob] = useState("");
   const [gender, setGender] = useState("");
   const [remember, setRemember] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -73,11 +74,17 @@ const LoginRegister = () => {
       return;
     }
 
-    const data = { name, email, password, dob, phone, gender, role: 2 };
+    const data = { full_name, email, password, dob, phone, gender, role: 2 };
 
     try {
       const response = await postData("accounts", data);
       console.log("Registration successful", response);
+
+      // Show the success modal
+      setShowSuccessModal(true);
+
+      // Redirect to login page after 3 seconds
+      setCurrentForm("login");
     } catch (error) {
       console.error("Registration error:", error);
       setErrorMessage("An error occurred while registering");
@@ -176,8 +183,8 @@ const LoginRegister = () => {
                   <Form.Control
                     type="text"
                     placeholder="* Họ tên"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={full_name}
+                    onChange={(e) => setFull_name(e.target.value)}
                     required
                   />
                 </InputGroup>
@@ -261,6 +268,48 @@ const LoginRegister = () => {
                 <Button type="submit" className="btn-warning w-100">
                   <i className="bi bi-person-plus-fill"></i> Đăng ký
                 </Button>
+              </Form>
+            )}
+            <Modal
+              show={showSuccessModal}
+              onHide={() => setShowSuccessModal(false)}
+              backdrop="static"
+              centered
+            >
+              <Modal.Header closeButton>
+                <Modal.Title>Registration Successful</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <p>Your account has been successfully created. You will be redirected to the login page.</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowSuccessModal(false)}>
+                  Close
+                </Button>
+              </Modal.Footer>
+            </Modal>
+            {currentForm === "forgotPassword" && (
+              <Form onSubmit={handleForgotPassword}>
+                <h2>Quên mật khẩu</h2>
+                <p>Vui lòng nhập email để đặt lại mật khẩu</p>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-envelope"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="email"
+                    placeholder="Email"
+                    required
+                  />
+                </InputGroup>
+                <Button type="submit" className="btn-warning w-100">
+                  <i className="bi bi-envelope-fill"></i> Gửi yêu cầu
+                </Button>
+                <div className="mt-3">
+                  <a style={{ textDecoration: "none" }} href="#" onClick={() => setCurrentForm("login")}>
+                    <i className="bi bi-box-arrow-in-left"></i> Quay lại Đăng nhập
+                  </a>
+                </div>
               </Form>
             )}
           </div>
