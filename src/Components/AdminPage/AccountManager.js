@@ -50,11 +50,27 @@ const AccountManager = () => {
 
   const editAccount = async () => {
     if (!currentAccount) return;
+  
     try {
       const updated = await updateData("accounts", currentAccount.id, currentAccount);
+  
+      // Cập nhật danh sách tài khoản trong state
       setAccounts((prev) =>
         prev.map((account) => (account.id === updated.id ? updated : account))
       );
+  
+      // Cập nhật trong localStorage nếu tài khoản này đang được lưu
+      const rememberedAccount = JSON.parse(localStorage.getItem("rememberedAccount"));
+      if (rememberedAccount && rememberedAccount.id === updated.id) {
+        localStorage.setItem("rememberedAccount", JSON.stringify(updated));
+      }
+  
+      // Cập nhật trong sessionStorage nếu tài khoản này đang được lưu
+      const sessionAccount = JSON.parse(sessionStorage.getItem("account"));
+      if (sessionAccount && sessionAccount.id === updated.id) {
+        sessionStorage.setItem("account", JSON.stringify(updated));
+      }
+  
       setCurrentAccount(null);
       setShowModal(false);
       setSuccess("Cập nhật tài khoản thành công!");
@@ -64,6 +80,7 @@ const AccountManager = () => {
       setSuccess(null);
     }
   };
+  
 
   const deleteAccount = async (id) => {
     try {

@@ -57,5 +57,11 @@
 .dropdown-toggle::after {
   color: black !important;
 }
+.fancy-font {
+  font-family: "Dancing Script", cursive; /* Phông chữ điệu đà */
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
 
 

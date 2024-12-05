@@ -1,20 +1,16 @@
-import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import { Link, useLocation } from "react-router-dom";
-import "../../CSS/Header.css";
 import { useState, useEffect } from "react";
-import Dropdown from "react-bootstrap/Dropdown";
+import { Link, useLocation } from "react-router-dom";
+import { Container, Row, Col, Navbar, Nav, Dropdown } from "react-bootstrap";
+import "../../CSS/Header.css";
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
+  const [greeting, setGreeting] = useState("");
   const location = useLocation();
 
-  useEffect(() => {
+  const updateUserData = () => {
     const sessionUser = JSON.parse(sessionStorage.getItem("account"));
     const localUser = JSON.parse(localStorage.getItem("rememberedAccount"));
 
@@ -26,8 +22,34 @@ function Header() {
       setIsLoggedIn(true);
       setUsername(localUser.full_name);
       setRole(localUser.role);
+    } else {
+      setIsLoggedIn(false);
+      setUsername("");
+      setRole("");
     }
-  }, [sessionStorage.getItem("account"), localStorage.getItem("rememberedAccount")]);
+  };
+
+  const updateGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      setGreeting("Chào buổi sáng");
+    } else if (hour < 18) {
+      setGreeting("Chào buổi chiều");
+    } else {
+      setGreeting("Chào buổi tối");
+    }
+  };
+
+  useEffect(() => {
+    updateUserData();
+    updateGreeting();
+
+    const interval = setInterval(() => {
+      updateGreeting();
+      updateUserData();
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = () => {
     sessionStorage.removeItem("account");
@@ -44,7 +66,9 @@ function Header() {
         <Row className="d-flex justify-content-end py-2">
           {isLoggedIn ? (
             <Col className="text-right text-white Sig">
-              <span className="me-3">Xin chào, {username}!</span>
+              <span className="me-3 fancy-font">
+                {greeting}, {username}!
+              </span>
               <Link
                 to="#"
                 onClick={handleLogout}
@@ -65,6 +89,7 @@ function Header() {
           )}
         </Row>
       </Container>
+
       <Navbar expand="lg" className="bg-white border-bottom" style={{ marginBottom: "30px" }}>
         <Container>
           <Navbar.Brand
@@ -105,7 +130,6 @@ function Header() {
               >
                 Giá Vé
               </Nav.Link>
-              
               {role === "1" && (
                 <Dropdown align="end">
                   <Dropdown.Toggle

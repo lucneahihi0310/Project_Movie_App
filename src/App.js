@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./Components/pages/Header";
 import Footer from "./Components/pages/Footer";
@@ -17,8 +17,23 @@ import MovieDetail from "./Components/pages/MovieDetail.js";
 import AccountManager from "./Components/AdminPage/AccountManager.js";
 
 function App() {
-  const account = JSON.parse(localStorage.getItem("rememberedAccount")) || JSON.parse(sessionStorage.getItem("account"));
-  const userRole = account ? account.role : null;
+  const [userRole, setUserRole] = useState(null);
+  const getUserRole = () => {
+    const account = JSON.parse(localStorage.getItem("rememberedAccount")) || JSON.parse(sessionStorage.getItem("account"));
+    return account ? account.role : null;
+  };
+  const updateUserRole = () => {
+    const role = getUserRole();
+    setUserRole(role);
+  };
+  useEffect(() => {
+    updateUserRole();
+
+    const interval = setInterval(() => {
+      updateUserRole();
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
   const ProtectedRoute = ({ element, allowedRoles }) => {
     if (!userRole || !allowedRoles.includes(userRole)) {
       return <Navigate to="/login" />;
