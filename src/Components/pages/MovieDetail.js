@@ -8,7 +8,6 @@ const MovieDetail = () => {
   const [movie, setMovie] = useState(null);
   const [genres, setGenres] = useState([]);
   const [languages, setLanguages] = useState([]);
-  const [showtimes, setShowtimes] = useState([]);
   const [cinema, setCinema] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedShowtime, setSelectedShowtime] = useState(null);
@@ -37,10 +36,6 @@ const MovieDetail = () => {
       .then((data) => setLanguages(data))
       .catch((error) => console.error("Error fetching languages:", error));
 
-    fetch(`http://localhost:3001/showtimes?movie_id=${id}`)
-      .then((response) => response.json())
-      .then((data) => setShowtimes(data))
-      .catch((error) => console.error("Error fetching showtimes:", error));
     fetch(`http://localhost:3001/cinema`)
       .then((response) => response.json())
       .then((data) => setCinema(data))
@@ -48,11 +43,13 @@ const MovieDetail = () => {
   }, [id]);
 
   useEffect(() => {
-    if (showtimes.length > 0) {
-      const earliestDate = showtimes.map((showtime) => showtime.date).sort()[0];
+    if (movie?.showtimes?.length > 0) {
+      const earliestDate = movie.showtimes
+        .map((showtime) => showtime.date)
+        .sort()[0];
       setSelectedDate(earliestDate);
     }
-  }, [showtimes]);
+  }, [movie]);
 
   if (!movie) {
     return <p>Loading movie details...</p>;
@@ -88,7 +85,7 @@ const MovieDetail = () => {
     });
   };
 
-  const filteredShowtimes = showtimes.filter(
+  const filteredShowtimes = movie.showtimes.filter(
     (showtime) => showtime.date === selectedDate
   );
 
@@ -152,7 +149,7 @@ const MovieDetail = () => {
 
         <div className="container">
           <div className="date-selector">
-            {showtimes
+            {movie.showtimes
               .map((s) => s.date)
               .filter((value, index, self) => self.indexOf(value) === index)
               .map((date) => (

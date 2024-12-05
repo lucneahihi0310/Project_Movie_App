@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { IoTicketOutline } from "react-icons/io5";
 
 function MoviePage() {
-  const [data, setData] = useState([]);
+  const [movie, setMovie] = useState([]);
   const [movieType, setMovieType] = useState([]);
   const [genres, setGenres] = useState([]);
   const [selectedMovieType, setSelectedMovieType] = useState(1);
@@ -14,15 +14,15 @@ function MoviePage() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [cinema, setCinema] = useState([]);
-  const [showTime, setShowTime] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedShowtime, setSelectedShowtime] = useState(null);
   const [language, setLanguage] = useState([]);
+  const [showTime, setShowTime] = useState([]);
 
   useEffect(() => {
     fetch("http://localhost:3001/movies")
       .then((response) => response.json())
-      .then((data) => setData(data))
+      .then((data) => setMovie(data))
       .catch((error) => console.error("Error fetching movies:", error));
 
     fetch("http://localhost:3001/genres")
@@ -46,30 +46,32 @@ function MoviePage() {
       .catch((error) => console.error("Error fetching showtimes:", error));
   }, []);
 
-  useEffect(() => {
-    if (showTime.length > 0) {
-      const earliestDate = showTime.map((showtime) => showtime.date).sort()[0];
-      setSelectedDate(earliestDate);
-    }
-  }, [showTime]);
-
   const handleMovieTypeFilter = (type) => {
     setSelectedMovieType(type.id);
   };
 
-  const handleBookTicket = (movie) => {
-    setSelectedMovie(movie);
+  const handleBookTicket = (movieId) => {
+    setSelectedMovie(movieId);
 
-    fetch(`http://localhost:3001/showtimes?movie_id=${movie.id}`)
+    fetch(`http://localhost:3001/movies/${movieId}`)
       .then((response) => response.json())
       .then((data) => {
-        setShowTime(data);
+        if (data?.showtimes?.length > 0) {
+          setShowTime(data.showtimes);
+          const earliestDate = data.showtimes.map((s) => s.date).sort()[0];
+          setSelectedDate(earliestDate);
+        } else {
+          setShowTime([]);
+          setSelectedDate("");
+        }
+
         setShowBookingModal(true);
         setShowModal(false);
         setSelectedShowtime(null);
       });
   };
 
+  console.log(showTime);
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN", {
@@ -87,9 +89,8 @@ function MoviePage() {
       hour12: false,
     });
   };
-  console.log(showTime);
-  const filteredData = data.filter(
-    (movie) => movie.movie_type == selectedMovieType
+  const filteredData = movie.filter(
+    (movies) => movies.movie_type == selectedMovieType
   );
 
   const getGenreNames = (genreIds) =>
@@ -129,7 +130,7 @@ function MoviePage() {
   };
 
   const filteredShowtimes = showTime.filter(
-    (showtimes) => showtimes.date === selectedDate
+    (showtime) => showtime.date === selectedDate
   );
 
   return (
@@ -187,7 +188,7 @@ function MoviePage() {
                       {movie.release_date || "N/A"}
                     </li>
                   </ul>
-                  <Button onClick={() => handleBookTicket(movie)}>
+                  <Button onClick={() => handleBookTicket(movie.id)}>
                     <IoTicketOutline
                       style={{ marginRight: "8px", fontSize: "1.5rem" }}
                     />
@@ -245,29 +246,23 @@ function MoviePage() {
                 ))}
             </div>
             <div className="schedule">
-              {[...new Set(filteredData.map((movie) => movie.language_id))].map(
-                (languageId) => (
-                  <h2 key={languageId}>{getLanguageName(languageId)}</h2>
-                )
-              )}
-              <div className="time-slot">
-                {filteredShowtimes.length > 0 ? (
-                  filteredShowtimes.map((show) => (
+              <h2>{getLanguageName(movie.language_id)}</h2>
+              {filteredShowtimes.length > 0 ? (
+                <div className="time-slot">
+                  {filteredShowtimes.map((showtime) => (
                     <div
-                      key={show.id}
+                      key={showtime.id}
                       className="time-box"
-                      onClick={() => handleShowtimeClick(show)}
+                      onClick={() => handleShowtimeClick(showtime)}
                     >
-                      <p>{formatTime(show.start_time)}</p>
-                      <span>Giá vé: {show.price.toLocaleString()} VNĐ</span>
+                      <p>{formatTime(showtime.start_time)}</p>
+                      <span>Giá vé: {showtime.price.toLocaleString()} VNĐ</span>
                     </div>
-                  ))
-                ) : (
-                  <p style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-                    Không có lịch chiếu
-                  </p>
-                )}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p>Không có suất chiếu nào cho ngày này.</p>
+              )}
             </div>
           </div>
         </Modal.Body>
