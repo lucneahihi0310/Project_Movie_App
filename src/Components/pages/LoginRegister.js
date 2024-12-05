@@ -213,13 +213,19 @@ const LoginRegister = () => {
                 </Form.Group>
 
                 <div className="forgot-password">
-                  <a
-                    style={{ textDecoration: "none" }}
-                    href="#"
+                  <Button
+                    style={{
+                      textDecoration: "none",
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      color: "inherit",
+                      cursor: "pointer",
+                    }}
                     onClick={() => setCurrentForm("forgotPassword")}
                   >
                     <i className="bi bi-question-circle"></i> Quên mật khẩu?
-                  </a>
+                  </Button>
                 </div>
                 <Button type="submit" className="btn-danger w-100">
                   <i className="bi bi-box-arrow-in-right"></i> Đăng nhập
