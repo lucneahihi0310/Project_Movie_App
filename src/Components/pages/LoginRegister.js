@@ -83,10 +83,8 @@ const LoginRegister = () => {
       const response = await postData("accounts", data);
       console.log("Registration successful", response);
 
-      // Show the success modal
       setShowSuccessModal(true);
 
-      // Redirect to login page after 3 seconds
       setCurrentForm("login");
     } catch (error) {
       console.error("Registration error:", error);

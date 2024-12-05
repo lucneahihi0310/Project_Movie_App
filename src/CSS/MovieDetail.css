@@ -121,7 +121,7 @@
   text-align: center;
   padding: 8px;
   cursor: pointer;
-  transition: background 0.3s;
+  /* transition: background 0.3s; */
 }
 
 .time-box:hover {
@@ -238,6 +238,6 @@
   width: 15rem;
   height: 3rem;
 }
-. .custom-modal .btn-primary:hover {
+ .custom-modal .btn-primary:hover {
   background: linear-gradient(90deg, #0079bf, #1a73e8);
 }
