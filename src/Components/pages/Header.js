@@ -68,9 +68,11 @@ function Header() {
         <Row className="d-flex justify-content-end py-2">
           {isLoggedIn ? (
             <Col className="text-right text-white Sig">
-              <span className="me-3 fancy-font">
-                {greeting}, {username}!
-              </span>
+              <Link to="/profile" className="text-white text-decoration-none">
+                <span className="me-3 fancy-font">
+                  {greeting}, {username}!
+                </span>
+              </Link>
               <Link
                 to="#"
                 onClick={handleLogout}

@@ -52,7 +52,7 @@ const LoginRegister = () => {
             email: existUser.email,
             password: existUser.password,
             full_name: existUser.full_name,
-            role: existUser.role
+            role: existUser.role,
           };
           localStorage.setItem("rememberedAccount", JSON.stringify(userData));
         } else {
@@ -101,11 +101,14 @@ const LoginRegister = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim() }),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/forgot-password",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim() }),
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -147,7 +150,6 @@ const LoginRegister = () => {
       setErrorMessage("Không thể kết nối đến server, vui lòng thử lại.");
     }
   };
-
 
   return (
     <div className="login-register-container">
@@ -208,8 +210,16 @@ const LoginRegister = () => {
                     marginLeft: "10px",
                   }}
                 >
-                  <Form.Check.Input type="checkbox" id="remember" checked={remember} onChange={(e) => setRemember(e.target.checked)} style={{ marginRight: "10px" }} />
-                  <Form.Check.Label htmlFor="remember">Remember</Form.Check.Label>
+                  <Form.Check.Input
+                    type="checkbox"
+                    id="remember"
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
+                    style={{ marginRight: "10px" }}
+                  />
+                  <Form.Check.Label htmlFor="remember">
+                    Remember
+                  </Form.Check.Label>
                 </Form.Group>
 
                 <div className="forgot-password">
@@ -340,10 +350,16 @@ const LoginRegister = () => {
                 <Modal.Title>Registration Successful</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                <p>Your account has been successfully created. You will be redirected to the login page.</p>
+                <p>
+                  Your account has been successfully created. You will be
+                  redirected to the login page.
+                </p>
               </Modal.Body>
               <Modal.Footer>
-                <Button variant="secondary" onClick={() => setShowSuccessModal(false)}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowSuccessModal(false)}
+                >
                   Close
                 </Button>
               </Modal.Footer>
@@ -351,7 +367,9 @@ const LoginRegister = () => {
             {currentForm === "forgotPassword" && (
               <>
                 <Form onSubmit={handleForgotPassword}>
-                  {errorMessage && <div className="text-danger">{errorMessage}</div>}
+                  {errorMessage && (
+                    <div className="text-danger">{errorMessage}</div>
+                  )}
 
                   <h2 className="mb-4">Quên mật khẩu</h2>
 
@@ -378,7 +396,9 @@ const LoginRegister = () => {
             {currentForm === "resetPassword" && (
               <>
                 <Form onSubmit={handleResetPassword}>
-                  {errorMessage && <div className="text-danger">{errorMessage}</div>}
+                  {errorMessage && (
+                    <div className="text-danger">{errorMessage}</div>
+                  )}
 
                   <h2 className="mb-4">Đặt lại mật khẩu</h2>
 
@@ -427,7 +447,6 @@ const LoginRegister = () => {
                 </Form>
               </>
             )}
-
           </div>
         </Card.Body>
       </Card>
