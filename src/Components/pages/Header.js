@@ -31,8 +31,10 @@ function Header() {
 
   const updateGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) {
+    if (hour < 11) {
       setGreeting("Chào buổi sáng");
+    } else if (hour >= 11 && hour < 13) {
+      setGreeting("Chào buổi trưa");
     } else if (hour < 18) {
       setGreeting("Chào buổi chiều");
     } else {

@@ -99,7 +99,7 @@ function HomePage() {
               return (
                 <div className="movie-item" key={movie.id}>
                   <div className="image-container">
-                    <img
+                    <img style={{ height: "400px" }}
                       src={
                         movie.poster[1] || "https://via.placeholder.com/200x300"
                       }
