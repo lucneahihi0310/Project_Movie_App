@@ -9,10 +9,13 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-// Đọc dữ liệu từ file database.json
+// Đường dẫn file database.json
 const databasePath = "../../../database.json";
-let database = JSON.parse(fs.readFileSync(databasePath, "utf8"));
-const accounts = database.accounts; // Đọc dữ liệu accounts từ file
+
+// Hàm đọc dữ liệu từ file database.json
+function getDatabase() {
+    return JSON.parse(fs.readFileSync(databasePath, "utf8"));
+}
 
 // Cấu hình email
 const transporter = nodemailer.createTransport({
@@ -27,17 +30,18 @@ const transporter = nodemailer.createTransport({
 app.post("/api/forgot-password", (req, res) => {
     const { email } = req.body;
 
+    const database = getDatabase();
+    const accounts = database.accounts;
+
     // Kiểm tra xem email có tồn tại trong hệ thống không
     const user = accounts.find((u) => u.email === email);
     if (!user) {
         return res.status(404).json({ message: "Email không tồn tại trong hệ thống!" });
     }
 
-    // Tạo token reset mật khẩu (simple random string for this example)
+    // Tạo token reset mật khẩu
     const resetToken = Math.random().toString(36).substring(2, 12);
-
-    // Lưu thời gian tạo token (5 phút = 300000ms)
-    const tokenExpirationTime = Date.now() + 300000; // 5 minutes from now
+    const tokenExpirationTime = Date.now() + 300000; // 5 phút
 
     // Gửi email
     const mailOptions = {
@@ -47,7 +51,7 @@ app.post("/api/forgot-password", (req, res) => {
         html: `
       <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-          <h2 style="color: #333; text-align: center;">Xin chào ${user.full_name},</h2>
+          <h2 style="color: #333; text-align: center;">Xin chào ${user.full_name} chúng tôi là MOVIE88,</h2>
           <p style="font-size: 16px; color: #555;">Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Vui lòng sử dụng mã dưới đây để thay đổi mật khẩu của bạn:</p>
           
           <div style="text-align: center; margin: 20px 0;">
@@ -69,20 +73,17 @@ app.post("/api/forgot-password", (req, res) => {
     `,
     };
 
-    // Lưu resetToken và thời gian hết hạn vào tài khoản
+    // Lưu token và thời gian hết hạn vào tài khoản
     user.resetToken = resetToken;
     user.resetTokenExpiration = tokenExpirationTime;
 
-    // Gửi email
-    transporter.sendMail(mailOptions, (error, info) => {
+    transporter.sendMail(mailOptions, (error) => {
         if (error) {
             console.error("Error sending email:", error);
             return res.status(500).json({ message: "Gửi email thất bại!" });
         }
 
-        // Ghi lại toàn bộ dữ liệu vào file database.json
         fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
-
         res.json({ message: "Email đặt lại mật khẩu đã được gửi!" });
     });
 });
@@ -91,20 +92,22 @@ app.post("/api/forgot-password", (req, res) => {
 app.post("/api/reset-password", (req, res) => {
     const { email, resetToken, newPassword } = req.body;
 
+    const database = getDatabase();
+    const accounts = database.accounts;
+
     // Kiểm tra xem email có tồn tại trong hệ thống không
     const user = accounts.find((u) => u.email === email);
     if (!user) {
         return res.status(404).json({ message: "Email không tồn tại trong hệ thống!" });
     }
 
-    // Kiểm tra token có hợp lệ không và có hết hạn không
+    // Kiểm tra token có hợp lệ không
     if (user.resetToken !== resetToken) {
         return res.status(400).json({ message: "Mã reset không hợp lệ!" });
     }
 
     // Kiểm tra xem token có hết hạn chưa
     if (Date.now() > user.resetTokenExpiration) {
-        // Nếu token hết hạn, xóa resetToken và resetTokenExpiration
         delete user.resetToken;
         delete user.resetTokenExpiration;
         fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
@@ -113,11 +116,8 @@ app.post("/api/reset-password", (req, res) => {
 
     // Cập nhật mật khẩu
     user.password = newPassword;
-    // Xóa resetToken và resetTokenExpiration sau khi thay đổi mật khẩu thành công
     delete user.resetToken;
     delete user.resetTokenExpiration;
-
-    // Ghi lại toàn bộ dữ liệu vào file database.json
     fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
 
     res.json({ message: "Mật khẩu đã được thay đổi thành công!" });
@@ -125,14 +125,14 @@ app.post("/api/reset-password", (req, res) => {
 
 // Cron job để kiểm tra và xóa các token hết hạn
 cron.schedule("* * * * *", () => {
-    // Lặp qua tất cả tài khoản và kiểm tra resetToken
+    const database = getDatabase();
+    const accounts = database.accounts;
+
     accounts.forEach((user) => {
         if (user.resetToken && Date.now() > user.resetTokenExpiration) {
-            // Nếu token hết hạn, xóa resetToken và resetTokenExpiration
             delete user.resetToken;
             delete user.resetTokenExpiration;
 
-            // Cập nhật lại cơ sở dữ liệu
             fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
             console.log(`Reset token của người dùng ${user.email} đã hết hạn và bị xóa.`);
         }

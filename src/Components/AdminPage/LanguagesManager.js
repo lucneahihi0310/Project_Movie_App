@@ -221,7 +221,7 @@ const LanguagesManager = () => {
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3" controlId="formLanguageName">
-              <Form.Label>Tên Ngôn Ngữ</Form.Label>
+              <Form.Label>* Tên Ngôn Ngữ</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Nhập tên ngôn ngữ"

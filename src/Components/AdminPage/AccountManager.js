@@ -5,110 +5,139 @@ import { fetchData, postData, updateData, deleteData } from "../API/ApiService";
 const AccountManager = () => {
   const [accounts, setAccounts] = useState([]);
   const [currentAccount, setCurrentAccount] = useState(null);
-  const [newAccount, setNewAccount] = useState({
-    username: "",
-    full_name: "",
-    email: "",
-    phone: "",
-    role: "2",
-    status: "active",
-  });
+  const [newAccount, setNewAccount] = useState(initialAccountState());
+  const [errors, setErrors] = useState({});
   const [showModal, setShowModal] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [accountToDelete, setAccountToDelete] = useState(null);
+
+
+  function initialAccountState() {
+    return {
+      password: "",
+      role: "2",
+      dob: "",
+      gender: "",
+      address: "",
+      email: "",
+      phone: "",
+      full_name: "",
+      status: "active",
+    };
+  }
 
   const fetchAccounts = async () => {
     try {
       const data = await fetchData("accounts");
       setAccounts(data);
-      setError(null);
-    } catch (error) {
-      setError("Không thể tải danh sách tài khoản!");
+    } catch {
+      setErrorMessage("Không thể tải danh sách tài khoản!");
     }
   };
 
-  const addAccount = async () => {
-    try {
-      const added = await postData("accounts", newAccount);
-      setAccounts((prev) => [...prev, added]);
-      setNewAccount({
-        username: "",
-        full_name: "",
-        email: "",
-        phone: "",
-        role: "2",
-        status: "active",
-      });
-      setShowModal(false);
-      setSuccess("Thêm tài khoản thành công!");
-      setError(null);
-    } catch (error) {
-      setError("Không thể thêm tài khoản!");
-      setSuccess(null);
+  const validateFields = () => {
+    const validationErrors = {};
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^0\d{9,10}$/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    const today = new Date();
+
+    if (!newAccount.full_name) validationErrors.full_name = "Họ và tên không được bỏ trống!";
+    if (!newAccount.gender) validationErrors.gender = "Giới tính không được bỏ trống!";
+    if (!newAccount.email) {
+      validationErrors.email = "Email không đươc bỏ trống!";
+    } else if (!emailRegex.test(newAccount.email)) {
+      validationErrors.email = "Email không đúng định dạng! (....@gmail.com)";
+    } else if (
+      !currentAccount &&
+      accounts.some((acc) => acc.email.toLowerCase() === newAccount.email.toLowerCase())
+    ) {
+      validationErrors.email = "Email đã được đăng ký!";
     }
+
+    if (!newAccount.phone) {
+      validationErrors.phone = "Số điện thoại không được bỏ trống!";
+    } else if (!phoneRegex.test(newAccount.phone)) {
+      validationErrors.phone = "Số điện thoại không đúng định dạng! (Bắt đầu bằng số 0 và 10-11 số)";
+    } else if (
+      !currentAccount &&
+      accounts.some((acc) => acc.phone === newAccount.phone)
+    ) {
+      validationErrors.phone = "Số điện thoại đã được đăng ký!";
+    }
+
+    if (!newAccount.dob) {
+      validationErrors.dob = "Ngày sinh không được bỏ trống!";
+    } else if (new Date(newAccount.dob) > today) {
+      validationErrors.dob = "Ngày sinh không được là ngày trước hôm nay!";
+    }
+
+    if (!newAccount.password) {
+      validationErrors.password = "Mật khẩu không được bỏ trống!";
+    } else if (!passwordRegex.test(newAccount.password)) {
+      validationErrors.password = "Mật khẩu phải có ít nhất 8 ký tự, ít nhất 1 chữ viết hoa và ít nhất 1 số!";
+    }
+
+    if (!newAccount.address) validationErrors.address = "Địa chỉ không được bỏ trống!";
+
+    setErrors(validationErrors);
+
+    return Object.keys(validationErrors).length === 0;
   };
 
-  const editAccount = async () => {
-    if (!currentAccount) return;
-  
+  const handleSave = async () => {
+    if (!validateFields()) return;
+
     try {
-      const updated = await updateData("accounts", currentAccount.id, currentAccount);
-  
-      // Cập nhật danh sách tài khoản trong state
-      setAccounts((prev) =>
-        prev.map((account) => (account.id === updated.id ? updated : account))
-      );
-  
-      // Cập nhật trong localStorage nếu tài khoản này đang được lưu
-      const rememberedAccount = JSON.parse(localStorage.getItem("rememberedAccount"));
-      if (rememberedAccount && rememberedAccount.id === updated.id) {
-        localStorage.setItem("rememberedAccount", JSON.stringify(updated));
+      if (currentAccount) {
+        const updated = await updateData("accounts", currentAccount.id, newAccount);
+        setAccounts((prev) =>
+          prev.map((account) => (account.id === updated.id ? updated : account))
+        );
+        setSuccessMessage("Cập nhật tài khoản thành công!");
+      } else {
+        const added = await postData("accounts", newAccount);
+        setAccounts((prev) => [...prev, added]);
+        setSuccessMessage("Thêm tài khoản thành công!");
       }
-  
-      // Cập nhật trong sessionStorage nếu tài khoản này đang được lưu
-      const sessionAccount = JSON.parse(sessionStorage.getItem("account"));
-      if (sessionAccount && sessionAccount.id === updated.id) {
-        sessionStorage.setItem("account", JSON.stringify(updated));
-      }
-  
-      setCurrentAccount(null);
+
       setShowModal(false);
-      setSuccess("Cập nhật tài khoản thành công!");
-      setError(null);
-    } catch (error) {
-      setError("Không thể cập nhật tài khoản!");
-      setSuccess(null);
-    }
-  };
-  
-
-  const deleteAccount = async (id) => {
-    try {
-      await deleteData("accounts", id);
-      setAccounts((prev) => prev.filter((account) => account.id !== id));
-      setSuccess("Xóa tài khoản thành công!");
-      setError(null);
-    } catch (error) {
-      setError("Không thể xóa tài khoản!");
-      setSuccess(null);
+      setNewAccount(initialAccountState());
+      setErrors({});
+    } catch {
+      setErrorMessage("Có lỗi xảy ra trong quá trình lưu, vui lòng thử lại!");
     }
   };
 
-  const toggleAccountStatus = async (account) => {
+  const handleDelete = async () => {
+    if (!accountToDelete) return;
+
     try {
-      const updatedStatus = account.status === "active" ? "inactive" : "active";
-      const updated = await updateData("accounts", account.id, {
+      await deleteData("accounts", accountToDelete.id);
+      setAccounts((prev) => prev.filter((acc) => acc.id !== accountToDelete.id));
+      setSuccessMessage("Xóa tài khoản thành công!");
+      setShowDeleteModal(false);
+    } catch {
+      setErrorMessage("Không thể xóa tài khoản, vui lòng thử lại!");
+    }
+  };
+
+
+  const toggleStatus = async (id) => {
+    try {
+      const account = accounts.find((acc) => acc.id === id);
+      const updated = await updateData("accounts", id, {
         ...account,
-        status: updatedStatus,
+        status: account.status === "active" ? "inactive" : "active",
       });
       setAccounts((prev) =>
         prev.map((acc) => (acc.id === updated.id ? updated : acc))
       );
-      setSuccess(`Trạng thái tài khoản được cập nhật thành ${updatedStatus === "active" ? "hoạt động" : "vô hiệu"}!`);
-      setError(null);
-    } catch (error) {
-      setError("Không thể thay đổi trạng thái tài khoản!");
-      setSuccess(null);
+      setSuccessMessage("Cập nhật trạng thái tài khoản thành công!");
+    } catch {
+      setErrorMessage("Không thể cập nhật trạng thái tài khoản, vui lòng thử lại!");
     }
   };
 
@@ -116,21 +145,51 @@ const AccountManager = () => {
     fetchAccounts();
   }, []);
 
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setErrors({});
+    setNewAccount(initialAccountState());
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewAccount((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: "",
+    }));
+  };
+
   return (
     <Container>
       <h2 className="my-4 text-center">Quản Lý Tài Khoản</h2>
 
-      {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
-      {success && <Alert variant="success" onClose={() => setSuccess(null)} dismissible>{success}</Alert>}
+      {successMessage && (
+        <Alert variant="success" onClose={() => setSuccessMessage(null)} dismissible>
+          {successMessage}
+        </Alert>
+      )}
+
+      {errorMessage && (
+        <Alert variant="danger" onClose={() => setErrorMessage(null)} dismissible>
+          {errorMessage}
+        </Alert>
+      )}
 
       <Table striped bordered hover responsive className="text-center">
         <thead className="table-dark">
           <tr>
             <th>ID</th>
-            <th>Tên Đăng Nhập</th>
             <th>Họ và Tên</th>
+            <th>Ngày Sinh</th>
+            <th>Giới Tính</th>
             <th>Email</th>
+            <th>Mật Khẩu</th>
             <th>Điện Thoại</th>
+            <th>Địa Chỉ</th>
             <th>Vai Trò</th>
             <th>Trạng Thái</th>
             <th>Hành Động</th>
@@ -140,17 +199,20 @@ const AccountManager = () => {
           {accounts.map((account) => (
             <tr key={account.id}>
               <td>{account.id}</td>
-              <td>{account.username}</td>
               <td>{account.full_name}</td>
+              <td>{account.dob}</td>
+              <td>{account.gender}</td>
               <td>{account.email}</td>
+              <td>{account.password}</td>
               <td>{account.phone}</td>
+              <td>{account.address}</td>
               <td>{account.role === "1" ? "Admin" : "User"}</td>
               <td>
                 <Button
                   variant={account.status === "active" ? "success" : "secondary"}
-                  onClick={() => toggleAccountStatus(account)}
+                  onClick={() => toggleStatus(account.id)}
                 >
-                  {account.status === "active" ? "Hoạt Động" : "Vô Hiệu"}
+                  {account.status === "active" ? "Hoạt động" : "Vô hiệu"}
                 </Button>
               </td>
               <td>
@@ -159,14 +221,22 @@ const AccountManager = () => {
                   className="me-2"
                   onClick={() => {
                     setCurrentAccount(account);
+                    setNewAccount(account);
                     setShowModal(true);
                   }}
                 >
-                  <i className="bi bi-pencil-square"></i> Sửa
+                  Sửa
                 </Button>
-                <Button variant="danger" onClick={() => deleteAccount(account.id)}>
-                  <i className="bi bi-trash"></i> Xóa
+                <Button
+                  variant="danger"
+                  onClick={() => {
+                    setAccountToDelete(account);
+                    setShowDeleteModal(true);
+                  }}
+                >
+                  Xóa
                 </Button>
+
               </td>
             </tr>
           ))}
@@ -175,18 +245,18 @@ const AccountManager = () => {
 
       <Button
         variant="primary"
-        className="mt-3"
         onClick={() => {
           setCurrentAccount(null);
+          setNewAccount(initialAccountState());
           setShowModal(true);
         }}
       >
-        <i className="bi bi-plus-circle"></i> Thêm Tài Khoản
+        Thêm Tài Khoản
       </Button>
 
       <Modal
         show={showModal}
-        onHide={() => setShowModal(false)}
+        onHide={handleCloseModal}
         centered
         backdrop="static"
       >
@@ -197,72 +267,140 @@ const AccountManager = () => {
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group className="mb-3" controlId="formUsername">
-              <Form.Label>Tên Đăng Nhập</Form.Label>
+            <Form.Group className="mb-3">
+              <Form.Label>* Họ và Tên</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Nhập tên đăng nhập"
-                value={currentAccount ? currentAccount.username : newAccount.username}
-                onChange={(e) =>
-                  currentAccount
-                    ? setCurrentAccount({ ...currentAccount, username: e.target.value })
-                    : setNewAccount({ ...newAccount, username: e.target.value })
-                }
+                placeholder="Họ và Tên"
+                name="full_name"
+                value={newAccount.full_name}
+                onChange={handleInputChange}
+                isInvalid={!!errors.full_name}
               />
+              <Form.Control.Feedback type="invalid">
+                {errors.full_name}
+              </Form.Control.Feedback>
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formFullName">
-              <Form.Label>Họ và Tên</Form.Label>
+            <Form.Group className="mb-3">
+              <Form.Label>* Ngày Sinh</Form.Label>
               <Form.Control
-                type="text"
-                placeholder="Nhập họ và tên"
-                value={currentAccount ? currentAccount.full_name : newAccount.full_name}
-                onChange={(e) =>
-                  currentAccount
-                    ? setCurrentAccount({ ...currentAccount, full_name: e.target.value })
-                    : setNewAccount({ ...newAccount, full_name: e.target.value })
-                }
+                type="date"
+                placeholder="Ngày Sinh"
+                name="dob"
+                value={newAccount.dob}
+                onChange={handleInputChange}
+                isInvalid={!!errors.dob}
               />
+              <Form.Control.Feedback type="invalid">
+                {errors.dob}
+              </Form.Control.Feedback>
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formEmail">
-              <Form.Label>Email</Form.Label>
+            <Form.Group className="mb-3">
+              <Form.Label>* Giới Tính</Form.Label>
+              <Form.Select
+                name="gender"
+                value={newAccount.gender}
+                onChange={handleInputChange}
+                isInvalid={!!errors.gender}
+              >
+                <option value="">-- Chọn Giới Tính --</option>
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+                <option value="Khác">Khác</option>
+              </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                {errors.gender}
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>* Email</Form.Label>
               <Form.Control
                 type="email"
-                placeholder="Nhập email"
-                value={currentAccount ? currentAccount.email : newAccount.email}
-                onChange={(e) =>
-                  currentAccount
-                    ? setCurrentAccount({ ...currentAccount, email: e.target.value })
-                    : setNewAccount({ ...newAccount, email: e.target.value })
-                }
+                placeholder="Email"
+                name="email"
+                value={newAccount.email}
+                onChange={handleInputChange}
+                isInvalid={!!errors.email}
               />
+              <Form.Control.Feedback type="invalid">
+                {errors.email}
+              </Form.Control.Feedback>
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formPhone">
-              <Form.Label>Số Điện Thoại</Form.Label>
+            <Form.Group className="mb-3">
+              <Form.Label>* Mật Khẩu</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Password"
+                name="password"
+                value={newAccount.password}
+                onChange={handleInputChange}
+                isInvalid={!!errors.password}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.password}
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>* Số Điện Thoại</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Nhập số điện thoại"
-                value={currentAccount ? currentAccount.phone : newAccount.phone}
-                onChange={(e) =>
-                  currentAccount
-                    ? setCurrentAccount({ ...currentAccount, phone: e.target.value })
-                    : setNewAccount({ ...newAccount, phone: e.target.value })
-                }
+                placeholder="Số Điện Thoại"
+                name="phone"
+                value={newAccount.phone}
+                onChange={handleInputChange}
+                isInvalid={!!errors.phone}
               />
+              <Form.Control.Feedback type="invalid">
+                {errors.phone}
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>* Địa Chỉ</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Địa Chỉ"
+                name="address"
+                value={newAccount.address}
+                onChange={handleInputChange}
+                isInvalid={!!errors.address}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.address}
+              </Form.Control.Feedback>
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button variant="secondary" onClick={handleCloseModal}>
             Hủy
           </Button>
-          <Button
-            variant="success"
-            onClick={currentAccount ? editAccount : addAccount}
-          >
+          <Button variant="primary" onClick={handleSave}>
             Lưu
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <Modal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Xác nhận xóa</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Bạn có chắc chắn muốn xóa tài khoản này không?</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Xóa
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </Container>
   );
 };

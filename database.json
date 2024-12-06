@@ -2,27 +2,63 @@
   "accounts": [
     {
       "id": "1",
-      "username": "admin",
-      "password": "hashed_password_1",
+      "password": "Lucduonng2002",
       "role": "1",
       "dob": "1990-01-01",
       "address": "123, Hà Đông, Hà Nội",
       "email": "admin@rapchieuphim.vn",
       "phone": "0901234560",
-      "full_name": "Phạm Quang Huy",
-      "status": "active"
+      "full_name": "Admin Văn Admin",
+      "status": "active",
+      "gender": "Nam"
     },
     {
       "id": "2",
-      "username": "user123",
-      "password": "lucduong2002",
+      "password": "Lucduong2002",
       "role": "2",
-      "dob": "1990-01-01",
+      "dob": "2002-10-03",
       "address": "123, Hà Đông, Hà Nội",
       "email": "lucduongty@gmail.com",
-      "phone": "0912345678",
+      "phone": "0354994218",
       "full_name": "Dương Văn Lực",
-      "status": "active"
+      "status": "active",
+      "gender": "Nam"
+    },
+    {
+      "id": "8f1b",
+      "password": "Phuongkhanh2003",
+      "role": "2",
+      "dob": "2003-01-19",
+      "address": "Hà Nội",
+      "email": "hoahongxanh19012003@gmail.com",
+      "phone": "0333308969",
+      "full_name": "Nguyễn Thị Thu Phương",
+      "status": "active",
+      "gender": "Nữ"
+    },
+    {
+      "id": "4d0c",
+      "password": "Phuongngau323453456",
+      "role": "2",
+      "dob": "2024-12-03",
+      "address": "hà nội",
+      "email": "poine1901@gmail.com",
+      "phone": "0777777777",
+      "full_name": "Phương Ngâu",
+      "status": "active",
+      "gender": "Nữ"
+    },
+    {
+      "id": "2f56",
+      "password": "Lucduon3243242",
+      "role": "2",
+      "dob": "2024-12-03",
+      "address": "Hà Nội",
+      "email": "phamhuy8723@gmail.com",
+      "phone": "09999999999",
+      "full_name": "Phạm Quang Huy",
+      "status": "active",
+      "gender": "Nam"
     }
   ],
   "roles": [
@@ -46,8 +82,8 @@
   },
   "movietypes": [
     {
-      "id": "1",
       "name": "Phim đang chiếu",
+      "id": "1",
       "status": "active"
     },
     {
