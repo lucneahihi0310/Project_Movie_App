@@ -21,6 +21,7 @@ import HomePage from "./Components/pages/HomePage.js";
 import MovieDetail from "./Components/pages/MovieDetail.js";
 import AccountManager from "./Components/AdminPage/AccountManager.js";
 import ShowTime from "./Components/pages/ShowtimePage.js";
+import Booking from "./Components/pages/Booking.js";
 
 function App() {
   const [userRole, setUserRole] = useState(null);
@@ -100,6 +101,7 @@ function App() {
         />
         <Route path="/showtime" element={<ShowTime />} />
         <Route path="/movie" element={<MoviePage />} />
+        <Route path="/booking" element={<Booking />} />
       </Routes>
       <Footer />
     </Router>
