@@ -92,7 +92,11 @@ function Header() {
         </Row>
       </Container>
 
-      <Navbar expand="lg" className="bg-white border-bottom" style={{ marginBottom: "30px" }}>
+      <Navbar
+        expand="lg"
+        className="bg-white border-bottom"
+        style={{ marginBottom: "30px" }}
+      >
         <Container>
           <Navbar.Brand
             as={Link}
@@ -106,8 +110,10 @@ function Header() {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="fw-bold fs-5 custom-nav">
               <Nav.Link
-                href="#lichchieu"
-                className={location.hash === "#lichchieu" ? "active-tab" : ""}
+                href="/showtime"
+                className={
+                  location.pathname === "/showtime" ? "active-tab" : ""
+                }
               >
                 Lịch Chiếu Theo Rạp
               </Nav.Link>
@@ -143,12 +149,24 @@ function Header() {
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
-                    <Dropdown.Item as={Link} to="/account">Quản Lý Tài Khoản</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/managermovies">Quản Lý Phim</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/languages">Quản Lý Ngôn Ngữ</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/genres">Quản Lý Thể Loại</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/movietypes">Quản Lý Loại Phim</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/screens">Quản Lý Màn Hình</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/account">
+                      Quản Lý Tài Khoản
+                    </Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/managermovies">
+                      Quản Lý Phim
+                    </Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/languages">
+                      Quản Lý Ngôn Ngữ
+                    </Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/genres">
+                      Quản Lý Thể Loại
+                    </Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/movietypes">
+                      Quản Lý Loại Phim
+                    </Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/screens">
+                      Quản Lý Màn Hình
+                    </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               )}

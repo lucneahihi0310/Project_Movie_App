@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Header from "./Components/pages/Header";
 import Footer from "./Components/pages/Footer";
 import CinemaInfo from "./Components/pages/CinemaInfo";
@@ -15,11 +20,14 @@ import Page404 from "./Components/pages/Page404.js";
 import HomePage from "./Components/pages/HomePage.js";
 import MovieDetail from "./Components/pages/MovieDetail.js";
 import AccountManager from "./Components/AdminPage/AccountManager.js";
+import ShowTime from "./Components/pages/ShowtimePage.js";
 
 function App() {
   const [userRole, setUserRole] = useState(null);
   const getUserRole = () => {
-    const account = JSON.parse(localStorage.getItem("rememberedAccount")) || JSON.parse(sessionStorage.getItem("account"));
+    const account =
+      JSON.parse(localStorage.getItem("rememberedAccount")) ||
+      JSON.parse(sessionStorage.getItem("account"));
     return account ? account.role : null;
   };
   const updateUserRole = () => {
@@ -53,28 +61,44 @@ function App() {
         <Route path="/price" element={<TicketPricing />} />
         <Route
           path="/account"
-          element={<ProtectedRoute element={<AccountManager />} allowedRoles={"1"} />}
+          element={
+            <ProtectedRoute element={<AccountManager />} allowedRoles={"1"} />
+          }
         />
         <Route
           path="/managermovies"
-          element={<ProtectedRoute element={<AdminMovies />} allowedRoles={"1"} />}
+          element={
+            <ProtectedRoute element={<AdminMovies />} allowedRoles={"1"} />
+          }
         />
         <Route
           path="/languages"
-          element={<ProtectedRoute element={<LanguagesManager />} allowedRoles={"1"} />}
+          element={
+            <ProtectedRoute element={<LanguagesManager />} allowedRoles={"1"} />
+          }
         />
         <Route
           path="/genres"
-          element={<ProtectedRoute element={<GenresManager />} allowedRoles={"1"} />}
+          element={
+            <ProtectedRoute element={<GenresManager />} allowedRoles={"1"} />
+          }
         />
         <Route
           path="/movietypes"
-          element={<ProtectedRoute element={<MovieTypesManager />} allowedRoles={"1"} />}
+          element={
+            <ProtectedRoute
+              element={<MovieTypesManager />}
+              allowedRoles={"1"}
+            />
+          }
         />
         <Route
           path="/screens"
-          element={<ProtectedRoute element={<ScreensManager />} allowedRoles={"1"} />}
+          element={
+            <ProtectedRoute element={<ScreensManager />} allowedRoles={"1"} />
+          }
         />
+        <Route path="/showtime" element={<ShowTime />} />
         <Route path="/movie" element={<MoviePage />} />
       </Routes>
       <Footer />
