@@ -17,23 +17,8 @@ import MovieDetail from "./Components/pages/MovieDetail.js";
 import AccountManager from "./Components/AdminPage/AccountManager.js";
 
 function App() {
-  const [userRole, setUserRole] = useState(null);
-  const getUserRole = () => {
-    const account = JSON.parse(localStorage.getItem("rememberedAccount")) || JSON.parse(sessionStorage.getItem("account"));
-    return account ? account.role : null;
-  };
-  const updateUserRole = () => {
-    const role = getUserRole();
-    setUserRole(role);
-  };
-  useEffect(() => {
-    updateUserRole();
-
-    const interval = setInterval(() => {
-      updateUserRole();
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
+  const account = JSON.parse(localStorage.getItem("rememberedAccount")) || JSON.parse(sessionStorage.getItem("account"));
+  const userRole = account ? account.role : null;
   const ProtectedRoute = ({ element, allowedRoles }) => {
     if (!userRole || !allowedRoles.includes(userRole)) {
       return <Navigate to="/login" />;

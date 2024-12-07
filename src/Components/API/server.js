@@ -51,7 +51,8 @@ app.post("/api/forgot-password", (req, res) => {
         html: `
       <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-          <h2 style="color: #333; text-align: center;">Xin chào ${user.full_name} chúng tôi là MOVIE88,</h2>
+        <img src="https://duongvanluc2002.sirv.com/black_on_trans.png" width="100" height="100" alt="Logo" style="margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
+          <h2 style="color: #333; text-align: center;">Xin chào ${user.full_name}</h2>
           <p style="font-size: 16px; color: #555;">Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Vui lòng sử dụng mã dưới đây để thay đổi mật khẩu của bạn:</p>
           
           <div style="text-align: center; margin: 20px 0;">

@@ -13,6 +13,7 @@ const LoginRegister = () => {
   const [phone, setPhone] = useState("");
   const [dob, setDob] = useState("");
   const [gender, setGender] = useState("");
+  const [address, setAddress] = useState("");
   const [remember, setRemember] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,6 +22,13 @@ const LoginRegister = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const navigate = useNavigate();
+  const [validationErrors, setValidationErrors] = useState({});
+  const [resetPassword, setResetPassword] = useState("");
+  const [confirmResetPassword, setConfirmResetPassword] = useState("");
+  const [resetValidationErrors, setResetValidationErrors] = useState({});
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupContent, setPopupContent] = useState({ title: "", message: "" });
+
 
   useEffect(() => {
     const rememberedAccount = localStorage.getItem("rememberedAccount");
@@ -46,20 +54,26 @@ const LoginRegister = () => {
       );
 
       if (existUser) {
+        if (existUser.status === "inactive") {
+          setErrorMessage("Tài khoản đã bị khóa!");
+          return;
+        }
+
         if (remember) {
           const userData = {
             id: existUser.id,
             email: existUser.email,
             password: existUser.password,
             full_name: existUser.full_name,
-            role: existUser.role
+            role: existUser.role,
           };
           localStorage.setItem("rememberedAccount", JSON.stringify(userData));
         } else {
           localStorage.removeItem("rememberedAccount");
         }
+
         sessionStorage.setItem("account", JSON.stringify(existUser));
-        navigate("/");
+        window.location.replace("/");
       } else {
         setErrorMessage("Tài khoản hoặc mật khẩu không đúng!");
       }
@@ -68,29 +82,99 @@ const LoginRegister = () => {
       setErrorMessage("Có lỗi xảy ra, vui lòng thử lại!");
     }
   };
+  const validateResetPassword = () => {
+    const resetValidationErrors = {};
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    if (!resetPassword) {
+      resetValidationErrors.resetPassword = "Mật khẩu không được bỏ trống!";
+    } else if (!passwordRegex.test(resetPassword)) {
+      resetValidationErrors.resetPassword = "Mật khẩu phải có ít nhất 8 ký tự, ít nhất 1 chữ hoa và 1 số!";
+    }
+
+    if (!confirmResetPassword) {
+      resetValidationErrors.confirmResetPassword = "Vui lòng xác nhận mật khẩu!";
+    } else if (resetPassword !== confirmResetPassword) {
+      resetValidationErrors.confirmResetPassword = "Mật khẩu và xác nhận mật khẩu không khớp!";
+    }
+
+    setResetValidationErrors(resetValidationErrors);
+    return Object.keys(resetValidationErrors).length === 0;
+  };
+
+  const validateFields = async () => {
+    const validationErrors = {};
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^0\d{9,10}$/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    const today = new Date();
+
+    if (!full_name) validationErrors.full_name = "Họ và tên không được bỏ trống!";
+    if (!gender) validationErrors.gender = "Giới tính không được bỏ trống!";
+    if (!email) {
+      validationErrors.email = "Email không được bỏ trống!";
+    } else if (!emailRegex.test(email)) {
+      validationErrors.email = "Email không đúng định dạng!";
+    } else {
+      const users = await fetchData("accounts");
+      const emailExists = users.some((user) => user.email === email);
+      if (emailExists) validationErrors.email = "Email đã được đăng ký!";
+    }
+
+    if (!phone) {
+      validationErrors.phone = "Số điện thoại không được bỏ trống!";
+    } else if (!phoneRegex.test(phone)) {
+      validationErrors.phone = "Số điện thoại không đúng định dạng!";
+    } else {
+      const users = await fetchData("accounts");
+      const phoneExists = users.some((user) => user.phone === phone);
+      if (phoneExists) validationErrors.phone = "Số điện thoại đã được đăng ký!";
+    }
+
+    if (!dob) {
+      validationErrors.dob = "Ngày sinh không được bỏ trống!";
+    } else if (new Date(dob) > today) {
+      validationErrors.dob = "Ngày sinh không được là ngày sau hôm nay!";
+    }
+
+    if (!password) {
+      validationErrors.password = "Mật khẩu không được bỏ trống!";
+    } else if (!passwordRegex.test(password)) {
+      validationErrors.password = "Mật khẩu phải có ít nhất 8 ký tự, ít nhất 1 chữ hoa và 1 số!";
+    }
+
+    if (!confirmPassword) {
+      validationErrors.confirmPassword = "Vui lòng xác nhận mật khẩu!";
+    } else if (password !== confirmPassword) {
+      validationErrors.confirmPassword = "Mật khẩu và xác nhận mật khẩu không khớp!";
+    }
+
+    if (!address) validationErrors.address = "Địa chỉ không được bỏ trống!";
+
+    setValidationErrors(validationErrors);
+    return Object.keys(validationErrors).length === 0;
+  };
+
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match");
-      return;
-    }
+    const isValid = await validateFields();
+    if (!isValid) return;
 
-    const data = { full_name, email, password, dob, phone, gender, role: 2 };
+    const data = { full_name, email, password, dob, phone, gender, address, role: "2", status: "active" };
 
     try {
       const response = await postData("accounts", data);
       console.log("Registration successful", response);
-
       setShowSuccessModal(true);
-
       setCurrentForm("login");
     } catch (error) {
       console.error("Registration error:", error);
       setErrorMessage("An error occurred while registering");
     }
   };
+
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
@@ -109,7 +193,11 @@ const LoginRegister = () => {
 
       const data = await response.json();
       if (response.ok) {
-        alert(data.message || "Yêu cầu đặt lại mật khẩu đã được gửi.");
+        setPopupContent({
+          title: "Yêu cầu thành công",
+          message: data.message || "Yêu cầu đặt lại mật khẩu đã được gửi.",
+        });
+        setPopupVisible(true);
         setCurrentForm("resetPassword");
       } else {
         setErrorMessage(data.message || "Đã xảy ra lỗi khi gửi yêu cầu!");
@@ -123,10 +211,8 @@ const LoginRegister = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
 
-    if (newPassword !== confirmNewPassword) {
-      setErrorMessage("Mật khẩu không khớp!");
-      return;
-    }
+    const isValid = validateResetPassword();
+    if (!isValid) return;
 
     try {
       const response = await fetch("http://localhost:5000/api/reset-password", {
@@ -137,7 +223,11 @@ const LoginRegister = () => {
 
       const data = await response.json();
       if (response.ok) {
-        alert(data.message || "Mật khẩu đã được thay đổi.");
+        setPopupContent({
+          title: "Thay đổi thành công",
+          message: data.message || "Mật khẩu đã được thay đổi.",
+        });
+        setPopupVisible(true);
         setCurrentForm("login");
       } else {
         setErrorMessage(data.message || "Đã xảy ra lỗi khi thay đổi mật khẩu!");
@@ -147,7 +237,30 @@ const LoginRegister = () => {
       setErrorMessage("Không thể kết nối đến server, vui lòng thử lại.");
     }
   };
+  const handleCancel = () => {
+    setEmail("");
+    setPassword("");
+    setFull_name("");
+    setPhone("");
+    setDob("");
+    setGender("");
+    setAddress("");
+    setConfirmPassword("");
+    setResetToken("");
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setErrorMessage("");
+    setValidationErrors({});
+    setCurrentForm("login");
+  };
 
+  const handleCancelReset = () => {
+    setResetPassword("");
+    setConfirmResetPassword("");
+    setResetValidationErrors({});
+    setErrorMessage("");
+    setCurrentForm("login");
+  };
 
   return (
     <div className="login-register-container">
@@ -159,14 +272,14 @@ const LoginRegister = () => {
               className={`me-2 ${currentForm === "login" ? "active-tab" : ""}`}
               onClick={() => setCurrentForm("login")}
             >
-              <i className="bi bi-box-arrow-in-right"></i> Đăng nhập
+              <i className="bi bi-box-arrow-in-right"> Đăng nhập</i>
             </Button>
             <Button
               variant="outline-warning"
               className={currentForm === "register" ? "active-tab" : ""}
               onClick={() => setCurrentForm("register")}
             >
-              <i className="bi bi-person-plus-fill"></i> Đăng ký
+              <i className="bi bi-person-plus-fill"> Đăng ký</i>
             </Button>
           </div>
 
@@ -182,7 +295,7 @@ const LoginRegister = () => {
                     type="email"
                     placeholder="Email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {setEmail(e.target.value); setErrorMessage("")}}
                     required
                   />
                 </InputGroup>
@@ -194,7 +307,7 @@ const LoginRegister = () => {
                     type="password"
                     placeholder="Mật khẩu"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {setPassword(e.target.value); setErrorMessage("")}}
                     required
                   />
                 </InputGroup>
@@ -224,11 +337,11 @@ const LoginRegister = () => {
                     }}
                     onClick={() => setCurrentForm("forgotPassword")}
                   >
-                    <i className="bi bi-question-circle"></i> Quên mật khẩu?
+                    <i className="bi bi-question-circle"> Quên mật khẩu?</i>
                   </Button>
                 </div>
                 <Button type="submit" className="btn-danger w-100">
-                  <i className="bi bi-box-arrow-in-right"></i> Đăng nhập
+                  <i className="bi bi-box-arrow-in-right"> Đăng nhập</i>
                 </Button>
               </Form>
             )}
@@ -244,10 +357,21 @@ const LoginRegister = () => {
                     type="text"
                     placeholder="* Họ tên"
                     value={full_name}
-                    onChange={(e) => setFull_name(e.target.value)}
-                    required
+                    onChange={(e) => {
+                      setFull_name(e.target.value);
+                      setErrorMessage("");
+                      setValidationErrors((prevErrors) => ({
+                        ...prevErrors,
+                        full_name: "",
+                      }));
+                    }}
+                    isInvalid={!!validationErrors.full_name}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.full_name}
+                  </Form.Control.Feedback>
                 </InputGroup>
+
                 <InputGroup className="mb-3">
                   <InputGroup.Text>
                     <i className="bi bi-envelope"></i>
@@ -256,10 +380,21 @@ const LoginRegister = () => {
                     type="email"
                     placeholder="* Email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setErrorMessage("");
+                      setValidationErrors((prevErrors) => ({
+                        ...prevErrors,
+                        email: "",
+                      }));
+                    }}
+                    isInvalid={!!validationErrors.email}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.email}
+                  </Form.Control.Feedback>
                 </InputGroup>
+
                 <InputGroup className="mb-3">
                   <InputGroup.Text>
                     <i className="bi bi-lock"></i>
@@ -268,10 +403,21 @@ const LoginRegister = () => {
                     type="password"
                     placeholder="* Mật khẩu"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setErrorMessage("");
+                      setValidationErrors((prevErrors) => ({
+                        ...prevErrors,
+                        password: "",
+                      }));
+                    }}
+                    isInvalid={!!validationErrors.password}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.password}
+                  </Form.Control.Feedback>
                 </InputGroup>
+
                 <InputGroup className="mb-3">
                   <InputGroup.Text>
                     <i className="bi bi-lock-fill"></i>
@@ -280,55 +426,127 @@ const LoginRegister = () => {
                     type="password"
                     placeholder="* Xác nhận mật khẩu"
                     value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                      setErrorMessage("");
+                      setValidationErrors((prevErrors) => ({
+                        ...prevErrors,
+                        confirmPassword: "",
+                      }));
+                    }}
+                    isInvalid={!!validationErrors.confirmPassword}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.confirmPassword}
+                  </Form.Control.Feedback>
                 </InputGroup>
                 <InputGroup className="mb-3">
                   <InputGroup.Text>
-                    <i className="bi bi-calendar-event"></i>
+                    <i className="bi bi-telephone-fill"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="text"
+                    placeholder="* Số điện thoại"
+                    value={phone}
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      setErrorMessage("");
+                      setValidationErrors((prevErrors) => ({
+                        ...prevErrors,
+                        phone: "",
+                      }));
+                    }}
+                    isInvalid={!!validationErrors.phone}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.phone}
+                  </Form.Control.Feedback>
+                </InputGroup>
+
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-calendar-date"></i>
                   </InputGroup.Text>
                   <Form.Control
                     type="date"
                     placeholder="* Ngày sinh"
                     value={dob}
-                    onChange={(e) => setDob(e.target.value)}
-                    required
+                    onChange={(e) => {
+                      setDob(e.target.value);
+                      setErrorMessage("");
+                      setValidationErrors((prevErrors) => ({
+                        ...prevErrors,
+                        dob: "",
+                      }));
+                    }}
+                    isInvalid={!!validationErrors.dob}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.dob}
+                  </Form.Control.Feedback>
                 </InputGroup>
-                <InputGroup className="mb-3">
-                  <InputGroup.Text>
-                    <i className="bi bi-telephone"></i>
-                  </InputGroup.Text>
-                  <Form.Control
-                    type="tel"
-                    placeholder="* Số điện thoại"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                  />
-                </InputGroup>
+
                 <InputGroup className="mb-3">
                   <InputGroup.Text>
                     <i className="bi bi-gender-ambiguous"></i>
                   </InputGroup.Text>
                   <Form.Control
-                    as="select"
+                    type="text"
+                    as={"select"}
+                    placeholder="Giới Tính"
                     value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                    required
+                    onChange={(e) => {
+                      setGender(e.target.value);
+                      setErrorMessage("");
+                      setValidationErrors((prevErrors) => ({
+                        ...prevErrors,
+                        gender: "",
+                      }));
+                    }}
+                    isInvalid={!!validationErrors.gender}
                   >
-                    <option value="">* Giới tính</option>
-                    <option value="Male">Nam</option>
-                    <option value="Female">Nữ</option>
-                    <option value="Other">Khác</option>
+                    <option value="">* Giới Tính</option>
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
+                    <option value="Khác">Khác</option>
                   </Form.Control>
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.gender}
+                  </Form.Control.Feedback>
                 </InputGroup>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <i className="bi bi-geo-alt"></i>
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="text"
+                    placeholder="* Địa chỉ"
+                    value={address}
+                    onChange={(e) => {
+                      setAddress(e.target.value);
+                      setErrorMessage("");
+                      setValidationErrors((prevErrors) => ({
+                        ...prevErrors,
+                        address: "",
+                      }));
+                    }}
+                    isInvalid={!!validationErrors.address}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {validationErrors.address}
+                  </Form.Control.Feedback>
+                </InputGroup>
+
                 {errorMessage && <p className="text-danger">{errorMessage}</p>}
+
+                <Button style={{ marginBottom: "5px" }} variant="secondary" onClick={handleCancel}>
+                  <i class="bi bi-x-circle"> Hủy</i>
+                </Button>
                 <Button type="submit" className="btn-warning w-100">
-                  <i className="bi bi-person-plus-fill"></i> Đăng ký
+                  <i className="bi bi-person-plus-fill"> Đăng ký</i>
                 </Button>
               </Form>
+
             )}
             <Modal
               show={showSuccessModal}
@@ -337,10 +555,10 @@ const LoginRegister = () => {
               centered
             >
               <Modal.Header closeButton>
-                <Modal.Title>Registration Successful</Modal.Title>
+                <Modal.Title>Tạo Tài Khoản Thành Công</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                <p>Your account has been successfully created. You will be redirected to the login page.</p>
+                <p>Tài Khoản Của Bạn Đã Được Tạo Thành Công. Vui Lòng Đăng Nhập Để Trải Nghiệm!</p>
               </Modal.Body>
               <Modal.Footer>
                 <Button variant="secondary" onClick={() => setShowSuccessModal(false)}>
@@ -362,14 +580,16 @@ const LoginRegister = () => {
                     <Form.Control
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => {setEmail(e.target.value); setErrorMessage("")}}
                       placeholder="Nhập email"
                       required
                     />
                   </InputGroup>
-
+                  <Button style={{ marginBottom: "5px" }} variant="secondary" onClick={handleCancel}>
+                    <i class="bi bi-x-circle"> Hủy</i>
+                  </Button>
                   <Button variant="primary" type="submit" className="w-100">
-                    Gửi yêu cầu đặt lại mật khẩu
+                    <i class="bi bi-send"> Gửi yêu cầu đặt lại mật khẩu</i>
                   </Button>
                 </Form>
               </>
@@ -384,12 +604,12 @@ const LoginRegister = () => {
 
                   <InputGroup className="mb-3">
                     <InputGroup.Text>
-                      <i className="bi bi-key"></i>
+                      <i class="bi bi-check2-circle"></i>
                     </InputGroup.Text>
                     <Form.Control
                       type="text"
                       value={resetToken}
-                      onChange={(e) => setResetToken(e.target.value)}
+                      onChange={(e) => {setResetToken(e.target.value); setErrorMessage("")}}
                       placeholder="Nhập mã reset"
                       required
                     />
@@ -397,15 +617,25 @@ const LoginRegister = () => {
 
                   <InputGroup className="mb-3">
                     <InputGroup.Text>
-                      <i className="bi bi-lock"></i>
+                      <i className="bi bi-key"></i>
                     </InputGroup.Text>
                     <Form.Control
                       type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
+                      value={resetPassword}
+                      onChange={(e) => {
+                        setResetPassword(e.target.value);
+                        setErrorMessage("");
+                        setResetValidationErrors((prevErrors) => ({
+                          ...prevErrors,
+                          resetPassword: "",
+                        }));
+                      }}
                       placeholder="Nhập mật khẩu mới"
-                      required
+                      isInvalid={!!resetValidationErrors.resetPassword}
                     />
+                    <Form.Control.Feedback type="invalid">
+                      {resetValidationErrors.resetPassword}
+                    </Form.Control.Feedback>
                   </InputGroup>
 
                   <InputGroup className="mb-3">
@@ -414,15 +644,27 @@ const LoginRegister = () => {
                     </InputGroup.Text>
                     <Form.Control
                       type="password"
-                      value={confirmNewPassword}
-                      onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      value={confirmResetPassword}
+                      onChange={(e) => {
+                        setConfirmResetPassword(e.target.value);
+                        setErrorMessage("");
+                        setResetValidationErrors((prevErrors) => ({
+                          ...prevErrors,
+                          confirmResetPassword: "",
+                        }));
+                      }}
                       placeholder="Xác nhận mật khẩu mới"
-                      required
+                      isInvalid={!!resetValidationErrors.confirmResetPassword}
                     />
+                    <Form.Control.Feedback type="invalid">
+                      {resetValidationErrors.confirmResetPassword}
+                    </Form.Control.Feedback>
                   </InputGroup>
-
+                  <Button style={{ marginBottom: "5px" }} variant="secondary" onClick={handleCancelReset}>
+                    <i class="bi bi-x-circle"> Hủy</i>
+                  </Button>
                   <Button variant="primary" type="submit" className="w-100">
-                    Đặt lại mật khẩu
+                    <i class="bi bi-check-circle"> Đặt lại mật khẩu</i>
                   </Button>
                 </Form>
               </>
@@ -431,6 +673,17 @@ const LoginRegister = () => {
           </div>
         </Card.Body>
       </Card>
+      <Modal show={popupVisible} onHide={() => setPopupVisible(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{popupContent.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{popupContent.message}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => setPopupVisible(false)}>
+            Đóng
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

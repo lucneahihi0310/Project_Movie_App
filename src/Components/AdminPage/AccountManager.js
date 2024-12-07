@@ -13,7 +13,6 @@ const AccountManager = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
 
-
   function initialAccountState() {
     return {
       password: "",
@@ -71,7 +70,7 @@ const AccountManager = () => {
     if (!newAccount.dob) {
       validationErrors.dob = "Ngày sinh không được bỏ trống!";
     } else if (new Date(newAccount.dob) > today) {
-      validationErrors.dob = "Ngày sinh không được là ngày trước hôm nay!";
+      validationErrors.dob = "Ngày sinh không được là ngày sau hôm nay!";
     }
 
     if (!newAccount.password) {
@@ -91,18 +90,35 @@ const AccountManager = () => {
     if (!validateFields()) return;
 
     try {
+      let updatedAccount;
+
       if (currentAccount) {
-        const updated = await updateData("accounts", currentAccount.id, newAccount);
+        updatedAccount = await updateData("accounts", currentAccount.id, newAccount);
         setAccounts((prev) =>
-          prev.map((account) => (account.id === updated.id ? updated : account))
+          prev.map((account) => (account.id === updatedAccount.id ? updatedAccount : account))
         );
-        setSuccessMessage("Cập nhật tài khoản thành công!");
       } else {
-        const added = await postData("accounts", newAccount);
-        setAccounts((prev) => [...prev, added]);
-        setSuccessMessage("Thêm tài khoản thành công!");
+        updatedAccount = await postData("accounts", newAccount);
+        setAccounts((prev) => [...prev, updatedAccount]);
+      }
+      const accountToSave = {
+        id: updatedAccount.id,
+        password: updatedAccount.password,
+        role: updatedAccount.role,
+        email: updatedAccount.email,
+        full_name: updatedAccount.full_name,
+      };
+      const sessionAccount = JSON.parse(sessionStorage.getItem("account"));
+      if (sessionAccount && sessionAccount.id === updatedAccount.id) {
+        sessionStorage.setItem("account", JSON.stringify(updatedAccount));
       }
 
+      const localAccount = JSON.parse(localStorage.getItem("rememberedAccount"));
+      if (localAccount && localAccount.id === updatedAccount.id) {
+        localStorage.setItem("rememberedAccount", JSON.stringify(accountToSave));
+      }
+
+      setSuccessMessage("Cập nhật tài khoản thành công!");
       setShowModal(false);
       setNewAccount(initialAccountState());
       setErrors({});
@@ -123,7 +139,6 @@ const AccountManager = () => {
       setErrorMessage("Không thể xóa tài khoản, vui lòng thử lại!");
     }
   };
-
 
   const toggleStatus = async (id) => {
     try {
@@ -162,7 +177,11 @@ const AccountManager = () => {
       [name]: "",
     }));
   };
-
+  const handleCancel = () => {
+    setShowModal(false);
+    setErrors({});
+    setNewAccount(initialAccountState());
+  };
   return (
     <Container>
       <h2 className="my-4 text-center">Quản Lý Tài Khoản</h2>
@@ -236,7 +255,6 @@ const AccountManager = () => {
                 >
                   Xóa
                 </Button>
-
               </td>
             </tr>
           ))}
@@ -344,7 +362,7 @@ const AccountManager = () => {
               <Form.Label>* Số Điện Thoại</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Số Điện Thoại"
+                placeholder="Số điện thoại"
                 name="phone"
                 value={newAccount.phone}
                 onChange={handleInputChange}
@@ -358,7 +376,7 @@ const AccountManager = () => {
               <Form.Label>* Địa Chỉ</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Địa Chỉ"
+                placeholder="Địa chỉ"
                 name="address"
                 value={newAccount.address}
                 onChange={handleInputChange}
@@ -371,12 +389,12 @@ const AccountManager = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
+        <Button variant="secondary" onClick={handleCancel}>
             Hủy
           </Button>
-          <Button variant="primary" onClick={handleSave}>
-            Lưu
-          </Button>
+            <Button variant="primary" onClick={handleSave}>
+              Lưu
+            </Button>
         </Modal.Footer>
       </Modal>
 
@@ -384,15 +402,16 @@ const AccountManager = () => {
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
         centered
+        backdrop="static"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Xác nhận xóa</Modal.Title>
+          <Modal.Title>Xác Nhận Xóa Tài Khoản</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>Bạn có chắc chắn muốn xóa tài khoản này không?</p>
+          Bạn có chắc chắn muốn xóa tài khoản này không?
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+        <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
             Hủy
           </Button>
           <Button variant="danger" onClick={handleDelete}>
@@ -400,7 +419,6 @@ const AccountManager = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
     </Container>
   );
 };

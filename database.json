@@ -22,43 +22,9 @@
       "phone": "0354994218",
       "full_name": "Dương Văn Lực",
       "status": "active",
-      "gender": "Nam"
-    },
-    {
-      "id": "8f1b",
-      "password": "Phuongkhanh2003",
-      "role": "2",
-      "dob": "2003-01-19",
-      "address": "Hà Nội",
-      "email": "hoahongxanh19012003@gmail.com",
-      "phone": "0333308969",
-      "full_name": "Nguyễn Thị Thu Phương",
-      "status": "active",
-      "gender": "Nữ"
-    },
-    {
-      "id": "4d0c",
-      "password": "Phuongngau323453456",
-      "role": "2",
-      "dob": "2024-12-03",
-      "address": "hà nội",
-      "email": "poine1901@gmail.com",
-      "phone": "0777777777",
-      "full_name": "Phương Ngâu",
-      "status": "active",
-      "gender": "Nữ"
-    },
-    {
-      "id": "2f56",
-      "password": "Lucduon3243242",
-      "role": "2",
-      "dob": "2024-12-03",
-      "address": "Hà Nội",
-      "email": "phamhuy8723@gmail.com",
-      "phone": "09999999999",
-      "full_name": "Phạm Quang Huy",
-      "status": "active",
-      "gender": "Nam"
+      "gender": "Nam",
+      "resetToken": "ul0xucaysp",
+      "resetTokenExpiration": 1733595697069
     }
   ],
   "roles": [
