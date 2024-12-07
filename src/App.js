@@ -15,6 +15,9 @@ import Page404 from "./Components/pages/Page404.js";
 import HomePage from "./Components/pages/HomePage.js";
 import MovieDetail from "./Components/pages/MovieDetail.js";
 import AccountManager from "./Components/AdminPage/AccountManager.js";
+import ShowTime from "./Components/pages/ShowtimePage.js";
+import Booking from "./Components/pages/Booking.js";
+import UserProfile from "./Components/pages/UserProfile.js";
 
 function App() {
   const account = JSON.parse(localStorage.getItem("rememberedAccount")) || JSON.parse(sessionStorage.getItem("account"));
@@ -38,29 +41,47 @@ function App() {
         <Route path="/price" element={<TicketPricing />} />
         <Route
           path="/account"
-          element={<ProtectedRoute element={<AccountManager />} allowedRoles={"1"} />}
+          element={
+            <ProtectedRoute element={<AccountManager />} allowedRoles={"1"} />
+          }
         />
         <Route
           path="/managermovies"
-          element={<ProtectedRoute element={<AdminMovies />} allowedRoles={"1"} />}
+          element={
+            <ProtectedRoute element={<AdminMovies />} allowedRoles={"1"} />
+          }
         />
         <Route
           path="/languages"
-          element={<ProtectedRoute element={<LanguagesManager />} allowedRoles={"1"} />}
+          element={
+            <ProtectedRoute element={<LanguagesManager />} allowedRoles={"1"} />
+          }
         />
         <Route
           path="/genres"
-          element={<ProtectedRoute element={<GenresManager />} allowedRoles={"1"} />}
+          element={
+            <ProtectedRoute element={<GenresManager />} allowedRoles={"1"} />
+          }
         />
         <Route
           path="/movietypes"
-          element={<ProtectedRoute element={<MovieTypesManager />} allowedRoles={"1"} />}
+          element={
+            <ProtectedRoute
+              element={<MovieTypesManager />}
+              allowedRoles={"1"}
+            />
+          }
         />
         <Route
           path="/screens"
-          element={<ProtectedRoute element={<ScreensManager />} allowedRoles={"1"} />}
+          element={
+            <ProtectedRoute element={<ScreensManager />} allowedRoles={"1"} />
+          }
         />
+        <Route path="/showtime" element={<ShowTime />} />
         <Route path="/movie" element={<MoviePage />} />
+        <Route path="/booking" element={<Booking />} />
+        <Route path="/profile" element={<UserProfile />} />
       </Routes>
       <Footer />
     </Router>
