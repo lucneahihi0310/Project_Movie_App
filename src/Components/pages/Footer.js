@@ -4,7 +4,7 @@ function Footer() {
   const [cinema, setCinema] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:3001/cinema")
+    fetch("http://localhost:3001/cinema/1")
       .then((response) => response.json())
       .then((data) => {
         setCinema(data);

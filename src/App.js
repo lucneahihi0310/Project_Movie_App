@@ -80,7 +80,7 @@ function App() {
         />
         <Route path="/showtime" element={<ShowTime />} />
         <Route path="/movie" element={<MoviePage />} />
-        <Route path="/booking" element={<Booking />} />
+        <Route path="/booking/:id" element={<Booking />} />
         <Route path="/profile" element={<UserProfile />} />
       </Routes>
       <Footer />

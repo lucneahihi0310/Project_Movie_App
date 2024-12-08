@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../../CSS/MovieDetail.css";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Modal, Button, Table } from "react-bootstrap";
 import { IoTicketOutline } from "react-icons/io5";
 const MovieDetail = () => {
@@ -11,7 +11,12 @@ const MovieDetail = () => {
   const [cinema, setCinema] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedShowtime, setSelectedShowtime] = useState(null);
-
+  const navigate = useNavigate();
+  const handleBookTicket = () => {
+    if (selectedShowtime) {
+      navigate(`/booking/${movie.id}`, { state: { showtimeId: selectedShowtime.id } });
+    }
+  };
   const handleShowtimeClick = (showtime) => {
     setSelectedShowtime(showtime);
   };
@@ -36,7 +41,7 @@ const MovieDetail = () => {
       .then((data) => setLanguages(data))
       .catch((error) => console.error("Error fetching languages:", error));
 
-    fetch(`http://localhost:3001/cinema`)
+    fetch(`http://localhost:3001/cinema/1`)
       .then((response) => response.json())
       .then((data) => setCinema(data))
       .catch((error) => console.error("Error fetching showtimes:", error));
@@ -77,7 +82,9 @@ const MovieDetail = () => {
   };
 
   const formatTime = (timeString) => {
-    const time = new Date(`1970-01-01T${timeString}Z`);
+    const [hours, minutes, seconds] = timeString.split(":").map(Number);
+    const time = new Date();
+    time.setHours(hours, minutes, seconds, 0);
     return time.toLocaleTimeString("vi-VN", {
       hour: "2-digit",
       minute: "2-digit",
@@ -86,7 +93,7 @@ const MovieDetail = () => {
   };
 
   const filteredShowtimes = movie.showtimes.filter(
-    (showtime) => showtime.date === selectedDate
+    (showtime) => showtime.date == selectedDate
   );
 
   return (
@@ -98,7 +105,7 @@ const MovieDetail = () => {
         </div>
 
         <div className="movie-info">
-          <div className="poster">
+          <div className="posters">
             <img
               src={movie.poster[1]}
               alt={`${movie.title} Poster`}
@@ -155,9 +162,8 @@ const MovieDetail = () => {
               .map((date) => (
                 <div
                   key={date}
-                  className={`date-item ${
-                    selectedDate === date ? "active" : ""
-                  }`}
+                  className={`date-item ${selectedDate === date ? "active" : ""
+                    }`}
                   onClick={() => handleDateClick(date)}
                 >
                   {formatDate(date)}
@@ -227,11 +233,8 @@ const MovieDetail = () => {
               )}
             </Modal.Body>
             <Modal.Footer>
-              <Button variant="primary">
-                {" "}
-                <IoTicketOutline
-                  style={{ marginRight: "8px", fontSize: "1.5rem" }}
-                />
+              <Button variant="primary" onClick={handleBookTicket}>
+                <IoTicketOutline style={{ marginRight: "8px", fontSize: "1.5rem" }} />
                 Đặt vé
               </Button>
             </Modal.Footer>
