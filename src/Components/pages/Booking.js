@@ -73,7 +73,9 @@ function Booking() {
   };
 
   const getLanguageName = (languageId) => {
-    const languageName = languages.find((language) => language.id == languageId)?.name;
+    const languageName = languages.find(
+      (language) => language.id == languageId
+    )?.name;
     return languageName || "Unknown Language";
   };
 
@@ -136,7 +138,11 @@ function Booking() {
 
       <div className="ticket">
         <div className="header">
-          <img src={movieData.poster[1]} alt={movieData.title} className="poster" />
+          <img
+            src={movieData.poster}
+            alt={movieData.title}
+            className="poster"
+          />
         </div>
         <div className="info">
           <h2>{movieData.title}</h2>
@@ -152,16 +158,23 @@ function Booking() {
               <strong>Rạp chiếu:</strong> {cinemas[0]?.name || "N/A"}
             </li>
             <li>
-              <strong>Ngày chiếu:</strong> {formatDate(movieData.selectedShowtime?.date)}
+              <strong>Ngày chiếu:</strong>{" "}
+              {formatDate(movieData.selectedShowtime?.date)}
             </li>
             <li>
-              <strong>Giờ chiếu:</strong> {formatTime(movieData.selectedShowtime?.start_time)} - {formatTime(movieData.selectedShowtime?.end_time)}
+              <strong>Giờ chiếu:</strong>{" "}
+              {formatTime(movieData.selectedShowtime?.start_time)} -{" "}
+              {formatTime(movieData.selectedShowtime?.end_time)}
             </li>
             <li>
-              <strong>Phòng chiếu:</strong> Phòng {movieData.selectedShowtime?.screen_id || "N/A"}
+              <strong>Phòng chiếu:</strong> Phòng{" "}
+              {movieData.selectedShowtime?.screen_id || "N/A"}
             </li>
             <li>
-              <strong>Ghế:</strong> {selectedSeats.length > 0 ? selectedSeats.join(", ") : "Chưa chọn ghế"}
+              <strong>Ghế:</strong>{" "}
+              {selectedSeats.length > 0
+                ? selectedSeats.join(", ")
+                : "Chưa chọn ghế"}
             </li>
           </ul>
           <button className="continue-button">Tiếp tục</button>

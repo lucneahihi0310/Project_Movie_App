@@ -35,7 +35,7 @@ function MoviePage() {
       .then((data) => setMovieType(data))
       .catch((error) => console.error("Error fetching movie types:", error));
 
-    fetch(`http://localhost:3001/cinema`)
+    fetch("http://localhost:3001/cinema/1")
       .then((response) => response.json())
       .then((data) => setCinema(data))
       .catch((error) => console.error("Error fetching showtimes:", error));

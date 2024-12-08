@@ -37,7 +37,7 @@ function ShowTime() {
       .then((data) => setLanguages(data))
       .catch((error) => console.error("Error fetching languages:", error));
 
-    fetch(`http://localhost:3001/cinema`)
+    fetch("http://localhost:3001/cinema/1")
       .then((response) => response.json())
       .then((data) => setCinema(data))
       .catch((error) => console.error("Error fetching showtimes:", error));
@@ -47,6 +47,7 @@ function ShowTime() {
     const uniqueDates = [...new Set(showtimes.map((time) => time.date))];
     return uniqueDates.sort();
   };
+  console.log(cinema);
 
   const getGenreNames = (genreIds) =>
     genreIds
