@@ -80,9 +80,10 @@ function MoviePage() {
       month: "2-digit",
     });
   };
-
   const formatTime = (timeString) => {
-    const time = new Date(`1970-01-01T${timeString}Z`);
+    const [hours, minutes, seconds] = timeString.split(":").map(Number);
+    const time = new Date();
+    time.setHours(hours, minutes, seconds, 0);
     return time.toLocaleTimeString("vi-VN", {
       hour: "2-digit",
       minute: "2-digit",
@@ -164,7 +165,7 @@ function MoviePage() {
                   <div className="image-container">
                     <img
                       src={
-                        movie.poster[1] || "https://via.placeholder.com/200x300"
+                        movie.poster || "https://via.placeholder.com/200x300"
                       }
                       alt={movie.title}
                     />

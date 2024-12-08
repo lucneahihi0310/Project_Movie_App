@@ -2,7 +2,6 @@ import Carousel from "react-bootstrap/Carousel";
 import { FaPlay } from "react-icons/fa";
 import "../../CSS/HomePage.css";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Modal, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
@@ -65,7 +64,7 @@ function HomePage() {
           <Carousel.Item key={index}>
             <img
               className="d-block w-100"
-              src={movie.poster[0]}
+              src={movie.banner}
               alt={`Slide ${index + 1}`}
             />
           </Carousel.Item>
@@ -99,9 +98,10 @@ function HomePage() {
               return (
                 <div className="movie-item" key={movie.id}>
                   <div className="image-container">
-                    <img style={{ height: "400px" }}
+                    <img
+                      style={{ height: "400px" }}
                       src={
-                        movie.poster[1] || "https://via.placeholder.com/200x300"
+                        movie.poster || "https://via.placeholder.com/200x300"
                       }
                       alt={movie.title}
                     />

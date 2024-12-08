@@ -1,13 +1,39 @@
-.carousel-image {
-  transition: opacity 1s ease-in-out;
+.carousel .carousel-inner {
+  display: flex;
+}
+
+.carousel-item {
+  flex: 0 0 100%;
+  transition: transform 0.6s ease-in-out !important;
+  position: relative;
 }
 
 .carousel-item-next,
-.carousel-item-prev,
-.carousel-item.active {
-  transition: transform 1s ease-in-out, opacity 1s ease-in-out;
+.carousel-item-start {
+  transform: translateX(0);
 }
 
+.carousel-item-prev,
+.carousel-item-end {
+  transform: translateX(-100%);
+}
+
+.carousel-item.active {
+  transform: translateX(0);
+  z-index: 1;
+  display: block;
+}
+
+.carousel-item {
+  height: 560px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.carousel-item img {
+  display: none;
+}
 .home-page-content {
   color: #333;
   margin: 3rem auto;

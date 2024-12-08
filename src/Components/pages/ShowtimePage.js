@@ -57,7 +57,9 @@ function ShowTime() {
     languages.find((language) => language.id == languageId)?.name;
 
   const formatTime = (timeString) => {
-    const time = new Date(`1970-01-01T${timeString}Z`);
+    const [hours, minutes, seconds] = timeString.split(":").map(Number);
+    const time = new Date();
+    time.setHours(hours, minutes, seconds, 0);
     return time.toLocaleTimeString("vi-VN", {
       hour: "2-digit",
       minute: "2-digit",
@@ -94,7 +96,7 @@ function ShowTime() {
         <div key={movie.id} className="movie-details">
           <div className="movie-poster">
             <img
-              src={movie.poster?.[1] || "https://via.placeholder.com/200x300"}
+              src={movie.poster || "https://via.placeholder.com/200x300"}
               alt={movie.title || "Untitled Movie"}
             />
           </div>

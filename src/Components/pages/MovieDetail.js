@@ -14,7 +14,9 @@ const MovieDetail = () => {
   const navigate = useNavigate();
   const handleBookTicket = () => {
     if (selectedShowtime) {
-      navigate(`/booking/${movie.id}`, { state: { showtimeId: selectedShowtime.id } });
+      navigate(`/booking/${movie.id}`, {
+        state: { showtimeId: selectedShowtime.id },
+      });
     }
   };
   const handleShowtimeClick = (showtime) => {
@@ -107,7 +109,7 @@ const MovieDetail = () => {
         <div className="movie-info">
           <div className="posters">
             <img
-              src={movie.poster[1]}
+              src={movie.poster}
               alt={`${movie.title} Poster`}
               className="poster-image"
             />
@@ -159,17 +161,20 @@ const MovieDetail = () => {
             {movie.showtimes
               .map((s) => s.date)
               .filter((value, index, self) => self.indexOf(value) === index)
+              .sort((a, b) => new Date(a) - new Date(b))
               .map((date) => (
                 <div
                   key={date}
-                  className={`date-item ${selectedDate === date ? "active" : ""
-                    }`}
+                  className={`date-item ${
+                    selectedDate === date ? "active" : ""
+                  }`}
                   onClick={() => handleDateClick(date)}
                 >
                   {formatDate(date)}
                 </div>
               ))}
           </div>
+
           <div className="schedule">
             <h2>{getLanguageName(movie.language_id)}</h2>
             {filteredShowtimes.length > 0 ? (
@@ -234,7 +239,9 @@ const MovieDetail = () => {
             </Modal.Body>
             <Modal.Footer>
               <Button variant="primary" onClick={handleBookTicket}>
-                <IoTicketOutline style={{ marginRight: "8px", fontSize: "1.5rem" }} />
+                <IoTicketOutline
+                  style={{ marginRight: "8px", fontSize: "1.5rem" }}
+                />
                 Đặt vé
               </Button>
             </Modal.Footer>
