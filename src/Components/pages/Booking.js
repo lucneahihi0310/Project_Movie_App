@@ -20,6 +20,9 @@ function Booking() {
   const sessionUser = JSON.parse(sessionStorage.getItem("account"));
   const localUser = JSON.parse(localStorage.getItem("rememberedAccount"));
   const user = sessionUser || localUser;
+  const [isSending, setIsSending] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [ticketId, setTicketId] = useState('');
 
   useEffect(() => {
     const fetchMovieData = async () => {
@@ -115,44 +118,52 @@ function Booking() {
   if (!movieData) {
     return <div>Loading...</div>;
   }
-  const handlePayment = async () => {
-    const ticketInfo = {
-        userName: user?.full_name,
-        email: user?.email,
-        phone: user?.phone,
-        movieTitle: movieData.title,
-        showDate: formatDate(movieData.selectedShowtime?.date),
-        showTime: `${formatTime(movieData.selectedShowtime?.start_time)} - ${formatTime(movieData.selectedShowtime?.end_time)}`,
-        seats: selectedSeats.join(", "),
-        totalAmount: movieData.selectedShowtime?.price * selectedSeats.length,
-    };
-
+  const handleConfirmBooking = async () => {
+    setIsSending(true); // Start sending email
     try {
-        const response = await fetch("http://localhost:5000/payment", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(ticketInfo),
-        });
+      const bookingData = {
+        userEmail: user?.email,
+        fullName: user?.full_name || "Khách",
+        phone: user?.phone || "Khách",
+        cinema: getCinemaName(movieData.selectedShowtime?.cinema_id),
+        movie: movieData.title,
+        duration: movieData.duration,
+        screen: getScreenName(movieData.selectedShowtime?.screen_id),
+        seats: selectedSeats.join(", "),
+        date: formatDate(movieData.selectedShowtime?.date),
+        startTime: formatTime(movieData.selectedShowtime?.start_time),
+        endTime: formatTime(movieData.selectedShowtime?.end_time),
+        totalPrice: movieData.selectedShowtime?.price * selectedSeats.length
+      };
 
+      const response = await fetch("http://localhost:5000/api/confirm-booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (response.ok) {
         const result = await response.json();
-
-        if (result.url) {
-          console.log("Redirecting to URL Payment:", result.url);
-
-            // Chuyển hướng người dùng đến trang thanh toán VNPay
-            window.location.href = result.url;
-        } else {
-            alert("Có lỗi xảy ra, vui lòng thử lại.");
-        }
+        setTicketId(result.ticketId); // Store the ticket ID
+        setShowSuccessModal(true); // Show success modal
+        setShowModal(false); // Close the confirmation modal
+        setSelectedSeats([]);
+      } else {
+        alert("Có lỗi xảy ra, vui lòng thử lại.");
+      }
     } catch (error) {
-        console.error("Error during payment:", error);
-        alert("Có lỗi xảy ra, vui lòng thử lại sau.");
+      console.error("Error confirming booking:", error);
+      alert("Có lỗi xảy ra khi xác nhận vé.");
+    } finally {
+      setIsSending(false); // End sending email
     }
-};
+  };
 
-  
+
+
+
   return (
     <div className="booking-container">
       <div className="seats-container">
@@ -253,7 +264,7 @@ function Booking() {
       </Modal>
 
       {/* Modal xác nhận đặt vé */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+      <Modal show={showModal} onHide={() => !isSending && setShowModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Xác nhận đặt vé</Modal.Title>
         </Modal.Header>
@@ -283,14 +294,31 @@ function Booking() {
           </ul>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button disabled={isSending} variant="secondary" onClick={() => setShowModal(false)}>
             Đóng
           </Button>
-          <Button variant="primary" onClick={handlePayment}>
-            Thanh Toán
+          <Button disabled={isSending} onClick={handleConfirmBooking} variant="primary">
+            Xác Nhận
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Success Modal */}
+      <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Đặt vé thành công!</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p><strong>Mã vé của bạn là:</strong> {ticketId}</p>
+          <p>Thông tin vé đã được gửi về email của bạn. Vui lòng mang theo thông tin vé đến quầy để thanh toán và nhận vé. Xin cảm ơn!</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => setShowSuccessModal(false)}>
+            OK
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   );
 }

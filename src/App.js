@@ -18,6 +18,7 @@ import AccountManager from "./Components/AdminPage/AccountManager.js";
 import ShowTime from "./Components/pages/ShowtimePage.js";
 import Booking from "./Components/pages/Booking.js";
 import UserProfile from "./Components/pages/UserProfile.js";
+import TicketManagement from "./Components/AdminPage/TicketManagement.js";
 
 function App() {
   const account = JSON.parse(localStorage.getItem("rememberedAccount")) || JSON.parse(sessionStorage.getItem("account"));
@@ -87,13 +88,17 @@ function App() {
           }
         />
         <Route
-          path="/profile"
+          path="/profile/:id"
           element={
             <ProtectedRoute element={<UserProfile />} allowedRoles={["1", "2"]} />
           }
         />
-
+        <Route path="/tickets" element={
+          <ProtectedRoute element={<TicketManagement />} allowedRoles={"1"} />
+        }
+        />
       </Routes>
+
       <Footer />
     </Router>
   );

@@ -249,6 +249,134 @@ const sendTicketEmail = (userEmail, ticketInfo) => {
         }
     });
 };
+const { v4: uuidv4 } = require('uuid');  // Import UUID để tạo ID ngẫu nhiên
+
+app.post("/api/confirm-booking", (req, res) => {
+    const {
+        userEmail,
+        fullName,
+        phone,
+        cinema,
+        movie,
+        duration,
+        screen,
+        seats,
+        date,
+        startTime,
+        endTime,
+        totalPrice,
+    } = req.body;
+
+    const database = getDatabase();
+    const accounts = database.accounts;
+
+    // Tìm tài khoản của người dùng
+    const user = accounts.find((u) => u.email === userEmail);
+    if (!user) {
+        return res.status(404).json({ message: "Không tìm thấy tài khoản người dùng!" });
+    }
+
+    // Tạo ID cho ticket mới
+    const ticketId = uuidv4();  // Tạo ID duy nhất cho ticket
+
+    // Cập nhật thông tin vé vào tài khoản người dùng
+    const newTicket = {
+        id: ticketId,  // Thêm ID cho ticket
+        movie,
+        cinema,
+        seats,
+        date,
+        startTime,
+        endTime,
+        totalPrice,
+        screen,
+        status: "inactive",
+    };
+
+    user.tickets.push(newTicket);
+
+    // Gửi email xác nhận
+    const mailOptions = {
+        from: "kubinduong2002@gmail.com",
+        to: userEmail,
+        subject: "Xác nhận đặt vé",
+        html: `
+          <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+    
+    <!-- Logo Section -->
+    <div style="text-align: center;">
+      <img src="https://duongvanluc2002.sirv.com/black_on_trans.png" width="120" height="120" alt="Logo" style="margin-bottom: 20px;">
+    </div>
+
+    <!-- Title Section -->
+    <h2 style="color: #333; text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px;">
+      Xác nhận đặt vé cho <span style="color: #007BFF;">${movie}</span>
+    </h2>
+
+    <!-- Ticket Information Section -->
+    <div style="border-top: 2px solid #f0f0f0; padding-top: 20px;">
+      
+      <!-- Ticket ID -->
+      <div style="margin-bottom: 15px;">
+        <p style="font-size: 16px; color: #555;"><strong>Mã vé:</strong> ${ticketId}</p>
+      </div>
+
+      <!-- Booker's Information -->
+      <div style="margin-bottom: 15px;">
+        <p style="font-size: 16px; color: #555;"><strong>Người đặt:</strong> ${fullName}</p>
+        <p style="font-size: 16px; color: #555;"><strong>Email:</strong> ${userEmail}</p>
+        <p style="font-size: 16px; color: #555;"><strong>Số điện thoại:</strong> ${phone}</p>
+      </div>
+
+      <!-- Show Information -->
+      <div style="margin-bottom: 20px;">
+        <p style="font-size: 16px; color: #555;"><strong>Rạp chiếu:</strong> ${cinema}</p>
+        <p style="font-size: 16px; color: #555;"><strong>Ghế:</strong> ${seats}</p>
+        <p style="font-size: 16px; color: #555;"><strong>Ngày chiếu:</strong> ${date}</p>
+        <p style="font-size: 16px; color: #555;"><strong>Thời gian chiếu:</strong> ${startTime} - ${endTime}</p>
+        <p style="font-size: 16px; color: #555;"><strong>Phòng chiếu:</strong> ${screen}</p>
+      </div>
+
+      <!-- Total Price -->
+      <div style="margin-bottom: 20px; border-top: 1px solid #f0f0f0; padding-top: 10px;">
+        <p style="font-size: 16px; color: #555;"><strong>Tổng tiền:</strong> ${totalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} (chưa thanh toán.)</p>
+      </div>
+    </div>
+
+    <!-- Additional Information -->
+    <div style="font-size: 16px; color: #555; margin-top: 20px; text-align: center;">
+      <p style="font-size: 16px; color: #e74c3c; font-weight: bold;">Vui lòng mang thông tin này đến quầy để thanh toán và nhận vé. MOVIE88 xin cảm ơn!</p>
+      <hr style="border: 0; border-top: 1px solid #ddd; margin: 30px 0;">
+    </div>
+
+    <!-- Footer Section -->
+    <div style="text-align: center; font-size: 14px; color: #777;">
+      <p style="font-size: 14px;">Nếu bạn gặp bất kỳ vấn đề gì, hãy liên hệ với chúng tôi qua email này.</p>
+      <div style="margin-top: 20px;">
+        <p>Trân trọng,</p>
+        <p>Đội ngũ hỗ trợ khách hàng của chúng tôi</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+        `,
+    };
+
+
+    transporter.sendMail(mailOptions, (error) => {
+        if (error) {
+            console.error("Error sending email:", error);
+            return res.status(500).json({ message: "Gửi email thất bại!" });
+        }
+
+        // Lưu thông tin vào database.json
+        fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+
+        res.json({ message: "Đặt vé thành công và email đã được gửi!", ticketId });
+    });
+});
 
 // Chạy server
 const PORT = 5000;

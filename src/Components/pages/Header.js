@@ -8,6 +8,7 @@ function Header() {
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
   const [greeting, setGreeting] = useState("");
+  const [userId, setUserId] = useState("");
   const location = useLocation();
 
   const updateUserData = () => {
@@ -18,14 +19,17 @@ function Header() {
       setIsLoggedIn(true);
       setUsername(sessionUser.full_name);
       setRole(sessionUser.role);
+      setUserId(sessionUser.id);
     } else if (localUser) {
       setIsLoggedIn(true);
       setUsername(localUser.full_name);
       setRole(localUser.role);
+      setUserId(localUser.id);
     } else {
       setIsLoggedIn(false);
       setUsername("");
       setRole("");
+      setUserId("");
     }
   };
 
@@ -59,8 +63,11 @@ function Header() {
     setIsLoggedIn(false);
     setUsername("");
     setRole("");
+    setUserId("");
     window.location.replace("/");
   };
+
+  const isActive = (path) => location.pathname === path ? 'active-tab' : '';
 
   return (
     <>
@@ -68,7 +75,7 @@ function Header() {
         <Row className="d-flex justify-content-end py-2">
           {isLoggedIn ? (
             <Col className="text-right text-white Sig">
-              <Link to="/profile" className="text-white text-decoration-none">
+              <Link to={`/profile/${userId}`} className="text-white text-decoration-none">
                 <span className="me-3 fancy-font">
                   {greeting}, {username}!
                 </span>
@@ -113,30 +120,28 @@ function Header() {
             <Nav className="fw-bold fs-5 custom-nav">
               <Nav.Link
                 href="/showtime"
-                className={
-                  location.pathname === "/showtime" ? "active-tab" : ""
-                }
+                className={isActive("/showtime")}
               >
                 Lịch Chiếu Theo Rạp
               </Nav.Link>
               <Nav.Link
                 as={Link}
                 to={"/movie"}
-                className={location.pathname === "/movie" ? "active-tab" : ""}
+                className={isActive("/movie")}
               >
                 Phim
               </Nav.Link>
               <Nav.Link
                 as={Link}
                 to={"/info"}
-                className={location.pathname === "/info" ? "active-tab" : ""}
+                className={isActive("/info")}
               >
                 Rạp
               </Nav.Link>
               <Nav.Link
                 as={Link}
                 to={"/price"}
-                className={location.pathname === "/price" ? "active-tab" : ""}
+                className={isActive("/price")}
               >
                 Giá Vé
               </Nav.Link>
@@ -151,23 +156,54 @@ function Header() {
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
-                    <Dropdown.Item as={Link} to="/account">
+                    <Dropdown.Item
+                      as={Link}
+                      to="/account"
+                      className={isActive("/account")}
+                    >
                       Quản Lý Tài Khoản
                     </Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/managermovies">
+                    <Dropdown.Item
+                      as={Link}
+                      to="/managermovies"
+                      className={isActive("/managermovies")}
+                    >
                       Quản Lý Phim
                     </Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/languages">
+                    <Dropdown.Item
+                      as={Link}
+                      to="/languages"
+                      className={isActive("/languages")}
+                    >
                       Quản Lý Ngôn Ngữ
                     </Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/genres">
+                    <Dropdown.Item
+                      as={Link}
+                      to="/genres"
+                      className={isActive("/genres")}
+                    >
                       Quản Lý Thể Loại
                     </Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/movietypes">
+                    <Dropdown.Item
+                      as={Link}
+                      to="/movietypes"
+                      className={isActive("/movietypes")}
+                    >
                       Quản Lý Loại Phim
                     </Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/screens">
+                    <Dropdown.Item
+                      as={Link}
+                      to="/screens"
+                      className={isActive("/screens")}
+                    >
                       Quản Lý Màn Hình
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      as={Link}
+                      to="/tickets"
+                      className={isActive("/tickets")}
+                    >
+                      Quản Lý Vé
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>

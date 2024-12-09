@@ -106,6 +106,7 @@ const AccountManager = () => {
         password: updatedAccount.password,
         role: updatedAccount.role,
         email: updatedAccount.email,
+        phone: updatedAccount.phone,
         full_name: updatedAccount.full_name,
       };
       const sessionAccount = JSON.parse(sessionStorage.getItem("account"));

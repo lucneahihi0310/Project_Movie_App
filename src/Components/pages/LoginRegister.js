@@ -64,6 +64,7 @@ const LoginRegister = () => {
           const userData = {
             id: existUser.id,
             email: existUser.email,
+            phone: existUser.phone,
             password: existUser.password,
             full_name: existUser.full_name,
             role: existUser.role,
