@@ -139,6 +139,8 @@ function Booking() {
         const result = await response.json();
 
         if (result.url) {
+          console.log("Redirecting to URL Payment:", result.url);
+
             // Chuyển hướng người dùng đến trang thanh toán VNPay
             window.location.href = result.url;
         } else {

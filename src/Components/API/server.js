@@ -155,15 +155,17 @@ app.post("/payment", (req, res) => {
     const vnp_Params = {
         vnp_TmnCode: vnpayConfig.vnp_TmnCode,
         vnp_Amount: ticketInfo.totalAmount * 100, // Số tiền thanh toán, VNPay yêu cầu tính bằng đồng
-        vnp_BillFirstName: ticketInfo.userName,
-        vnp_BillEmail: ticketInfo.email,
-        vnp_BillPhone: ticketInfo.phone,
         vnp_OrderInfo: `Thanh toán vé phim ${ticketInfo.movieTitle}`,
         vnp_ReturnUrl: vnpayConfig.vnp_ReturnUrl,
         vnp_TxnRef: txnRef,
-        vnp_CreateDate: new Date().toISOString().replace(/[-T:\.Z]/g, ""),
+        vnp_CreateDate: new Date().toISOString().replace(/[-T:\.Z]/g, ""), // Ngày tạo đơn hàng
         vnp_Locale: "vn", // Hoặc "en" tùy thuộc vào ngôn ngữ bạn muốn
         vnp_CurrCode: "VND", // Đơn vị tiền tệ
+        vnp_Version: "2.1.0", // Phiên bản API
+        vnp_Command: "pay", // Lệnh thanh toán
+        vnp_OrderType: "100000", // Loại đơn hàng, 100000 cho thanh toán trực tuyến
+        vnp_IpAddr: req.ip, // Địa chỉ IP người dùng
+        vnp_ExpireDate: new Date(Date.now() + 10 * 60 * 1000).toISOString().replace(/[-T:\.Z]/g, ""), // Thời gian hết hạn (10 phút)
     };
 
     // Tạo chữ ký
@@ -181,6 +183,7 @@ app.post("/payment", (req, res) => {
 
     // Tạo URL thanh toán
     const vnpUrl = `${vnpayConfig.vnp_Url}?${new URLSearchParams(vnp_Params).toString()}`;
+    console.log("URL Payment gửi đến VNPay:", vnpUrl);
 
     // Trả về URL thanh toán
     res.json({ url: vnpUrl });

@@ -39,6 +39,8 @@ function App() {
         <Route path="/movie/:id" element={<MovieDetail />} />
         <Route path="/info" element={<CinemaInfo />} />
         <Route path="/price" element={<TicketPricing />} />
+        <Route path="/showtime" element={<ShowTime />} />
+        <Route path="/movie" element={<MoviePage />} />
         <Route
           path="/account"
           element={
@@ -78,10 +80,19 @@ function App() {
             <ProtectedRoute element={<ScreensManager />} allowedRoles={"1"} />
           }
         />
-        <Route path="/showtime" element={<ShowTime />} />
-        <Route path="/movie" element={<MoviePage />} />
-        <Route path="/booking/:id" element={<Booking />} />
-        <Route path="/profile" element={<UserProfile />} />
+        <Route
+          path="/booking/:id"
+          element={
+            <ProtectedRoute element={<Booking />} allowedRoles={["1", "2"]} />
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute element={<UserProfile />} allowedRoles={["1", "2"]} />
+          }
+        />
+
       </Routes>
       <Footer />
     </Router>

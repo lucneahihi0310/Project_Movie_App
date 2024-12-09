@@ -4,6 +4,7 @@ import "../../CSS/MoviePage.css";
 import { Modal, Button, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { IoTicketOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 function MoviePage() {
   const [movie, setMovie] = useState([]);
@@ -18,6 +19,7 @@ function MoviePage() {
   const [selectedShowtime, setSelectedShowtime] = useState(null);
   const [language, setLanguage] = useState([]);
   const [showTime, setShowTime] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:3001/movies")
@@ -35,7 +37,7 @@ function MoviePage() {
       .then((data) => setMovieType(data))
       .catch((error) => console.error("Error fetching movie types:", error));
 
-    fetch(`http://localhost:3001/cinema`)
+    fetch(`http://localhost:3001/cinema/1`)
       .then((response) => response.json())
       .then((data) => setCinema(data))
       .catch((error) => console.error("Error fetching showtimes:", error));
@@ -46,13 +48,12 @@ function MoviePage() {
       .catch((error) => console.error("Error fetching showtimes:", error));
   }, []);
 
+
   const handleMovieTypeFilter = (type) => {
     setSelectedMovieType(type.id);
   };
 
   const handleBookTicket = (movieId) => {
-    setSelectedMovie(movieId);
-
     fetch(`http://localhost:3001/movies/${movieId}`)
       .then((response) => response.json())
       .then((data) => {
@@ -60,16 +61,18 @@ function MoviePage() {
           setShowTime(data.showtimes);
           const earliestDate = data.showtimes.map((s) => s.date).sort()[0];
           setSelectedDate(earliestDate);
+          setSelectedMovie(movieId);
         } else {
           setShowTime([]);
           setSelectedDate("");
         }
-
+  
         setShowBookingModal(true);
         setShowModal(false);
         setSelectedShowtime(null);
       });
   };
+  
 
   console.log(showTime);
   const formatDate = (dateString) => {
@@ -82,7 +85,7 @@ function MoviePage() {
   };
 
   const formatTime = (timeString) => {
-    const time = new Date(`1970-01-01T${timeString}Z`);
+    const time = new Date(`1970-01-01T${timeString}`);
     return time.toLocaleTimeString("vi-VN", {
       hour: "2-digit",
       minute: "2-digit",
@@ -115,16 +118,25 @@ function MoviePage() {
     setSelectedMovie(null);
   };
 
-  const handleShowtimeClick = (showtimes) => {
-    setSelectedShowtime(showtimes);
+  const handleShowtimeClick = (showtime) => {
+    setSelectedShowtime(showtime);
     setShowModal(false);
-    setShowBookingModal(false);
+    setShowBookingModal(true);
   };
 
   const handleCloseModal = () => {
     setSelectedShowtime(null);
   };
-
+  const handleConfirmBooking = () => {
+    if (selectedShowtime && selectedMovie) {
+      navigate(`/booking/${selectedMovie}`, { 
+        state: { showtimeId: selectedShowtime.id, movieId: selectedMovie.id }
+      });
+    } else {
+      console.error("Movie or Showtime not selected");
+    }
+  };
+  
   const handleDateClick = (date) => {
     setSelectedDate(date);
   };
@@ -163,6 +175,7 @@ function MoviePage() {
                 <div className="movie-items" key={movie.id}>
                   <div className="image-container">
                     <img
+                      style={{ height: "400px" }}
                       src={
                         movie.poster[1] || "https://via.placeholder.com/200x300"
                       }
@@ -236,9 +249,8 @@ function MoviePage() {
                 .map((date) => (
                   <div
                     key={date}
-                    className={`date-item ${
-                      selectedDate === date ? "active" : ""
-                    }`}
+                    className={`date-item ${selectedDate === date ? "active" : ""
+                      }`}
                     onClick={() => handleDateClick(date)}
                   >
                     {formatDate(date)}
@@ -301,13 +313,12 @@ function MoviePage() {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary">
-            {" "}
-            <IoTicketOutline
-              style={{ marginRight: "8px", fontSize: "1.5rem" }}
-            />
-            Đặt vé
-          </Button>
+        <Button variant="primary" onClick={handleConfirmBooking}>
+      <IoTicketOutline
+        style={{ marginRight: "8px", fontSize: "1.5rem" }}
+      />
+      Đặt vé
+    </Button>
         </Modal.Footer>
       </Modal>
     </>
