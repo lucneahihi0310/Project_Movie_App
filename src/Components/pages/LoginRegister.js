@@ -20,7 +20,7 @@ const LoginRegister = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [resetToken, setResetToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [confirmNewPasswsord, setConfirmNewPassword] = useState("");
   const navigate = useNavigate();
   const [validationErrors, setValidationErrors] = useState({});
   const [resetPassword, setResetPassword] = useState("");
@@ -28,6 +28,7 @@ const LoginRegister = () => {
   const [resetValidationErrors, setResetValidationErrors] = useState({});
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupContent, setPopupContent] = useState({ title: "", message: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   useEffect(() => {
@@ -178,19 +179,21 @@ const LoginRegister = () => {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-
+  
     if (!email.trim()) {
       setErrorMessage("Email không được để trống");
       return;
     }
-
+  
+    setIsSubmitting(true); // Bắt đầu gửi, vô hiệu hóa nút
+  
     try {
       const response = await fetch("http://localhost:5000/api/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
       });
-
+  
       const data = await response.json();
       if (response.ok) {
         setPopupContent({
@@ -205,6 +208,8 @@ const LoginRegister = () => {
     } catch (error) {
       console.error("Error in forgot password:", error);
       setErrorMessage("Không thể kết nối đến server, vui lòng thử lại.");
+    } finally {
+      setIsSubmitting(false); // Hoàn tất, kích hoạt lại nút
     }
   };
 
@@ -585,10 +590,10 @@ const LoginRegister = () => {
                       required
                     />
                   </InputGroup>
-                  <Button style={{ marginBottom: "5px" }} variant="secondary" onClick={handleCancel}>
+                  <Button style={{ marginBottom: "5px" }} disabled={isSubmitting} variant="secondary" onClick={handleCancel}>
                     <i class="bi bi-x-circle"> Hủy</i>
                   </Button>
-                  <Button variant="primary" type="submit" className="w-100">
+                  <Button variant="primary" disabled={isSubmitting} type="submit" className="w-100">
                     <i class="bi bi-send"> Gửi yêu cầu đặt lại mật khẩu</i>
                   </Button>
                 </Form>
@@ -663,7 +668,7 @@ const LoginRegister = () => {
                   <Button style={{ marginBottom: "5px" }} variant="secondary" onClick={handleCancelReset}>
                     <i class="bi bi-x-circle"> Hủy</i>
                   </Button>
-                  <Button variant="primary" type="submit" className="w-100">
+                  <Button variant="primary" disabled={!resetPassword || !confirmResetPassword} type="submit" className="w-100">
                     <i class="bi bi-check-circle"> Đặt lại mật khẩu</i>
                   </Button>
                 </Form>

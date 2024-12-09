@@ -10,7 +10,8 @@
       "phone": "0901234560",
       "full_name": "Admin Văn Admin",
       "status": "active",
-      "gender": "Nam"
+      "gender": "Nam",
+      "tickets": []
     },
     {
       "id": "2",
@@ -22,7 +23,8 @@
       "phone": "0354994218",
       "full_name": "Dương Văn Lực",
       "status": "active",
-      "gender": "Nam"
+      "gender": "Nam",
+      "tickets": []
     }
   ],
   "roles": [
@@ -312,22 +314,6 @@
       "seating_capacity": 80,
       "type": "3D",
       "status": "active"
-    }
-  ],
-  "tickets": [
-    {
-      "id": "1",
-      "showtime_id": 1,
-      "seat_number": "A1",
-      "customer_name": "Nguyễn Văn A",
-      "status": "Booked"
-    },
-    {
-      "id": "2",
-      "showtime_id": 2,
-      "seat_number": "B5",
-      "customer_name": "Trần Thị B",
-      "status": "Available"
     }
   ],
   "ticketPricing": [

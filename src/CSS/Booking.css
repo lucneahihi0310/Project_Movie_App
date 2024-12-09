@@ -4,22 +4,22 @@
   gap: 20px;
   padding: 20px;
   font-family: Arial, sans-serif;
-  background-color: #f9f9f9; /* Nền sáng cho tổng thể */
-  border-radius: 10px; /* Bo góc container */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Đổ bóng cho container */
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .seats-container {
-  flex: 8; /* Chiếm 80% chiều rộng */
+  flex: 8;
   text-align: center;
   background-color: #fff;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Bóng nhẹ cho seats container */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .ticket {
-  flex: 2; /* Chiếm phần còn lại (20%) */
+  flex: 2;
   background-color: #fff;
   padding: 20px;
   border-radius: 10px;
@@ -28,8 +28,8 @@
 }
 
 .ticket:hover {
-  transform: scale(1.05); /* Phóng to khi hover */
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Tăng bóng đổ khi hover */
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
 .screen {
@@ -38,7 +38,7 @@
   border-radius: 5px;
   font-weight: bold;
   color: #333;
-  background-color: #e1e1e1; /* Nền màu sáng cho màn hình */
+  background-color: #e1e1e1;
 }
 
 .seats {
@@ -68,7 +68,7 @@
 }
 
 .seat:hover {
-  transform: scale(1.1); /* Phóng to khi hover */
+  transform: scale(1.1);
 }
 
 .seat-icon {
@@ -94,16 +94,18 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: center; /* Căn giữa ảnh trong div */
+  justify-content: center;
   margin-bottom: 20px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
 }
 
 .poster {
-  width: 100%; /* Đảm bảo ảnh chiếm toàn bộ chiều rộng của div */
-  height: auto; /* Tự động điều chỉnh chiều cao để giữ tỷ lệ */
-  max-width: 200px; /* Giới hạn kích thước tối đa để ảnh không quá lớn */
-  object-fit: cover; /* Đảm bảo ảnh sẽ lấp đầy không gian mà không bị biến dạng */
-  border-radius: 5px; /* Bo góc nếu cần */
+  width: 100%;
+  height: auto;
+  max-width: 250px;
+  object-fit: cover;
+  border-radius: 5px;
 }
 
 .rating {
@@ -114,13 +116,6 @@
   padding: 5px 10px;
   border-radius: 4px;
   margin-right: 10px;
-}
-
-.poster {
-  width: 100px;
-  height: auto;
-  border-radius: 4px;
-  object-fit: cover; /* Đảm bảo ảnh không bị méo */
 }
 
 .info h2 {

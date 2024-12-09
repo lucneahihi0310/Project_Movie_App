@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, Button, Table } from "react-bootstrap";
 import "../../CSS/ShowTime.css";
 import { IoTicketOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 function ShowTime() {
   const [selectedDates, setSelectedDates] = useState({});
@@ -10,6 +11,8 @@ function ShowTime() {
   const [languages, setLanguages] = useState([]);
   const [cinema, setCinema] = useState([]);
   const [selectedShowtime, setSelectedShowtime] = useState(null);
+  const [selectedMovieId, setSelectedMovieId] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:3001/movies")
@@ -37,7 +40,7 @@ function ShowTime() {
       .then((data) => setLanguages(data))
       .catch((error) => console.error("Error fetching languages:", error));
 
-    fetch("http://localhost:3001/cinema/1")
+    fetch(`http://localhost:3001/cinema/1`)
       .then((response) => response.json())
       .then((data) => setCinema(data))
       .catch((error) => console.error("Error fetching showtimes:", error));
@@ -58,9 +61,7 @@ function ShowTime() {
     languages.find((language) => language.id == languageId)?.name;
 
   const formatTime = (timeString) => {
-    const [hours, minutes, seconds] = timeString.split(":").map(Number);
-    const time = new Date();
-    time.setHours(hours, minutes, seconds, 0);
+    const time = new Date(`1970-01-01T${timeString}`);
     return time.toLocaleTimeString("vi-VN", {
       hour: "2-digit",
       minute: "2-digit",
@@ -84,13 +85,24 @@ function ShowTime() {
     }));
   };
 
-  const handleShowtimeClick = (showtime) => {
-    setSelectedShowtime(showtime);
+  const handleShowtimeClick = (movieId, showtime) => {
+    setSelectedMovieId(movieId); // Set selected movie ID
+    setSelectedShowtime(showtime); // Set selected showtime to open modal
+  };
+
+  const handleBookTicket = () => {
+    if (selectedShowtime && selectedMovieId) {
+      // Navigate to booking page with selected movieId and showtimeId
+      navigate(`/booking/${selectedMovieId}`, {
+        state: { showtimeId: selectedShowtime.id, movieId: selectedMovieId }
+      });
+    }
   };
 
   const handleCloseModal = () => {
     setSelectedShowtime(null);
   };
+
   return (
     <div className="movie-container">
       {movie.map((movie) => (
@@ -134,7 +146,7 @@ function ShowTime() {
                     <div
                       key={idx}
                       className="showtime-item"
-                      onClick={() => handleShowtimeClick(showtime)}
+                      onClick={() => handleShowtimeClick(movie.id, showtime)}
                     >
                       <span>{formatTime(showtime.start_time)}</span>
                     </div>
@@ -144,8 +156,10 @@ function ShowTime() {
           </div>
         </div>
       ))}
+
+      {/* Modal to display selected showtime */}
       <Modal
-        show={selectedShowtime}
+        show={selectedShowtime !== null} // Open modal if selectedShowtime is not null
         onHide={handleCloseModal}
         centered
         className="custom-modal"
@@ -157,7 +171,7 @@ function ShowTime() {
         <Modal.Body>
           {selectedShowtime && (
             <>
-              <h5>{movie.title}</h5>
+              <h5>{movie.find((m) => m.id === selectedMovieId)?.title}</h5>
               <Table striped bordered hover>
                 <thead>
                   <tr>
@@ -178,11 +192,8 @@ function ShowTime() {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary">
-            {" "}
-            <IoTicketOutline
-              style={{ marginRight: "8px", fontSize: "1.5rem" }}
-            />
+          <Button variant="primary" onClick={handleBookTicket}>
+            <IoTicketOutline style={{ marginRight: "8px", fontSize: "1.5rem" }} />
             Đặt vé
           </Button>
         </Modal.Footer>
