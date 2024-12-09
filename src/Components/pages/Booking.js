@@ -23,6 +23,7 @@ function Booking() {
   const [isSending, setIsSending] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [ticketId, setTicketId] = useState('');
+  const [reservedSeats, setReservedSeats] = useState([]);
 
   useEffect(() => {
     const fetchMovieData = async () => {
@@ -33,19 +34,37 @@ function Booking() {
         const languageData = await fetchData("languages");
         const cinemaData = await fetchData("cinema");
         const screenData = await fetchData("screens");
+        const accountData = await fetchData("accounts");
 
         setMovieData({ ...movie, selectedShowtime: showtime });
         setGenres(genreData);
         setScreen(screenData);
         setLanguages(languageData);
         setCinemas(cinemaData);
+
+        // Fetch reserved seats for the current movie, showtime, and date
+        const reservedSeats = accountData
+          .flatMap(account => account.tickets)
+          .filter(ticket =>
+            ticket.movie === movieData.title &&
+            ticket.cinema === getCinemaName(showtime?.cinema_id) &&
+            ticket.date === formatDate(showtime?.date) &&
+            ticket.startTime === formatTime(showtime?.start_time)
+          )
+          .flatMap(ticket => ticket.seats);
+
+        setReservedSeats(reservedSeats);
       } catch (error) {
         console.error("Error fetching movie data:", error);
       }
     };
 
-    fetchMovieData();
-  }, [movieId, showtimeId]);
+    const intervalId = setInterval(fetchMovieData, 1000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [movieId, showtimeId, movieData?.title]);
 
   const seats = Array.from({ length: 8 }, (_, rowIndex) => {
     const rowLabel = String.fromCharCode(65 + rowIndex);
@@ -56,6 +75,9 @@ function Booking() {
   });
 
   const getSeatClass = (seatId) => {
+    if (reservedSeats.includes(seatId)) {
+      return "seat-reserved";  // Change class for reserved seats
+    }
     if (selectedSeats.includes(seatId)) {
       return "seat-selected";
     }
@@ -63,6 +85,9 @@ function Booking() {
   };
 
   const handleSeatSelection = (seatId) => {
+    if (reservedSeats.includes(seatId)) {
+      return; // Prevent selection if the seat is reserved
+    }
     setSelectedSeats((prevSelectedSeats) =>
       prevSelectedSeats.includes(seatId)
         ? prevSelectedSeats.filter((id) => id !== seatId)
@@ -129,7 +154,7 @@ function Booking() {
         movie: movieData.title,
         duration: movieData.duration,
         screen: getScreenName(movieData.selectedShowtime?.screen_id),
-        seats: selectedSeats.join(", "),
+        seats: selectedSeats,  // Đảm bảo seats là mảng
         date: formatDate(movieData.selectedShowtime?.date),
         startTime: formatTime(movieData.selectedShowtime?.start_time),
         endTime: formatTime(movieData.selectedShowtime?.end_time),
@@ -146,9 +171,9 @@ function Booking() {
 
       if (response.ok) {
         const result = await response.json();
-        setTicketId(result.ticketId); // Store the ticket ID
-        setShowSuccessModal(true); // Show success modal
-        setShowModal(false); // Close the confirmation modal
+        setTicketId(result.ticketId);
+        setShowSuccessModal(true);
+        setShowModal(false);
         setSelectedSeats([]);
       } else {
         alert("Có lỗi xảy ra, vui lòng thử lại.");
@@ -157,9 +182,10 @@ function Booking() {
       console.error("Error confirming booking:", error);
       alert("Có lỗi xảy ra khi xác nhận vé.");
     } finally {
-      setIsSending(false); // End sending email
+      setIsSending(false);
     }
   };
+
 
 
 
@@ -170,7 +196,7 @@ function Booking() {
         <h3>Sơ đồ ghế</h3>
         <div className="seat-legend">
           <div className="legend-item">
-            <MdChair className="seat-icon seat-empty-icon" size={20} />
+            <MdChair className="seat-icon" size={20} />
             <span className="seat empty">Ghế trống</span>
           </div>
           <div className="legend-item">
