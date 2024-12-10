@@ -7,9 +7,9 @@ function AdminMovies() {
     const [movies, setMovies] = useState([]);
     const [genres, setGenres] = useState([]);
     const [languages, setLanguages] = useState([]);
-    const [showModal, setShowModal] = useState(false); // Modal for add/edit
-    const [showDetailModal, setShowDetailModal] = useState(false); // Modal for movie details
-    const [selectedMovie, setSelectedMovie] = useState(null); // Movie selected for detail view
+    const [showModal, setShowModal] = useState(false);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [selectedMovie, setSelectedMovie] = useState(null);
     const [editMovie, setEditMovie] = useState(null);
     const [screens, setScreens] = useState([]);
     const [cinemas, setCinemas] = useState([]);
@@ -23,7 +23,16 @@ function AdminMovies() {
         rating: "",
         language_id: "",
         poster: [],
+        movie_type: "",
+        release_date: "",
+        video_url: "",
+        banner: "",
+        status: "active",
+        showtimes: [],
     });
+
+
+
 
     useEffect(() => {
         fetchData("movies")
@@ -51,7 +60,13 @@ function AdminMovies() {
         const { name, value } = e.target;
         setNewMovie({ ...newMovie, [name]: value });
     };
-
+    const handleGenreChange = (e) => {
+        const { value } = e.target;
+        setNewMovie({
+            ...newMovie,
+            genre_ids: Array.from(e.target.selectedOptions, (option) => option.value),
+        });
+    };
     const handleSubmit = () => {
         const movieToSubmit = {
             ...newMovie,
@@ -61,6 +76,10 @@ function AdminMovies() {
             poster: Array.isArray(newMovie.poster)
                 ? newMovie.poster
                 : newMovie.poster.split(","),
+            showtimes: newMovie.showtimes.map(showtime => ({
+                ...showtime,
+                price: parseInt(showtime.price),
+            })),
         };
 
         if (editMovie) {
@@ -84,6 +103,45 @@ function AdminMovies() {
         }
     };
 
+    const handleAddShowtime = () => {
+        const newShowtime = {
+            cinema_id: "",
+            screen_id: "",
+            date: "",
+            start_time: "",
+            price: "",
+        };
+
+        setNewMovie((prevState) => ({
+            ...prevState,
+            showtimes: [...prevState.showtimes, newShowtime],
+        }));
+    };
+
+    const handleRemoveShowtime = (index) => {
+        const updatedShowtimes = newMovie.showtimes.filter((_, i) => i !== index);
+        setNewMovie({
+            ...newMovie,
+            showtimes: updatedShowtimes,
+        });
+    };
+
+    const handleShowtimeChange = (e, index) => {
+        const { name, value } = e.target;
+        const updatedShowtimes = [...newMovie.showtimes];
+
+        updatedShowtimes[index] = {
+            ...updatedShowtimes[index],
+            [name]: value,
+        };
+
+        setNewMovie({
+            ...newMovie,
+            showtimes: updatedShowtimes,
+        });
+    };
+
+
     const handleDelete = (id) => {
         deleteData("movies", id)
             .then(() => setMovies((prevMovies) => prevMovies.filter((movie) => movie.id !== id)))
@@ -92,9 +150,14 @@ function AdminMovies() {
 
     const handleEdit = (movie) => {
         setEditMovie(movie);
-        setNewMovie(movie);
+        setNewMovie({
+            ...movie,
+            genre_ids: movie.genre_ids.join(","),
+            showtimes: JSON.stringify(movie.showtimes),
+        });
         setShowModal(true);
     };
+
 
     const handleCreate = () => {
         setEditMovie(null);
@@ -114,7 +177,7 @@ function AdminMovies() {
 
     const handleTitleClick = (movie) => {
         setSelectedMovie(movie);
-        setShowDetailModal(true); // Open the detail modal
+        setShowDetailModal(true);
     };
 
     const resetForm = () => {
@@ -128,13 +191,22 @@ function AdminMovies() {
             duration: "",
             rating: "",
             language_id: "",
-            poster: [],
+            poster: "",
+            movie_type: "",
+            release_date: "",
+            video_url: "",
+            banner: "",
+            status: "active",
+            showtimes: [],
         });
         setShowModal(false);
     };
 
     const getGenreNames = (genreIds) =>
-        genreIds.map((id) => genres.find((genre) => genre.id == id)?.name).join(", ");
+        genreIds && Array.isArray(genreIds)
+            ? genreIds.map((id) => genres.find((genre) => genre.id == id)?.name).join(", ")
+            : "N/A";
+
 
     const getLanguageName = (languageId) =>
         languages.find((language) => language.id == languageId)?.name;
@@ -164,7 +236,6 @@ function AdminMovies() {
         return `${day}-${month}-${year}`;
     };
 
-    // Format price with commas and currency symbol
     const formatPrice = (price) => {
         return price
             ? new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price)
@@ -290,15 +361,20 @@ function AdminMovies() {
                                 multiple
                                 name="genre_ids"
                                 value={newMovie.genre_ids}
-                                onChange={handleInputChange}
+                                onChange={handleGenreChange}
                             >
-                                {genres.map((genre) => (
-                                    <option key={genre.id} value={genre.id}>
-                                        {genre.name}
-                                    </option>
-                                ))}
+                                {genres && genres.length > 0 ? (
+                                    genres.map((genre) => (
+                                        <option key={genre.id} value={genre.id}>
+                                            {genre.name}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option disabled>Loading genres...</option>
+                                )}
                             </Form.Control>
                         </Form.Group>
+
                         <Form.Group className="mb-3">
                             <Form.Label>Ngôn Ngữ</Form.Label>
                             <Form.Control
@@ -307,13 +383,18 @@ function AdminMovies() {
                                 value={newMovie.language_id}
                                 onChange={handleInputChange}
                             >
-                                {languages.map((language) => (
-                                    <option key={language.id} value={language.id}>
-                                        {language.name}
-                                    </option>
-                                ))}
+                                {languages && languages.length > 0 ? (
+                                    languages.map((language) => (
+                                        <option key={language.id} value={language.id}>
+                                            {language.name}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option disabled>Loading languages...</option>
+                                )}
                             </Form.Control>
                         </Form.Group>
+
                         <Form.Group className="mb-3">
                             <Form.Label>Poster URL</Form.Label>
                             <Form.Control
@@ -323,6 +404,138 @@ function AdminMovies() {
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Loại Phim</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="movie_type"
+                                value={newMovie.movie_type}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Ngày Phát Hành</Form.Label>
+                            <Form.Control
+                                type="date"
+                                name="release_date"
+                                value={newMovie.release_date}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Video URL</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="video_url"
+                                value={newMovie.video_url}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Banner</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="banner"
+                                value={newMovie.banner}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Trạng Thái</Form.Label>
+                            <Form.Control
+                                as="select"
+                                name="status"
+                                value={newMovie.status}
+                                onChange={handleInputChange}
+                            >
+                                <option value="active">Đang Hoạt Động</option>
+                                <option value="inactive">Ngưng Hoạt Động</option>
+                            </Form.Control>
+                        </Form.Group>
+                        {/* Form cho Showtimes */}
+                        {Array.isArray(newMovie.showtimes) && newMovie.showtimes.length > 0 ? (
+                            newMovie.showtimes.map((showtime, index) => (
+                                <div key={index} className="mb-3">
+                                    <h5>Lịch Chiếu {index + 1}</h5>
+                                    <Form.Group>
+                                        <Form.Label>Cinema</Form.Label>
+                                        <Form.Control
+                                            as="select"
+                                            name={`cinema_id_${index}`}
+                                            value={showtime.cinema_id}
+                                            onChange={(e) => handleShowtimeChange(e, index)}
+                                        >
+                                            {cinemas.map((cinema) => (
+                                                <option key={cinema.id} value={cinema.id}>
+                                                    {cinema.name}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Màn Hình</Form.Label>
+                                        <Form.Control
+                                            as="select"
+                                            name={`screen_id_${index}`}
+                                            value={showtime.screen_id}
+                                            onChange={(e) => handleShowtimeChange(e, index)}
+                                        >
+                                            {screens.map((screen) => (
+                                                <option key={screen.id} value={screen.id}>
+                                                    {screen.name}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Ngày</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            name={`date_${index}`}
+                                            value={showtime.date}
+                                            onChange={(e) => handleShowtimeChange(e, index)}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Giờ Chiếu</Form.Label>
+                                        <Form.Control
+                                            type="time"
+                                            name={`start_time_${index}`}
+                                            value={showtime.start_time}
+                                            onChange={(e) => handleShowtimeChange(e, index)}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Giờ Kết Thúc</Form.Label>
+                                        <Form.Control
+                                            type="time"
+                                            name={`end_time_${index}`}
+                                            value={showtime.end_time}
+                                            onChange={(e) => handleShowtimeChange(e, index)}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Giá Vé</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            name={`price_${index}`}
+                                            value={showtime.price}
+                                            onChange={(e) => handleShowtimeChange(e, index)}
+                                        />
+                                    </Form.Group>
+                                    <Button variant="danger" onClick={() => handleRemoveShowtime(index)}>
+                                        Xóa Lịch Chiếu
+                                    </Button>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No showtimes available.</p>
+                        )}
+
+                        <Button variant="secondary" onClick={handleAddShowtime}>
+                            Thêm Lịch Chiếu
+                        </Button>
+
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
@@ -336,7 +549,6 @@ function AdminMovies() {
             </Modal>
 
             {/* Modal for Movie Detail */}
-            {/* Modal for Movie Detail */}
             <Modal size="lg" show={showDetailModal} onHide={() => setShowDetailModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>{selectedMovie && selectedMovie.title}</Modal.Title>
@@ -344,13 +556,8 @@ function AdminMovies() {
                 <Modal.Body>
                     {selectedMovie && (
                         <>
-
-
-                            {/* Status */}
                             <h5>Trạng Thái:</h5>
                             <p>{selectedMovie.status === "active" ? "Đang Chiếu" : "Ngừng Chiếu"}</p>
-
-                            {/* Movie Details */}
                             <h5>Đạo Diễn:</h5>
                             <p>{selectedMovie.director}</p>
 
@@ -371,7 +578,6 @@ function AdminMovies() {
 
                             <h5>Ngày Chiếu:</h5>
                             <p>{selectedMovie.release_date}</p>
-                            {/* Showtimes */}
                             <h5 className="mt-4">Lịch Chiếu:</h5>
                             {selectedMovie.showtimes && selectedMovie.showtimes.length > 0 ? (
                                 Object.keys(groupShowtimesByDate(selectedMovie.showtimes)).map((date) => (
@@ -413,10 +619,7 @@ function AdminMovies() {
                                 title="YouTube video"
                                 allowFullScreen
                             ></iframe>
-                            {/* Banner Image */}
                             <img src={selectedMovie.banner} alt="Banner" className="img-fluid mb-3" />
-
-                            {/* Poster Image */}
                             <div className="text-center mb-3">
                                 <img src={selectedMovie.poster} alt="Poster" className="img-fluid" />
                             </div>
