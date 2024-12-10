@@ -93,7 +93,7 @@ const TicketManagement = () => {
         </thead>
         <tbody>
           {accounts.map(account => (
-            account.tickets.filter(filterTickets).map(ticket => (
+            account.tickets && account.tickets.length > 0 && account.tickets.filter(filterTickets).map(ticket => (
               <tr key={ticket.id}>
                 <td>{account.id}</td>
                 <td>{account.full_name}</td>
@@ -102,7 +102,7 @@ const TicketManagement = () => {
                 <td>{ticket.id}</td>
                 <td>{ticket.movie}</td>
                 <td>{ticket.cinema}</td>
-                <td>{ticket.seats}</td>
+                <td>{ticket.seats.join(", ")}</td>
                 <td>{ticket.date}</td>
                 <td>{ticket.startTime} - {ticket.endTime}</td>
                 <td>{formatCurrency(ticket.totalPrice)}</td>

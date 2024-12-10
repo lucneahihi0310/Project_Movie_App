@@ -388,6 +388,22 @@ const AccountManager = () => {
                 {errors.address}
               </Form.Control.Feedback>
             </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>* Vai trò</Form.Label>
+              <Form.Select
+                name="role"
+                value={newAccount.role}
+                onChange={handleInputChange}
+                isInvalid={!!errors.role}
+              >
+                <option value="">-- Chọn Vai Trò --</option>
+                <option value="1">Admin</option>
+                <option value="2">User</option>
+              </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                {errors.role}
+              </Form.Control.Feedback>
+            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>

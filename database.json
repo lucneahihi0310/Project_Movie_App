@@ -15,7 +15,7 @@
     },
     {
       "id": "2",
-      "password": "",
+      "password": "Lucduong2002",
       "role": "2",
       "dob": "2002-10-03",
       "address": "123, Hà Đông, Hà Nội",
@@ -159,6 +159,18 @@
       "phone": "0988888888",
       "gender": "Nữ",
       "address": "Quế Võ ,Bắc Ninh",
+      "role": "2",
+      "status": "active"
+    },
+    {
+      "id": "4349",
+      "full_name": "luc",
+      "email": "sds@gmail.com",
+      "password": "Lucduong2002",
+      "dob": "2024-12-04",
+      "phone": "0999999999",
+      "gender": "Male",
+      "address": "ha noi",
       "role": "2",
       "status": "active"
     }

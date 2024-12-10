@@ -12,24 +12,22 @@ const LoginRegister = () => {
   const [full_name, setFull_name] = useState("");
   const [phone, setPhone] = useState("");
   const [dob, setDob] = useState("");
-  const [gender, setGender] = useState("");
   const [address, setAddress] = useState("");
+  const [gender, setGender] = useState("");
   const [remember, setRemember] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [resetToken, setResetToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [confirmNewPasswsord, setConfirmNewPassword] = useState("");
-  const navigate = useNavigate();
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
-  const [resetPassword, setResetPassword] = useState("");
-  const [confirmResetPassword, setConfirmResetPassword] = useState("");
-  const [resetValidationErrors, setResetValidationErrors] = useState({});
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupContent, setPopupContent] = useState({ title: "", message: "" });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resetValidationErrors, setResetValidationErrors] = useState({});
 
+  const navigate = useNavigate();
 
   useEffect(() => {
     const rememberedAccount = localStorage.getItem("rememberedAccount");
@@ -59,7 +57,6 @@ const LoginRegister = () => {
           setErrorMessage("Tài khoản đã bị khóa!");
           return;
         }
-
         if (remember) {
           const userData = {
             id: existUser.id,
@@ -67,13 +64,12 @@ const LoginRegister = () => {
             phone: existUser.phone,
             password: existUser.password,
             full_name: existUser.full_name,
-            role: existUser.role,
+            role: existUser.role
           };
           localStorage.setItem("rememberedAccount", JSON.stringify(userData));
         } else {
           localStorage.removeItem("rememberedAccount");
         }
-
         sessionStorage.setItem("account", JSON.stringify(existUser));
         window.location.replace("/");
       } else {
@@ -87,23 +83,24 @@ const LoginRegister = () => {
   const validateResetPassword = () => {
     const resetValidationErrors = {};
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-
-    if (!resetPassword) {
-      resetValidationErrors.resetPassword = "Mật khẩu không được bỏ trống!";
-    } else if (!passwordRegex.test(resetPassword)) {
-      resetValidationErrors.resetPassword = "Mật khẩu phải có ít nhất 8 ký tự, ít nhất 1 chữ hoa và 1 số!";
+    if (!resetToken) {
+      resetValidationErrors.resetToken = "Token không được bỏ trống!"
+    }
+    if (!newPassword) {
+      resetValidationErrors.newPassword = "Mật khẩu không được bỏ trống!";
+    } else if (!passwordRegex.test(newPassword)) { 
+      resetValidationErrors.newPassword = "Mật khẩu phải có ít nhất 8 ký tự, ít nhất 1 chữ hoa và 1 số!";
     }
 
-    if (!confirmResetPassword) {
-      resetValidationErrors.confirmResetPassword = "Vui lòng xác nhận mật khẩu!";
-    } else if (resetPassword !== confirmResetPassword) {
-      resetValidationErrors.confirmResetPassword = "Mật khẩu và xác nhận mật khẩu không khớp!";
+    if (!confirmNewPassword) {
+      resetValidationErrors.confirmNewPassword = "Vui lòng xác nhận mật khẩu!";
+    } else if (newPassword !== confirmNewPassword) {
+      resetValidationErrors.confirmNewPassword = "Mật khẩu và xác nhận mật khẩu không khớp!";
     }
 
     setResetValidationErrors(resetValidationErrors);
     return Object.keys(resetValidationErrors).length === 0;
   };
-
   const validateFields = async () => {
     const validationErrors = {};
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -156,20 +153,21 @@ const LoginRegister = () => {
     setValidationErrors(validationErrors);
     return Object.keys(validationErrors).length === 0;
   };
-
-
   const handleRegister = async (e) => {
     e.preventDefault();
 
     const isValid = await validateFields();
     if (!isValid) return;
 
+
     const data = { full_name, email, password, dob, phone, gender, address, role: "2", status: "active" };
 
     try {
       const response = await postData("accounts", data);
       console.log("Registration successful", response);
+
       setShowSuccessModal(true);
+
       setCurrentForm("login");
     } catch (error) {
       console.error("Registration error:", error);
@@ -177,24 +175,21 @@ const LoginRegister = () => {
     }
   };
 
-
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-  
+
     if (!email.trim()) {
       setErrorMessage("Email không được để trống");
       return;
     }
-  
-    setIsSubmitting(true); // Bắt đầu gửi, vô hiệu hóa nút
-  
+    setIsSubmitting(true);
     try {
       const response = await fetch("http://localhost:5000/api/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
       });
-  
+
       const data = await response.json();
       if (response.ok) {
         setPopupContent({
@@ -216,10 +211,8 @@ const LoginRegister = () => {
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-
-    const isValid = validateResetPassword();
+     const isValid = validateResetPassword();
     if (!isValid) return;
-
     try {
       const response = await fetch("http://localhost:5000/api/reset-password", {
         method: "POST",
@@ -259,15 +252,6 @@ const LoginRegister = () => {
     setValidationErrors({});
     setCurrentForm("login");
   };
-
-  const handleCancelReset = () => {
-    setResetPassword("");
-    setConfirmResetPassword("");
-    setResetValidationErrors({});
-    setErrorMessage("");
-    setCurrentForm("login");
-  };
-
   return (
     <div className="login-register-container">
       <Card className="text-center border-0">
@@ -301,7 +285,7 @@ const LoginRegister = () => {
                     type="email"
                     placeholder="Email"
                     value={email}
-                    onChange={(e) => {setEmail(e.target.value.toLowerCase()); setErrorMessage("")}}
+                    onChange={(e) => setEmail(e.target.value.toLowerCase())}
                     required
                   />
                 </InputGroup>
@@ -313,7 +297,7 @@ const LoginRegister = () => {
                     type="password"
                     placeholder="Mật khẩu"
                     value={password}
-                    onChange={(e) => {setPassword(e.target.value); setErrorMessage("")}}
+                    onChange={(e) => { setPassword(e.target.value); setErrorMessage("") }}
                     required
                   />
                 </InputGroup>
@@ -373,11 +357,7 @@ const LoginRegister = () => {
                     }}
                     isInvalid={!!validationErrors.full_name}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {validationErrors.full_name}
-                  </Form.Control.Feedback>
                 </InputGroup>
-
                 <InputGroup className="mb-3">
                   <InputGroup.Text>
                     <i className="bi bi-envelope"></i>
@@ -400,7 +380,6 @@ const LoginRegister = () => {
                     {validationErrors.email}
                   </Form.Control.Feedback>
                 </InputGroup>
-
                 <InputGroup className="mb-3">
                   <InputGroup.Text>
                     <i className="bi bi-lock"></i>
@@ -423,7 +402,6 @@ const LoginRegister = () => {
                     {validationErrors.password}
                   </Form.Control.Feedback>
                 </InputGroup>
-
                 <InputGroup className="mb-3">
                   <InputGroup.Text>
                     <i className="bi bi-lock-fill"></i>
@@ -468,7 +446,6 @@ const LoginRegister = () => {
                     {validationErrors.phone}
                   </Form.Control.Feedback>
                 </InputGroup>
-
                 <InputGroup className="mb-3">
                   <InputGroup.Text>
                     <i className="bi bi-calendar-date"></i>
@@ -491,15 +468,12 @@ const LoginRegister = () => {
                     {validationErrors.dob}
                   </Form.Control.Feedback>
                 </InputGroup>
-
                 <InputGroup className="mb-3">
                   <InputGroup.Text>
                     <i className="bi bi-gender-ambiguous"></i>
                   </InputGroup.Text>
                   <Form.Control
-                    type="text"
-                    as={"select"}
-                    placeholder="Giới Tính"
+                    as="select"
                     value={gender}
                     onChange={(e) => {
                       setGender(e.target.value);
@@ -511,10 +485,10 @@ const LoginRegister = () => {
                     }}
                     isInvalid={!!validationErrors.gender}
                   >
-                    <option value="">* Giới Tính</option>
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                    <option value="Khác">Khác</option>
+                    <option value="">* Giới tính</option>
+                    <option value="Male">Nam</option>
+                    <option value="Female">Nữ</option>
+                    <option value="Other">Khác</option>
                   </Form.Control>
                   <Form.Control.Feedback type="invalid">
                     {validationErrors.gender}
@@ -552,7 +526,6 @@ const LoginRegister = () => {
                   <i className="bi bi-person-plus-fill"> Đăng ký</i>
                 </Button>
               </Form>
-
             )}
             <Modal
               show={showSuccessModal}
@@ -586,11 +559,12 @@ const LoginRegister = () => {
                     <Form.Control
                       type="email"
                       value={email}
-                      onChange={(e) => {setEmail(e.target.value.toLowerCase()); setErrorMessage("")}}
+                      onChange={(e) => { setEmail(e.target.value.toLowerCase()); setErrorMessage("") }}
                       placeholder="Nhập email"
                       required
                     />
                   </InputGroup>
+
                   <Button style={{ marginBottom: "5px" }} disabled={isSubmitting} variant="secondary" onClick={handleCancel}>
                     <i class="bi bi-x-circle"> Hủy</i>
                   </Button>
@@ -610,15 +584,22 @@ const LoginRegister = () => {
 
                   <InputGroup className="mb-3">
                     <InputGroup.Text>
-                      <i class="bi bi-check2-circle"></i>
+                      <i className="bi bi-check2-circle"></i>
                     </InputGroup.Text>
                     <Form.Control
                       type="text"
                       value={resetToken}
-                      onChange={(e) => {setResetToken(e.target.value); setErrorMessage("")}}
+                      onChange={(e) => {setResetToken(e.target.value); setErrorMessage(""); setResetValidationErrors((prevErrors) => ({
+                        ...prevErrors,
+                        resetToken: "",
+                      }))
+                      }}
                       placeholder="Nhập mã reset"
-                      required
+                      isInvalid={!!resetValidationErrors.resetToken}
                     />
+                    <Form.Control.Feedback type="invalid">
+                      {resetValidationErrors.resetToken}
+                    </Form.Control.Feedback>
                   </InputGroup>
 
                   <InputGroup className="mb-3">
@@ -627,20 +608,20 @@ const LoginRegister = () => {
                     </InputGroup.Text>
                     <Form.Control
                       type="password"
-                      value={resetPassword}
+                      value={newPassword}
                       onChange={(e) => {
-                        setResetPassword(e.target.value);
+                        setNewPassword(e.target.value);
                         setErrorMessage("");
                         setResetValidationErrors((prevErrors) => ({
                           ...prevErrors,
-                          resetPassword: "",
-                        }));
+                          setNewPassword: "",
+                        }))
                       }}
                       placeholder="Nhập mật khẩu mới"
-                      isInvalid={!!resetValidationErrors.resetPassword}
+                      isInvalid={!!resetValidationErrors.newPassword}
                     />
                     <Form.Control.Feedback type="invalid">
-                      {resetValidationErrors.resetPassword}
+                      {resetValidationErrors.newPassword}
                     </Form.Control.Feedback>
                   </InputGroup>
 
@@ -650,32 +631,24 @@ const LoginRegister = () => {
                     </InputGroup.Text>
                     <Form.Control
                       type="password"
-                      value={confirmResetPassword}
-                      onChange={(e) => {
-                        setConfirmResetPassword(e.target.value);
-                        setErrorMessage("");
-                        setResetValidationErrors((prevErrors) => ({
-                          ...prevErrors,
-                          confirmResetPassword: "",
-                        }));
-                      }}
+                      value={confirmNewPassword}
+                      onChange={(e) => {setConfirmNewPassword(e.target.value); setErrorMessage(""); setResetValidationErrors((prevErrors) => ({...prevErrors, confirmNewPassword: ""}))}}
                       placeholder="Xác nhận mật khẩu mới"
-                      isInvalid={!!resetValidationErrors.confirmResetPassword}
+                      isInvalid={!!resetValidationErrors.confirmNewPassword}
                     />
                     <Form.Control.Feedback type="invalid">
-                      {resetValidationErrors.confirmResetPassword}
+                      {resetValidationErrors.confirmNewPassword}
                     </Form.Control.Feedback>
                   </InputGroup>
-                  <Button style={{ marginBottom: "5px" }} variant="secondary" onClick={handleCancelReset}>
+                  <Button style={{ marginBottom: "5px" }} variant="secondary" onClick={handleCancel}>
                     <i class="bi bi-x-circle"> Hủy</i>
                   </Button>
-                  <Button variant="primary" disabled={!resetPassword || !confirmResetPassword} type="submit" className="w-100">
+                  <Button variant="primary" type="submit" className="w-100">
                     <i class="bi bi-check-circle"> Đặt lại mật khẩu</i>
                   </Button>
                 </Form>
               </>
             )}
-
           </div>
         </Card.Body>
       </Card>

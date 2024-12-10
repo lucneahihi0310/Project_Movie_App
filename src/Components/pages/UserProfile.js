@@ -395,7 +395,7 @@ function UserProfile() {
                       <td>{ticket.id}</td>
                       <td>{ticket.movie}</td>
                       <td>{ticket.cinema}</td>
-                      <td>{ticket.seats}</td>
+                      <td>{ticket.seats.join(", ")}</td>
                       <td>{ticket.date}</td>
                       <td>{ticket.startTime} - {ticket.endTime}</td>
                       <td>{formatCurrency(ticket.totalPrice)}</td>
