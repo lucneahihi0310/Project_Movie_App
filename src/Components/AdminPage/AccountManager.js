@@ -337,7 +337,7 @@ const AccountManager = () => {
                 type="email"
                 placeholder="Email"
                 name="email"
-                value={newAccount.email}
+                value={newAccount.email.toLowerCase()}
                 onChange={handleInputChange}
                 isInvalid={!!errors.email}
               />

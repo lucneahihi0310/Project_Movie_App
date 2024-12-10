@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Row, Col, Form, Button, Modal } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Modal, Table } from "react-bootstrap";
 import { fetchData, updateData } from "../API/ApiService";
 import { PencilSquare, Lock, Key } from 'react-bootstrap-icons';
+import { InputGroup, FormControl } from 'react-bootstrap';
+
 function UserProfile() {
   const { id } = useParams();
   const [show, setShow] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -23,7 +27,48 @@ function UserProfile() {
     newPassword: "",
     confirmPassword: "",
   });
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchData(`accounts/${id}`);
+        setUserData(data);
+        setFormData({
+          full_name: data.full_name,
+          email: data.email,
+          phone: data.phone,
+          dob: data.dob,
+          address: data.address,
+          gender: data.gender,
+        });
 
+        const userTickets = data.tickets || [];
+        setAccounts(userTickets);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getUserData();
+  }, [id]);
+
+  const filterTickets = (ticket) => {
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    return (
+      ticket.id.toLowerCase().includes(lowerSearchTerm) ||
+      ticket.movie.toLowerCase().includes(lowerSearchTerm) ||
+      ticket.cinema.toLowerCase().includes(lowerSearchTerm) ||
+      ticket.seats.toLowerCase().includes(lowerSearchTerm) ||
+      ticket.date.toLowerCase().includes(lowerSearchTerm) ||
+      ticket.startTime.toLowerCase().includes(lowerSearchTerm) ||
+      ticket.endTime.toLowerCase().includes(lowerSearchTerm)
+    );
+  };
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  };
   const handleClose = () => {
     setShow(false);
     setPasswordData({
@@ -42,10 +87,18 @@ function UserProfile() {
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    if (name === "email") {
+      setFormData({
+        ...formData,
+        [name]: value.toLowerCase(),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
+
     setErrors({ ...errors, [name]: "" });
   };
 
@@ -309,6 +362,59 @@ function UserProfile() {
             </Form>
           </Col>
         </Row>
+        <Row style={{ marginTop: "2rem" }}>
+          <div style={{ backgroundColor: '#f8f9fa', padding: '20px' }}>
+            <h2 style={{ color: '#343a40' }}>Lịch Sử Dặt Vé</h2>
+
+            <InputGroup className="mb-3">
+              <FormControl
+                placeholder="Tìm kiếm theo ID vé, Tên phim, Rạp, Ghế, Ngày"
+                aria-label="Search"
+                aria-describedby="basic-addon2"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </InputGroup>
+            <Table striped bordered hover responsive>
+              <thead className="table-dark">
+                <tr>
+                  <th>ID Vé</th>
+                  <th>Phim</th>
+                  <th>Rạp</th>
+                  <th>Ghế</th>
+                  <th>Ngày</th>
+                  <th>Thời gian</th>
+                  <th>Tổng giá</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                {accounts.length > 0 ? (
+                  accounts.filter(filterTickets).map(ticket => (
+                    <tr key={ticket.id}>
+                      <td>{ticket.id}</td>
+                      <td>{ticket.movie}</td>
+                      <td>{ticket.cinema}</td>
+                      <td>{ticket.seats}</td>
+                      <td>{ticket.date}</td>
+                      <td>{ticket.startTime} - {ticket.endTime}</td>
+                      <td>{formatCurrency(ticket.totalPrice)}</td>
+                      <td>
+                        <span className={`badge ${ticket.status === 'active' ? 'bg-success' : 'bg-danger'}`}>
+                          {ticket.status === 'active' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="8" className="text-center">Không có vé nào.</td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+          </div>
+        </Row>
       </Container>
 
       <Modal show={show} onHide={handleClose} centered size="lg">
@@ -400,6 +506,7 @@ function UserProfile() {
         </Modal.Footer>
       </Modal>
     </div>
+
   );
 }
 

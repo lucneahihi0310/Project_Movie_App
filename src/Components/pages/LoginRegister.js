@@ -301,7 +301,7 @@ const LoginRegister = () => {
                     type="email"
                     placeholder="Email"
                     value={email}
-                    onChange={(e) => {setEmail(e.target.value); setErrorMessage("")}}
+                    onChange={(e) => {setEmail(e.target.value.toLowerCase()); setErrorMessage("")}}
                     required
                   />
                 </InputGroup>
@@ -387,7 +387,7 @@ const LoginRegister = () => {
                     placeholder="* Email"
                     value={email}
                     onChange={(e) => {
-                      setEmail(e.target.value);
+                      setEmail(e.target.value.toLowerCase());
                       setErrorMessage("");
                       setValidationErrors((prevErrors) => ({
                         ...prevErrors,
@@ -586,7 +586,7 @@ const LoginRegister = () => {
                     <Form.Control
                       type="email"
                       value={email}
-                      onChange={(e) => {setEmail(e.target.value); setErrorMessage("")}}
+                      onChange={(e) => {setEmail(e.target.value.toLowerCase()); setErrorMessage("")}}
                       placeholder="Nhập email"
                       required
                     />
