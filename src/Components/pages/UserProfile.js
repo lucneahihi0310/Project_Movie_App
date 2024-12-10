@@ -378,7 +378,7 @@ function UserProfile() {
             <Table striped bordered hover responsive>
               <thead className="table-dark">
                 <tr>
-                  <th>ID Vé</th>
+                  <th>Mã Vé</th>
                   <th>Phim</th>
                   <th>Rạp</th>
                   <th>Ghế</th>

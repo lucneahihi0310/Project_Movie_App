@@ -248,6 +248,7 @@ const AccountManager = () => {
                   Sửa
                 </Button>
                 <Button
+                style={{ marginTop: "10px" }}
                   variant="danger"
                   onClick={() => {
                     setAccountToDelete(account);

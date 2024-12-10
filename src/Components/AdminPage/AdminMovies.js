@@ -504,8 +504,8 @@ function AdminMovies() {
                 value={newMovie.status}
                 onChange={handleInputChange}
               >
-                <option value="active">Đang Hoạt Động</option>
-                <option value="inactive">Ngưng Hoạt Động</option>
+                <option value="active">Đang Chiếu</option>
+                <option value="inactive">Ngưng Chiếu</option>
               </Form.Control>
             </Form.Group>
             {/* Form cho Showtimes */}

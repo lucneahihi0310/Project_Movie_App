@@ -80,7 +80,7 @@ const TicketManagement = () => {
             <th>Tên đầy đủ</th>
             <th>Email</th>
             <th>Số điện thoại</th>
-            <th>ID Vé</th>
+            <th>Mã Vé</th>
             <th>Phim</th>
             <th>Rạp</th>
             <th>Ghế</th>
