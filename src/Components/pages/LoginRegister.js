@@ -160,7 +160,7 @@ const LoginRegister = () => {
     if (!isValid) return;
 
 
-    const data = { full_name, email, password, dob, phone, gender, address, role: "2", status: "active" };
+    const data = { full_name, email, password, dob, phone, gender, address, role: "2", status: "active", tickets: [] };
 
     try {
       const response = await postData("accounts", data);

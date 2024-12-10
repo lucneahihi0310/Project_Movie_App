@@ -151,28 +151,34 @@
       ]
     },
     {
-      "id": "8d37",
-      "full_name": "Nguyễn Hữu Sỹ",
-      "email": "syn240303@gmail.com",
-      "password": "Huycan8723",
-      "dob": "2003-03-24",
-      "phone": "0988888888",
-      "gender": "Nữ",
-      "address": "Quế Võ ,Bắc Ninh",
-      "role": "2",
-      "status": "active"
-    },
-    {
-      "id": "4349",
+      "id": "572b",
       "full_name": "luc",
-      "email": "sds@gmail.com",
-      "password": "Lucduong2002",
+      "email": "jjjj@gmail.com",
+      "password": "lUCDUONG2002",
       "dob": "2024-12-04",
-      "phone": "0999999999",
+      "phone": "0987777777",
       "gender": "Male",
-      "address": "ha noi",
+      "address": "HÀ NỘI",
       "role": "2",
-      "status": "active"
+      "status": "active",
+      "tickets": [
+        {
+          "id": "010bc26a-06e1-4ab4-b56f-a0c5f56093a4",
+          "movie": "CƯỜI XUYÊN BIÊN GIỚI",
+          "cinema": "Rạp Chiếu Movie88",
+          "seats": [
+            "H10",
+            "H11",
+            "H12"
+          ],
+          "date": "05-12-2024",
+          "startTime": "19:00",
+          "endTime": "21:55",
+          "totalPrice": 360000,
+          "screen": "Phòng Chiếu Số 1",
+          "status": "inactive"
+        }
+      ]
     }
   ],
   "roles": [

@@ -24,6 +24,7 @@ const AccountManager = () => {
       phone: "",
       full_name: "",
       status: "active",
+      tickets: [],
     };
   }
 
