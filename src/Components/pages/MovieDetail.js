@@ -195,8 +195,8 @@ const MovieDetail = () => {
             )}
           </div>
           <div className="trainer">
-            <h1 class="title">TRAILER</h1>
-            <div class="video-container">
+            <h1 className="title">TRAILER</h1>
+            <div className="video-container">
               <iframe
                 src={movie.video_url}
                 frameborder="0"

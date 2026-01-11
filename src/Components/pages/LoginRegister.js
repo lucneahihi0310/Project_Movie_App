@@ -520,7 +520,7 @@ const LoginRegister = () => {
                 {errorMessage && <p className="text-danger">{errorMessage}</p>}
 
                 <Button style={{ marginBottom: "5px" }} variant="secondary" onClick={handleCancel}>
-                  <i class="bi bi-x-circle"> Hủy</i>
+                  <i className="bi bi-x-circle"> Hủy</i>
                 </Button>
                 <Button type="submit" className="btn-warning w-100">
                   <i className="bi bi-person-plus-fill"> Đăng ký</i>
@@ -566,10 +566,10 @@ const LoginRegister = () => {
                   </InputGroup>
 
                   <Button style={{ marginBottom: "5px" }} disabled={isSubmitting} variant="secondary" onClick={handleCancel}>
-                    <i class="bi bi-x-circle"> Hủy</i>
+                    <i className="bi bi-x-circle"> Hủy</i>
                   </Button>
                   <Button variant="primary" disabled={isSubmitting} type="submit" className="w-100">
-                    <i class="bi bi-send"> Gửi yêu cầu đặt lại mật khẩu</i>
+                    <i className="bi bi-send"> Gửi yêu cầu đặt lại mật khẩu</i>
                   </Button>
                 </Form>
               </>
@@ -614,7 +614,7 @@ const LoginRegister = () => {
                         setErrorMessage("");
                         setResetValidationErrors((prevErrors) => ({
                           ...prevErrors,
-                          setNewPassword: "",
+                          newPassword: "",
                         }))
                       }}
                       placeholder="Nhập mật khẩu mới"
@@ -641,10 +641,10 @@ const LoginRegister = () => {
                     </Form.Control.Feedback>
                   </InputGroup>
                   <Button style={{ marginBottom: "5px" }} variant="secondary" onClick={handleCancel}>
-                    <i class="bi bi-x-circle"> Hủy</i>
+                    <i className="bi bi-x-circle"> Hủy</i>
                   </Button>
                   <Button variant="primary" type="submit" className="w-100">
-                    <i class="bi bi-check-circle"> Đặt lại mật khẩu</i>
+                    <i className="bi bi-check-circle"> Đặt lại mật khẩu</i>
                   </Button>
                 </Form>
               </>

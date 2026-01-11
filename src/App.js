@@ -45,25 +45,25 @@ function App() {
         <Route
           path="/account"
           element={
-            <ProtectedRoute element={<AccountManager />} allowedRoles={"1"} />
+            <ProtectedRoute element={<AccountManager />} allowedRoles={["1"]} />
           }
         />
         <Route
           path="/managermovies"
           element={
-            <ProtectedRoute element={<AdminMovies />} allowedRoles={"1"} />
+            <ProtectedRoute element={<AdminMovies />} allowedRoles={["1"]} />
           }
         />
         <Route
           path="/languages"
           element={
-            <ProtectedRoute element={<LanguagesManager />} allowedRoles={"1"} />
+            <ProtectedRoute element={<LanguagesManager />} allowedRoles={["1"]} />
           }
         />
         <Route
           path="/genres"
           element={
-            <ProtectedRoute element={<GenresManager />} allowedRoles={"1"} />
+            <ProtectedRoute element={<GenresManager />} allowedRoles={["1"]} />
           }
         />
         <Route
@@ -71,14 +71,14 @@ function App() {
           element={
             <ProtectedRoute
               element={<MovieTypesManager />}
-              allowedRoles={"1"}
+              allowedRoles={["1"]}
             />
           }
         />
         <Route
           path="/screens"
           element={
-            <ProtectedRoute element={<ScreensManager />} allowedRoles={"1"} />
+            <ProtectedRoute element={<ScreensManager />} allowedRoles={["1"]} />
           }
         />
         <Route
@@ -94,7 +94,7 @@ function App() {
           }
         />
         <Route path="/tickets" element={
-          <ProtectedRoute element={<TicketManagement />} allowedRoles={"1"} />
+          <ProtectedRoute element={<TicketManagement />} allowedRoles={["1"]} />
         }
         />
       </Routes>

@@ -3,6 +3,9 @@ const BASE_URL = "http://localhost:3001";
 export const fetchData = async (endpoint) => {
   try {
     const response = await fetch(`${BASE_URL}/${endpoint}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     return await response.json();
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -17,6 +20,9 @@ export const postData = async (endpoint, data) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     return await response.json();
   } catch (error) {
     console.error("Error posting data:", error);
@@ -31,6 +37,9 @@ export const updateData = async (endpoint, id, data) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     return await response.json();
   } catch (error) {
     console.error("Error updating data:", error);
@@ -40,9 +49,12 @@ export const updateData = async (endpoint, id, data) => {
 
 export const deleteData = async (endpoint, id) => {
   try {
-    await fetch(`${BASE_URL}/${endpoint}/${id}`, {
+    const response = await fetch(`${BASE_URL}/${endpoint}/${id}`, {
       method: "DELETE",
     });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
   } catch (error) {
     console.error("Error deleting data:", error);
     throw error;

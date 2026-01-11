@@ -49,13 +49,7 @@ function Header() {
   useEffect(() => {
     updateUserData();
     updateGreeting();
-
-    const interval = setInterval(() => {
-      updateGreeting();
-      updateUserData();
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     sessionStorage.removeItem("account");

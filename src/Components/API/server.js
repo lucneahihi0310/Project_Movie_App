@@ -3,15 +3,17 @@ const nodemailer = require("nodemailer");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const fs = require("fs");
+const path = require("path");
 const crypto = require("crypto");
 const cron = require("node-cron");
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
 // Đường dẫn file database.json
-const databasePath = "../../../database.json";
+const databasePath = path.join(__dirname, "../../../database.json");
 
 // Cấu hình VNPay
 const vnpayConfig = {
@@ -144,6 +146,128 @@ cron.schedule("* * * * *", () => {
     });
 });
 
+// Khởi tạo seatLocks nếu chưa có trong database
+function initializeSeatLocks() {
+    const database = getDatabase();
+    if (!database.seatLocks) {
+        database.seatLocks = [];
+        fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+    }
+}
+
+// API lock ghế khi người dùng chọn và bấm tiếp tục
+app.post("/api/lock-seats", (req, res) => {
+    const {
+        userEmail,
+        movie,
+        cinema,
+        date,
+        startTime,
+        seats, // mảng các ghế
+    } = req.body;
+
+    initializeSeatLocks();
+    const database = getDatabase();
+    const seatLocks = database.seatLocks || [];
+
+    // Thời gian hết hạn: 10 phút
+    const expirationTime = Date.now() + 10 * 60 * 1000; // 10 phút
+
+    // Xóa các lock cũ của cùng user cho cùng showtime (nếu có)
+    const lockKey = `${movie}-${cinema}-${date}-${startTime}`;
+    const filteredLocks = seatLocks.filter(
+        (lock) => !(lock.userEmail === userEmail && lock.lockKey === lockKey)
+    );
+
+    // Tạo lock mới cho các ghế
+    const newLocks = seats.map((seat) => ({
+        id: uuidv4(),
+        userEmail,
+        movie,
+        cinema,
+        date,
+        startTime,
+        seat,
+        lockKey,
+        expirationTime,
+        createdAt: Date.now(),
+    }));
+
+    database.seatLocks = [...filteredLocks, ...newLocks];
+    fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+
+    res.json({
+        message: "Ghế đã được giữ thành công!",
+        expirationTime: new Date(expirationTime).toISOString(),
+    });
+});
+
+// API lấy danh sách ghế đang bị lock
+app.get("/api/locked-seats", (req, res) => {
+    const { movie, cinema, date, startTime } = req.query;
+
+    initializeSeatLocks();
+    const database = getDatabase();
+    let seatLocks = database.seatLocks || [];
+
+    // Lọc các lock hết hạn
+    const now = Date.now();
+    seatLocks = seatLocks.filter((lock) => lock.expirationTime > now);
+
+    // Lọc theo showtime nếu có
+    if (movie && cinema && date && startTime) {
+        const lockKey = `${movie}-${cinema}-${date}-${startTime}`;
+        seatLocks = seatLocks.filter((lock) => lock.lockKey === lockKey);
+    }
+
+    // Lưu lại sau khi lọc
+    database.seatLocks = seatLocks;
+    fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+
+    // Trả về danh sách ghế đang bị lock
+    const lockedSeats = seatLocks.map((lock) => lock.seat);
+    res.json({ lockedSeats });
+});
+
+// API unlock ghế (khi thanh toán thành công hoặc hủy)
+app.post("/api/unlock-seats", (req, res) => {
+    const { userEmail, movie, cinema, date, startTime } = req.body;
+
+    initializeSeatLocks();
+    const database = getDatabase();
+    let seatLocks = database.seatLocks || [];
+
+    const lockKey = `${movie}-${cinema}-${date}-${startTime}`;
+
+    // Xóa các lock của user này cho showtime này
+    seatLocks = seatLocks.filter(
+        (lock) => !(lock.userEmail === userEmail && lock.lockKey === lockKey)
+    );
+
+    database.seatLocks = seatLocks;
+    fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+
+    res.json({ message: "Đã mở khóa ghế thành công!" });
+});
+
+// Cron job để xóa các seat lock hết hạn (chạy mỗi phút)
+cron.schedule("* * * * *", () => {
+    initializeSeatLocks();
+    const database = getDatabase();
+    let seatLocks = database.seatLocks || [];
+
+    const now = Date.now();
+    const beforeCount = seatLocks.length;
+    seatLocks = seatLocks.filter((lock) => lock.expirationTime > now);
+    const afterCount = seatLocks.length;
+
+    if (beforeCount !== afterCount) {
+        database.seatLocks = seatLocks;
+        fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+        console.log(`Đã xóa ${beforeCount - afterCount} seat lock hết hạn.`);
+    }
+});
+
 // // API xử lý thanh toán
 // app.post("/payment", (req, res) => {
 //     const ticketInfo = req.body;
@@ -249,8 +373,6 @@ const sendTicketEmail = (userEmail, ticketInfo) => {
         }
     });
 };
-const { v4: uuidv4 } = require('uuid');  // Import UUID để tạo ID ngẫu nhiên
-
 app.post("/api/confirm-booking", (req, res) => {
     const {
         userEmail,
@@ -368,6 +490,15 @@ app.post("/api/confirm-booking", (req, res) => {
             console.error("Error sending email:", error);
             return res.status(500).json({ message: "Gửi email thất bại!" });
         }
+
+        // Unlock seats sau khi thanh toán thành công
+        initializeSeatLocks();
+        let seatLocks = database.seatLocks || [];
+        const lockKey = `${movie}-${cinema}-${date}-${startTime}`;
+        seatLocks = seatLocks.filter(
+            (lock) => !(lock.userEmail === userEmail && lock.lockKey === lockKey)
+        );
+        database.seatLocks = seatLocks;
 
         // Lưu thông tin vào database.json
         fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
