@@ -12,6 +12,9 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+// VNPay routes
+app.use("/vnpay", require("./vnpay.route"));
+
 // Đường dẫn file database.json
 const databasePath = path.join(__dirname, "../../../database.json");
 

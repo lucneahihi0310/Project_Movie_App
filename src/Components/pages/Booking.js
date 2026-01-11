@@ -45,6 +45,7 @@ function Booking() {
   const [ticketId, setTicketId] = useState('');
   const [reservedSeats, setReservedSeats] = useState([]);
   const [lockedSeats, setLockedSeats] = useState([]);
+  const [paymentMethod, setPaymentMethod] = useState("cod"); // "cod" hoặc "vnpay"
 
   useEffect(() => {
     const fetchMovieData = async () => {
@@ -189,12 +190,12 @@ function Booking() {
     if (reservedSeats.includes(seatId)) {
       return "seat-reserved";  // Change class for reserved seats
     }
-    if (lockedSeats.includes(seatId)) {
-      return "seat-locked";  // Ghế đang bị lock (màu vàng)
-    }
+    // Nếu ghế đang được chọn bởi user hiện tại, hiển thị màu cam (đang chọn)
     if (selectedSeats.includes(seatId)) {
       return "seat-selected";
     }
+    // Nếu ghế đang bị lock bởi người khác, vẫn hiển thị là trống nhưng không cho chọn
+    // (logic ngăn chọn được xử lý trong handleSeatSelection)
     return "seat-empty";
   };
 
@@ -315,6 +316,36 @@ function Booking() {
         totalPrice: movieData.selectedShowtime?.price * selectedSeats.length
       };
 
+      // Nếu chọn thanh toán VNPay
+      if (paymentMethod === "vnpay") {
+        const response = await fetch("http://localhost:5000/vnpay/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ bookingData }),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.paymentUrl) {
+            // Lưu booking code vào sessionStorage
+            sessionStorage.setItem("booking_code", result.booking_code);
+            // Chuyển hướng đến trang thanh toán VNPay
+            window.location.href = result.paymentUrl;
+          } else {
+            alert(result.message || "Không thể tạo liên kết thanh toán.");
+            setIsSending(false);
+          }
+        } else {
+          const errorData = await response.json();
+          alert(errorData.message || "Có lỗi xảy ra, vui lòng thử lại.");
+          setIsSending(false);
+        }
+        return;
+      }
+
+      // Thanh toán COD (giữ nguyên logic cũ)
       const response = await fetch("http://localhost:5000/api/confirm-booking", {
         method: "POST",
         headers: {
@@ -385,10 +416,6 @@ function Booking() {
             <MdChair className="seat-icon seat-reserved-icon" size={20} />
             <span className="seat reserved">Ghế đã bán</span>
           </div>
-          <div className="legend-item">
-            <MdChair className="seat-icon seat-locked-icon" size={20} />
-            <span className="seat locked">Ghế đang được giữ</span>
-          </div>
         </div>
         <div className="screen">Màn hình chiếu</div>
         <div className="seats">
@@ -452,6 +479,33 @@ function Booking() {
               <strong>Tổng tiền:</strong> {formatPrice(movieData.selectedShowtime?.price * selectedSeats.length)}
             </li>
           </ul>
+          <div style={{ marginTop: "20px", marginBottom: "20px" }}>
+            <h4 style={{ marginBottom: "0px" }}>Phương thức thanh toán:</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "3px" }}>
+              <label style={{ display: "flex", alignItems: "center", cursor: "pointer", width: "fit-content" }}>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="cod"
+                  checked={paymentMethod === "cod"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  style={{ marginRight: "4px", width: "auto", flexShrink: 0 }}
+                />
+                Thanh toán khi nhận vé (COD)
+              </label>
+              <label style={{ display: "flex", alignItems: "center", cursor: "pointer", width: "fit-content" }}>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="vnpay"
+                  checked={paymentMethod === "vnpay"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  style={{ marginRight: "4px", width: "auto", flexShrink: 0 }}
+                />
+                Thanh toán trực tuyến (VNPay)
+              </label>
+            </div>
+          </div>
           <button className="continue-button" onClick={handleContinue}>Tiếp tục</button>
         </div>
       </div>
@@ -499,6 +553,7 @@ function Booking() {
             </li>
             <li><strong>Thời gian chiếu:</strong> {formatTime(movieData.selectedShowtime?.start_time)} - {formatTime(movieData.selectedShowtime?.end_time)}</li>
             <li><strong>Tổng tiền:</strong> {formatPrice(movieData.selectedShowtime?.price * selectedSeats.length)}</li>
+            <li><strong>Phương thức thanh toán:</strong> {paymentMethod === "cod" ? "Thanh toán khi nhận vé (COD)" : "Thanh toán trực tuyến (VNPay)"}</li>
           </ul>
         </Modal.Body>
         <Modal.Footer>

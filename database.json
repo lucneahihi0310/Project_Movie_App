@@ -535,5 +535,25 @@
       ]
     }
   ],
-  "seatLocks": []
+  "seatLocks": [],
+  "pendingBookings": [
+    {
+      "booking_code": "MOVIE-1768121780846",
+      "userEmail": "lucduongty@gmail.com",
+      "fullName": "Dương Văn Lực",
+      "phone": "0354994218",
+      "cinema": "Rạp Chiếu Movie88",
+      "movie": "CƯỜI XUYÊN BIÊN GIỚI",
+      "duration": 113,
+      "screen": "Phòng Chiếu Số 1",
+      "seats": [
+        "G10"
+      ],
+      "date": "05-12-2024",
+      "startTime": "19:00",
+      "endTime": "21:55",
+      "totalPrice": 120000,
+      "createdAt": "2026-01-11T08:56:20.846Z"
+    }
+  ]
 }

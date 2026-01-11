@@ -19,6 +19,8 @@ import ShowTime from "./Components/pages/ShowtimePage.js";
 import Booking from "./Components/pages/Booking.js";
 import UserProfile from "./Components/pages/UserProfile.js";
 import TicketManagement from "./Components/AdminPage/TicketManagement.js";
+import PaymentSuccess from "./Components/pages/PaymentSuccess.js";
+import PaymentFailure from "./Components/pages/PaymentFailure.js";
 
 function App() {
   const account = JSON.parse(localStorage.getItem("rememberedAccount")) || JSON.parse(sessionStorage.getItem("account"));
@@ -97,6 +99,8 @@ function App() {
           <ProtectedRoute element={<TicketManagement />} allowedRoles={["1"]} />
         }
         />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failure" element={<PaymentFailure />} />
       </Routes>
 
       <Footer />
