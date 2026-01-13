@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 import { FaEdit, FaTrashAlt, FaPlus } from "react-icons/fa";
 import { fetchData, postData, updateData, deleteData } from "../API/ApiService";
+const API_BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
 
 function AdminMovies() {
   const [movies, setMovies] = useState([]);
@@ -23,6 +24,7 @@ function AdminMovies() {
   const [editMovie, setEditMovie] = useState(null);
   const [screens, setScreens] = useState([]);
   const [cinemas, setCinemas] = useState([]);
+  const [uploadingField, setUploadingField] = useState(null);
   const [newMovie, setNewMovie] = useState({
     title: "",
     genre_ids: [],
@@ -83,9 +85,18 @@ function AdminMovies() {
       genre_ids: Array.isArray(newMovie.genre_ids)
         ? newMovie.genre_ids
         : newMovie.genre_ids.split(",").map(Number),
-      poster: Array.isArray(newMovie.poster)
-        ? newMovie.poster
-        : newMovie.poster.split(","),
+      poster:
+        typeof newMovie.poster === "string"
+          ? newMovie.poster
+          : Array.isArray(newMovie.poster)
+          ? newMovie.poster[0]
+          : "",
+      banner:
+        typeof newMovie.banner === "string"
+          ? newMovie.banner
+          : Array.isArray(newMovie.banner)
+          ? newMovie.banner[0]
+          : "",
       showtimes: Array.isArray(newMovie.showtimes)
         ? newMovie.showtimes.map((showtime) => ({
             ...showtime,
@@ -179,6 +190,18 @@ function AdminMovies() {
         ? movie.genre_ids
         : movie.genre_ids.split(","),
       showtimes: Array.isArray(movie.showtimes) ? movie.showtimes : [],
+      poster:
+        typeof movie.poster === "string"
+          ? movie.poster
+          : Array.isArray(movie.poster)
+          ? movie.poster[0]
+          : "",
+      banner:
+        typeof movie.banner === "string"
+          ? movie.banner
+          : Array.isArray(movie.banner)
+          ? movie.banner[0]
+          : "",
     });
     setShowModal(true);
   };
@@ -202,6 +225,32 @@ function AdminMovies() {
       showtimes: [],
     });
     setShowModal(true);
+  };
+
+  const uploadImageToCloud = async (file, field) => {
+    if (!file) return;
+    setUploadingField(field);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch(`${API_BASE}/api/upload-image`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error("Upload thất bại");
+      }
+      const data = await response.json();
+      setNewMovie((prev) => ({
+        ...prev,
+        [field]: data.url,
+      }));
+    } catch (error) {
+      console.error("Upload image error:", error);
+      alert("Upload ảnh thất bại, vui lòng thử lại.");
+    } finally {
+      setUploadingField(null);
+    }
   };
 
   const handleTitleClick = (movie) => {
@@ -448,7 +497,27 @@ function AdminMovies() {
                 name="poster"
                 value={newMovie.poster}
                 onChange={handleInputChange}
+                placeholder="Hoặc chọn file để upload"
               />
+              <Form.Control
+                type="file"
+                accept="image/*"
+                className="mt-2"
+                onChange={(e) => uploadImageToCloud(e.target.files[0], "poster")}
+                disabled={uploadingField === "poster"}
+              />
+              {uploadingField === "poster" && (
+                <small className="text-muted">Đang upload poster...</small>
+              )}
+              {newMovie.poster && (
+                <div className="mt-2 text-center">
+                  <img
+                    src={newMovie.poster}
+                    alt="Poster preview"
+                    style={{ maxWidth: "120px", borderRadius: "8px" }}
+                  />
+                </div>
+              )}
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Loại Phim</Form.Label>
@@ -494,7 +563,27 @@ function AdminMovies() {
                 name="banner"
                 value={newMovie.banner}
                 onChange={handleInputChange}
+                placeholder="Hoặc chọn file để upload"
               />
+              <Form.Control
+                type="file"
+                accept="image/*"
+                className="mt-2"
+                onChange={(e) => uploadImageToCloud(e.target.files[0], "banner")}
+                disabled={uploadingField === "banner"}
+              />
+              {uploadingField === "banner" && (
+                <small className="text-muted">Đang upload banner...</small>
+              )}
+              {newMovie.banner && (
+                <div className="mt-2 text-center">
+                  <img
+                    src={newMovie.banner}
+                    alt="Banner preview"
+                    style={{ maxWidth: "100%", borderRadius: "8px" }}
+                  />
+                </div>
+              )}
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Trạng Thái</Form.Label>

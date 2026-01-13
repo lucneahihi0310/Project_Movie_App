@@ -188,14 +188,14 @@ function Booking() {
 
   const getSeatClass = (seatId) => {
     if (reservedSeats.includes(seatId)) {
-      return "seat-reserved";  // Change class for reserved seats
+      return "seat-reserved";  // Ghế đã bán
     }
-    // Nếu ghế đang được chọn bởi user hiện tại, hiển thị màu cam (đang chọn)
+    if (lockedSeats.includes(seatId)) {
+      return "seat-locked";    // Ghế đang được giữ (màu vàng, không chọn được)
+    }
     if (selectedSeats.includes(seatId)) {
-      return "seat-selected";
+      return "seat-selected";  // Ghế đang chọn
     }
-    // Nếu ghế đang bị lock bởi người khác, vẫn hiển thị là trống nhưng không cho chọn
-    // (logic ngăn chọn được xử lý trong handleSeatSelection)
     return "seat-empty";
   };
 
@@ -415,6 +415,10 @@ function Booking() {
           <div className="legend-item">
             <MdChair className="seat-icon seat-reserved-icon" size={20} />
             <span className="seat reserved">Ghế đã bán</span>
+          </div>
+          <div className="legend-item">
+            <MdChair className="seat-icon seat-locked-icon" size={20} />
+            <span className="seat locked">Ghế đang giữ</span>
           </div>
         </div>
         <div className="screen">Màn hình chiếu</div>

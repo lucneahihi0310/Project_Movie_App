@@ -1,26 +1,21 @@
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
-const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require('uuid');
+const { sendEmail } = require("./utils/email");
 
 const databasePath = path.join(__dirname, "../../../database.json");
 
-// VNPAY configuration
-const vnp_TmnCode = "7HJM21XJ";
-const vnp_HashSecret = "EUGNBYHOEDDNGAR4NW90DXOGTIXGS26I";
-const vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-const vnp_ReturnUrl = "http://localhost:5000/vnpay/return";
-const vnp_IpnUrl = "http://localhost:5000/vnpay/ipn";
+// VNPAY configuration (tách ra env)
+const vnp_TmnCode = process.env.VNPAY_TMN_CODE || "7HJM21XJ";
+const vnp_HashSecret = process.env.VNPAY_HASH_SECRET || "EUGNBYHOEDDNGAR4NW90DXOGTIXGS26I";
+const vnp_Url = process.env.VNPAY_URL || "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+const vnp_ReturnUrl = process.env.VNPAY_RETURN_URL || "http://localhost:5000/vnpay/return";
+const vnp_IpnUrl = process.env.VNPAY_IPN_URL || "http://localhost:5000/vnpay/ipn";
 
-// Cấu hình email
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: "kubinduong2002@gmail.com",
-        pass: "wubr bysj fvrk rvju",
-    },
-});
+const sendHtmlEmail = async ({ to, subject, html, text }) => {
+    await sendEmail({ to, subject, html, text });
+};
 
 // Helper function to sort object keys alphabetically
 function sortObject(obj) {
@@ -209,11 +204,7 @@ exports.ipn = async (req, res) => {
         user.tickets.push(newTicket);
 
         // Gửi email xác nhận
-        const mailOptions = {
-            from: "kubinduong2002@gmail.com",
-            to: userEmail,
-            subject: "Xác nhận đặt vé - Thanh toán thành công",
-            html: `
+        const html = `
           <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;">
           <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
             
@@ -278,10 +269,21 @@ exports.ipn = async (req, res) => {
             </div>
           </div>
         </div>
-        `,
-        };
+        `;
 
-        await transporter.sendMail(mailOptions);
+        await sendHtmlEmail({
+            to: userEmail,
+            subject: "Xác nhận đặt vé - Thanh toán thành công",
+            html,
+            text: `Mã vé: ${ticketId}
+Phim: ${movie}
+Rạp: ${cinema}
+Ghế: ${seats.join(", ")}
+Ngày: ${date}
+Giờ: ${startTime} - ${endTime}
+Phòng: ${screen}
+Tổng tiền: ${totalPrice.toLocaleString("vi-VN")} ₫`,
+        });
 
         // Xóa pending booking
         database.pendingBookings = pendingBookings.filter((b) => b.booking_code !== bookingCode);

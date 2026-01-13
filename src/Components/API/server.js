@@ -1,5 +1,5 @@
+require("dotenv").config();
 const express = require("express");
-const nodemailer = require("nodemailer");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const fs = require("fs");
@@ -7,6 +7,8 @@ const path = require("path");
 const crypto = require("crypto");
 const cron = require("node-cron");
 const { v4: uuidv4 } = require('uuid');
+const { upload, uploadToCloudinary } = require("./utils/cloudinary");
+const { sendEmail } = require("./utils/email");
 
 const app = express();
 app.use(bodyParser.json());
@@ -18,22 +20,18 @@ app.use("/vnpay", require("./vnpay.route"));
 // Đường dẫn file database.json
 const databasePath = path.join(__dirname, "../../../database.json");
 
-// Cấu hình VNPay
+// Cấu hình VNPay (chỉ dùng cho /payment-result cũ)
 const vnpayConfig = {
-    vnp_TmnCode: "7HJM21XJ", // Mã TMN
-    vnp_HashSecret: "EUGNBYHOEDDNGAR4NW90DXOGTIXGS26I", // Secret Key
-    vnp_Url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html", // URL thanh toán môi trường TEST
-    vnp_ReturnUrl: "http://localhost:5000/payment-result", // URL trả về kết quả thanh toán
+    vnp_TmnCode: process.env.VNPAY_TMN_CODE || "7HJM21XJ", // Mã TMN
+    vnp_HashSecret: process.env.VNPAY_HASH_SECRET || "EUGNBYHOEDDNGAR4NW90DXOGTIXGS26I", // Secret Key
+    vnp_Url: process.env.VNPAY_URL || "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html", // URL thanh toán môi trường TEST
+    vnp_ReturnUrl: process.env.VNPAY_LEGACY_RETURN_URL || "http://localhost:5000/payment-result", // URL trả về kết quả thanh toán
 };
 
-// Cấu hình email
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: "kubinduong2002@gmail.com",
-        pass: "wubr bysj fvrk rvju", // App Password của bạn
-    },
-});
+// Email helper (Resend)
+const sendHtmlEmail = async ({ to, subject, html, text }) => {
+    await sendEmail({ to, subject, html, text });
+};
 
 // Hàm đọc dữ liệu từ file database.json
 function getDatabase() {
@@ -41,7 +39,7 @@ function getDatabase() {
 }
 
 // API xử lý quên mật khẩu
-app.post("/api/forgot-password", (req, res) => {
+app.post("/api/forgot-password", async (req, res) => {
     const { email } = req.body;
 
     const database = getDatabase();
@@ -59,7 +57,6 @@ app.post("/api/forgot-password", (req, res) => {
 
     // Gửi email
     const mailOptions = {
-        from: "kubinduong2002@gmail.com",
         to: email,
         subject: "Đặt lại mật khẩu của bạn",
         html: `
@@ -87,15 +84,19 @@ app.post("/api/forgot-password", (req, res) => {
     user.resetToken = resetToken;
     user.resetTokenExpiration = tokenExpirationTime;
 
-    transporter.sendMail(mailOptions, (error) => {
-        if (error) {
-            console.error("Error sending email:", error);
-            return res.status(500).json({ message: "Gửi email thất bại!" });
-        }
-
+    try {
+        await sendHtmlEmail({
+            to: mailOptions.to,
+            subject: mailOptions.subject,
+            html: mailOptions.html,
+            text: `Mã reset của bạn: ${resetToken} (hết hạn sau 5 phút)`,
+        });
         fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
         res.json({ message: "Email đặt lại mật khẩu đã được gửi!" });
-    });
+    } catch (error) {
+        console.error("Error sending email:", error);
+        return res.status(500).json({ message: "Gửi email thất bại!" });
+    }
 });
 
 // API cập nhật mật khẩu mới
@@ -253,6 +254,27 @@ app.post("/api/unlock-seats", (req, res) => {
     res.json({ message: "Đã mở khóa ghế thành công!" });
 });
 
+// API upload ảnh lên Cloudinary
+app.post("/api/upload-image", upload.single("file"), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "Không có file upload" });
+        }
+        const result = await uploadToCloudinary(req.file.buffer, "movie_app", {
+            mimetype: req.file.mimetype,
+            resource_type: req.file.mimetype?.startsWith("image/") ? "image" : "raw",
+        });
+        return res.json({
+            url: result.secure_url,
+            public_id: result.public_id,
+            resource_type: result.resource_type,
+        });
+    } catch (error) {
+        console.error("Upload Cloudinary error:", error);
+        return res.status(500).json({ message: "Upload thất bại" });
+    }
+});
+
 // Cron job để xóa các seat lock hết hạn (chạy mỗi phút)
 cron.schedule("* * * * *", () => {
     initializeSeatLocks();
@@ -317,7 +339,7 @@ cron.schedule("* * * * *", () => {
 // });
 
 // Xử lý kết quả thanh toán
-app.get("/payment-result", (req, res) => {
+app.get("/payment-result", async (req, res) => {
     const vnpayData = req.query;
     const secureHash = vnpayData.vnp_SecureHash;
 
@@ -343,19 +365,22 @@ app.get("/payment-result", (req, res) => {
         };
 
         // Gửi email thông báo cho người dùng
-        sendTicketEmail(vnpayData.vnp_BillEmail, ticketInfo);
-
-        res.send("Thanh toán thành công và email đã được gửi.");
+        try {
+            await sendTicketEmail(vnpayData.vnp_BillEmail, ticketInfo);
+            res.send("Thanh toán thành công và email đã được gửi.");
+        } catch (error) {
+            console.error("Error sending ticket email:", error);
+            res.send("Thanh toán thành công nhưng gửi email thất bại.");
+        }
     } else {
         res.send("Thanh toán thất bại.");
     }
 });
 
-// Hàm gửi email
-const sendTicketEmail = (userEmail, ticketInfo) => {
-    const mailOptions = {
-        from: "kubinduong2002@gmail.com",  // Email người gửi
-        to: userEmail,  // Địa chỉ email người nhận
+// Hàm gửi email (Resend)
+const sendTicketEmail = async (userEmail, ticketInfo) => {
+    await sendHtmlEmail({
+        to: userEmail,
         subject: `Thông tin vé đặt chỗ - ${ticketInfo.movieTitle}`,
         html: `
       <h2>Thông tin vé của bạn</h2>
@@ -366,17 +391,15 @@ const sendTicketEmail = (userEmail, ticketInfo) => {
       <p><strong>Ghế:</strong> ${ticketInfo.seats}</p>
       <p><strong>Tổng tiền:</strong> ${ticketInfo.totalAmount}</p>
     `,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.log('Error sending email:', error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
+        text: `Người đặt: ${ticketInfo.userName}
+Phim: ${ticketInfo.movieTitle}
+Ngày chiếu: ${ticketInfo.showDate}
+Giờ chiếu: ${ticketInfo.showTime}
+Ghế: ${ticketInfo.seats}
+Tổng tiền: ${ticketInfo.totalAmount}`,
     });
 };
-app.post("/api/confirm-booking", (req, res) => {
+app.post("/api/confirm-booking", async (req, res) => {
     const {
         userEmail,
         fullName,
@@ -422,7 +445,6 @@ app.post("/api/confirm-booking", (req, res) => {
 
     // Gửi email xác nhận
     const mailOptions = {
-        from: "kubinduong2002@gmail.com",
         to: userEmail,
         subject: "Xác nhận đặt vé",
         html: `
@@ -488,26 +510,31 @@ app.post("/api/confirm-booking", (req, res) => {
         `,
     };
 
-    transporter.sendMail(mailOptions, (error) => {
-        if (error) {
-            console.error("Error sending email:", error);
-            return res.status(500).json({ message: "Gửi email thất bại!" });
-        }
+    try {
+        await sendHtmlEmail({
+            to: mailOptions.to,
+            subject: mailOptions.subject,
+            html: mailOptions.html,
+            text: `Mã vé: ${ticketId}\nPhim: ${movie}\nRạp: ${cinema}\nGhế: ${seats.join(", ")}\nNgày: ${date}\nGiờ: ${startTime} - ${endTime}\nPhòng: ${screen}\nTổng tiền: ${totalPrice}`,
+        });
+    } catch (error) {
+        console.error("Error sending email:", error);
+        return res.status(500).json({ message: "Gửi email thất bại!" });
+    }
 
-        // Unlock seats sau khi thanh toán thành công
-        initializeSeatLocks();
-        let seatLocks = database.seatLocks || [];
-        const lockKey = `${movie}-${cinema}-${date}-${startTime}`;
-        seatLocks = seatLocks.filter(
-            (lock) => !(lock.userEmail === userEmail && lock.lockKey === lockKey)
-        );
-        database.seatLocks = seatLocks;
+    // Unlock seats sau khi thanh toán thành công
+    initializeSeatLocks();
+    let seatLocks = database.seatLocks || [];
+    const lockKey = `${movie}-${cinema}-${date}-${startTime}`;
+    seatLocks = seatLocks.filter(
+        (lock) => !(lock.userEmail === userEmail && lock.lockKey === lockKey)
+    );
+    database.seatLocks = seatLocks;
 
-        // Lưu thông tin vào database.json
-        fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+    // Lưu thông tin vào database.json
+    fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
 
-        res.json({ message: "Đặt vé thành công và email đã được gửi!", ticketId });
-    });
+    res.json({ message: "Đặt vé thành công và email đã được gửi!", ticketId });
 });
 
 
