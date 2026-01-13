@@ -40,7 +40,7 @@ function PaymentFailure() {
       <Modal show={showModal} onHide={handleClose} centered>
         <Modal.Header closeButton>
           <Modal.Title style={{ color: "#dc3545" }}>
-            ✗ Thanh toán thất bại
+            Thanh toán thất bại
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -50,7 +50,7 @@ function PaymentFailure() {
               color: "#dc3545", 
               marginBottom: "20px" 
             }}>
-              ✗
+              
             </div>
             <h3 style={{ color: "#333", marginBottom: "15px" }}>
               Rất tiếc, thanh toán không thành công

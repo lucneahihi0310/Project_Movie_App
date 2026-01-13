@@ -7,6 +7,7 @@ import { IoTicketOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
 function MoviePage() {
+  const navigate = useNavigate();
   const [movie, setMovie] = useState([]);
   const [movieType, setMovieType] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -19,33 +20,87 @@ function MoviePage() {
   const [selectedShowtime, setSelectedShowtime] = useState(null);
   const [language, setLanguage] = useState([]);
   const [showTime, setShowTime] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:3001/movies")
-      .then((response) => response.json())
-      .then((data) => setMovie(data))
-      .catch((error) => console.error("Error fetching movies:", error));
+    const fetchMovies = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/movies");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const moviesData = await response.json();
+        setMovie(Array.isArray(moviesData) ? moviesData : []);
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+        setMovie([]);
+      }
+    };
 
-    fetch("http://localhost:3001/genres")
-      .then((response) => response.json())
-      .then((data) => setGenres(data))
-      .catch((error) => console.error("Error fetching genres:", error));
+    const fetchGenres = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/genres");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const genresData = await response.json();
+        setGenres(Array.isArray(genresData) ? genresData : []);
+      } catch (error) {
+        console.error("Error fetching genres:", error);
+        setGenres([]);
+      }
+    };
 
-    fetch("http://localhost:3001/movietypes")
-      .then((response) => response.json())
-      .then((data) => setMovieType(data))
-      .catch((error) => console.error("Error fetching movie types:", error));
+    const fetchMovieTypes = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/movietypes");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const typesData = await response.json();
+        setMovieType(Array.isArray(typesData) ? typesData : []);
+        // Set default selectedMovieType to first movie type if available
+        if (Array.isArray(typesData) && typesData.length > 0) {
+          setSelectedMovieType(typesData[0].id);
+        }
+      } catch (error) {
+        console.error("Error fetching movie types:", error);
+        setMovieType([]);
+      }
+    };
 
-    fetch(`http://localhost:3001/cinema/1`)
-      .then((response) => response.json())
-      .then((data) => setCinema(data))
-      .catch((error) => console.error("Error fetching showtimes:", error));
+    const fetchCinema = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/cinema/1");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const cinemaData = await response.json();
+        setCinema(cinemaData);
+      } catch (error) {
+        console.error("Error fetching cinema:", error);
+        setCinema([]);
+      }
+    };
 
-    fetch(`http://localhost:3001/languages`)
-      .then((response) => response.json())
-      .then((data) => setLanguage(data))
-      .catch((error) => console.error("Error fetching showtimes:", error));
+    const fetchLanguages = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/languages");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const languagesData = await response.json();
+        setLanguage(Array.isArray(languagesData) ? languagesData : []);
+      } catch (error) {
+        console.error("Error fetching languages:", error);
+        setLanguage([]);
+      }
+    };
+
+    fetchMovies();
+    fetchGenres();
+    fetchMovieTypes();
+    fetchCinema();
+    fetchLanguages();
   }, []);
 
 
@@ -74,7 +129,6 @@ function MoviePage() {
   };
   
 
-  console.log(showTime);
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN", {
@@ -92,16 +146,16 @@ function MoviePage() {
     });
   };
   const filteredData = movie.filter(
-    (movies) => movies.movie_type == selectedMovieType
+    (movies) => String(movies.movie_type) === String(selectedMovieType)
   );
 
   const getGenreNames = (genreIds) =>
     genreIds
-      .map((id) => genres.find((genre) => genre.id == id)?.name)
+      .map((id) => genres.find((genre) => genre.id === id)?.name)
       .join(", ");
 
   const getLanguageName = (languageId) =>
-    language.find((language) => language.id == languageId)?.name;
+    language.find((lang) => lang.id === languageId)?.name;
 
   const openModal = (movie) => {
     setSelectedMovie(movie);
@@ -140,8 +194,20 @@ function MoviePage() {
     setSelectedDate(date);
   };
 
+  // Helper function to check if showtime has passed
+  const isShowtimePassed = (showtime) => {
+    const now = new Date();
+    const showtimeDate = new Date(showtime.date);
+    const showtimeTime = showtime.start_time.split(":").map(Number);
+    
+    const showtimeDateTime = new Date(showtimeDate);
+    showtimeDateTime.setHours(showtimeTime[0], showtimeTime[1], showtimeTime[2] || 0, 0);
+    
+    return showtimeDateTime < now;
+  };
+
   const filteredShowtimes = showTime.filter(
-    (showtime) => showtime.date === selectedDate
+    (showtime) => showtime.date === selectedDate && !isShowtimePassed(showtime)
   );
 
   return (
@@ -150,17 +216,14 @@ function MoviePage() {
         <nav className="navi">
           {movieType.length > 0 ? (
             movieType.map((type) => (
-              <a
+              <button
                 key={type.id}
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleMovieTypeFilter(type);
-                }}
-                className={selectedMovieType == type.id ? "actived" : ""}
+                type="button"
+                onClick={() => handleMovieTypeFilter(type)}
+                className={selectedMovieType === type.id ? "actived" : ""}
               >
                 {type.name}
-              </a>
+              </button>
             ))
           ) : (
             <p>Loading movie types...</p>
@@ -171,10 +234,13 @@ function MoviePage() {
           {filteredData.length > 0 ? (
             filteredData.map((movie) => {
               return (
-                <div className="movie-items" key={movie.id}>
+                <div 
+                  className="movie-items" 
+                  key={movie.id}
+                  onClick={() => navigate(`/movie/${movie.id}`)}
+                >
                   <div className="image-container">
                     <img
-                      style={{ height: "400px" }}
                       src={
                         movie.poster || "https://via.placeholder.com/200x300"
                       }
@@ -182,30 +248,40 @@ function MoviePage() {
                     />
                     <div
                       className="overlay-icon"
-                      onClick={() => openModal(movie)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openModal(movie);
+                      }}
                     >
                       <FaPlay size={40} color="white" />
                     </div>
                   </div>
-                  <Link to={`/movie/${movie.id}`}>{movie.title}</Link>
-                  <ul>
-                    <li>
-                      <span>Thể loại:</span> {getGenreNames(movie.genre_ids)}
-                    </li>
-                    <li>
-                      <span>Thời lượng:</span> {movie.duration || "N/A"} phút
-                    </li>
-                    <li>
-                      <span>Ngày khởi chiếu:</span>{" "}
-                      {movie.release_date || "N/A"}
-                    </li>
-                  </ul>
-                  <Button onClick={() => handleBookTicket(movie.id)}>
-                    <IoTicketOutline
-                      style={{ marginRight: "8px", fontSize: "1.5rem" }}
-                    />
-                    Đặt vé
-                  </Button>
+                  <div className="movie-content">
+                    <h3 className="movie-title">{movie.title}</h3>
+                    <ul>
+                      <li>
+                        <span>Thể loại:</span> {getGenreNames(movie.genre_ids)}
+                      </li>
+                      <li>
+                        <span>Thời lượng:</span> {movie.duration || "N/A"} phút
+                      </li>
+                      <li>
+                        <span>Ngày khởi chiếu:</span>{" "}
+                        {movie.release_date || "N/A"}
+                      </li>
+                    </ul>
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBookTicket(movie.id);
+                      }}
+                    >
+                      <IoTicketOutline
+                        style={{ marginRight: "8px", fontSize: "1.5rem" }}
+                      />
+                      Đặt vé
+                    </Button>
+                  </div>
                 </div>
               );
             })

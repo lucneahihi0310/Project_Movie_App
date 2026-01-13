@@ -15,7 +15,7 @@
     },
     {
       "id": "2",
-      "password": "Lucduong2002",
+      "password": "$2b$10$ed6z2oyBL/X1BJKBRO6Lkuz9r5d3dseC2IjPoiRaJxbWxRP8xsRw2",
       "role": "2",
       "dob": "2002-10-03",
       "address": "123, Hà Đông, Hà Nội",
@@ -145,6 +145,34 @@
           "startTime": "15:00",
           "endTime": "17:42",
           "totalPrice": 240000,
+          "screen": "Phòng Chiếu Số 2",
+          "status": "inactive"
+        },
+        {
+          "id": "8b4ea3bb-6804-4d81-8b27-7c29272da5a7",
+          "movie": "Linh Miêu",
+          "cinema": "Rạp Chiếu Movie88",
+          "seats": [
+            "E12"
+          ],
+          "date": "24-12-2024",
+          "startTime": "22:00",
+          "endTime": "00:32",
+          "totalPrice": 160000,
+          "screen": "Phòng Chiếu Số 2",
+          "status": "inactive"
+        },
+        {
+          "id": "551be45e-8e10-48b4-a67a-c43ced450794",
+          "movie": "Linh Miêu",
+          "cinema": "Rạp Chiếu Movie88",
+          "seats": [
+            "A12"
+          ],
+          "date": "24-11-2024",
+          "startTime": "15:00",
+          "endTime": "17:42",
+          "totalPrice": 120000,
           "screen": "Phòng Chiếu Số 2",
           "status": "inactive"
         }
@@ -292,15 +320,15 @@
       "actor": "Hồng Đào, Thiên An, Thuỳ Tiên, Văn Anh, Samuel An,...",
       "description": "Linh Miêu: Quỷ Nhập Tràng lấy cảm hứng từ truyền thuyết dân gian về “quỷ nhập tràng” để xây dựng cốt truyện. Phim lồng ghép những nét văn hóa đặc trưng của Huế như nghệ thuật khảm sành - một văn hóa đặc sắc của thời nhà Nguyễn, đề cập đến các vấn đề về giai cấp và quan điểm trọng nam khinh nữ. Đặc biệt, hình ảnh rước kiệu thây ma và những hình nhân giấy không chỉ biểu trưng cho tai ương hay điềm dữ mà còn là hiện thân của nghiệp quả.",
       "genre_ids": [
-        5
+        "2"
       ],
       "duration": 109,
       "language_id": "3",
       "movie_type": "1",
       "release_date": "22-11-2024",
       "video_url": "https://www.youtube.com/embed/QBMhv3FLW_Q",
-      "banner": "https://files.betacorp.vn/media/images/2024/11/14/1702x621-23-114246-141124-41.jpg",
-      "poster": "https://files.betacorp.vn/media%2fimages%2f2024%2f11%2f14%2f400x633%2D16%2D114807%2D141124%2D90.jpg",
+      "banner": "https://res.cloudinary.com/dqbl66hjf/image/upload/v1768313731/movie_app/nis4tkywdwqchpl8z3xo.jpg",
+      "poster": "https://res.cloudinary.com/dqbl66hjf/image/upload/v1768315372/movie_app/wm02ynn49q5vrdpwmsi5.jpg",
       "status": "active",
       "showtimes": [
         {
@@ -345,7 +373,7 @@
       "id": "2",
       "title": "Quỷ Treo Đầu",
       "genre_ids": [
-        5
+        "5"
       ],
       "description": "Petai & Nicha - cặp đôi trẻ đẹp liên tục bị quấy phá sau khi chuyển đến ngôi nhà gia truyền của Nicha. Từ những tiếng động cót két chói tai đến những cái chết mất xác; tất cả đều xuất phát từ một lời nguyền cổ xưa ma quái.",
       "director": "Bo Nipan Chawcharernpon",
@@ -355,8 +383,8 @@
       "movie_type": "2",
       "release_date": "29-11-2024",
       "video_url": "https://www.youtube.com/embed/yjL9YgnmVlg",
-      "banner": "https://files.betacorp.vn/media/images/2024/11/20/1702x621-24-162735-201124-55.jpg",
-      "poster": "https://files.betacorp.vn/media%2fimages%2f2024%2f11%2f20%2f400x633%2D17%2D162001%2D201124%2D70.jpg",
+      "banner": "https://res.cloudinary.com/dqbl66hjf/image/upload/v1768312608/movie_app/pvaqvn2fm18jqnujko4z.jpg",
+      "poster": "https://res.cloudinary.com/dqbl66hjf/image/upload/v1768312599/movie_app/xheycoxwhibwnmzbj9y3.jpg",
       "status": "active",
       "showtimes": [
         {
@@ -432,7 +460,7 @@
       "release_date": "15-11-2024",
       "video_url": "https://www.youtube.com/embed/c-XbI-G6bqE",
       "banner": "https://i.ytimg.com/vi/4bdsuhHnj1c/maxresdefault.jpg",
-      "poster": "https://files.betacorp.vn/media%2fimages%2f2024%2f11%2f08%2f400wx633h%2D1%2D154452%2D081124%2D12.jpg",
+      "poster": "https://res.cloudinary.com/dqbl66hjf/image/upload/v1768315751/movie_app/xwwbitvn1c3xvfp3plpc.jpg",
       "status": "active",
       "showtimes": [
         {
@@ -456,7 +484,7 @@
       ]
     },
     {
-      "id": 5,
+      "id": "5",
       "title": "Công tử bạc liêu",
       "genre_ids": [
         "2",
@@ -553,7 +581,27 @@
       "startTime": "19:00",
       "endTime": "21:55",
       "totalPrice": 120000,
-      "createdAt": "2026-01-11T08:56:20.846Z"
+      "createdAt": "2026-01-11T08:56:20.846Z",
+      "id": "a5d6"
+    },
+    {
+      "booking_code": "MOVIE-1768312268927",
+      "userEmail": "lucduongty@gmail.com",
+      "fullName": "Dương Văn Lực",
+      "phone": "0354994218",
+      "cinema": "Rạp Chiếu Movie88",
+      "movie": "Linh Miêu",
+      "duration": 109,
+      "screen": "Phòng Chiếu Số 2",
+      "seats": [
+        "E12"
+      ],
+      "date": "24-12-2024",
+      "startTime": "22:00",
+      "endTime": "00:32",
+      "totalPrice": 160000,
+      "createdAt": "2026-01-13T13:51:08.928Z",
+      "id": "4032"
     }
   ]
 }

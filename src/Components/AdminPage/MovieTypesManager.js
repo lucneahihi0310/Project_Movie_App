@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Form, Modal, Container, Alert } from "react-bootstrap";
 import { fetchData, postData, updateData, deleteData } from "../API/ApiService";
+import "../../CSS/AdminPages.css";
 
 const MovieTypesManager = () => {
   const [movieTypes, setMovieTypes] = useState([]);
@@ -206,12 +207,19 @@ const MovieTypesManager = () => {
         <i className="bi bi-plus-circle"></i> Thêm Loại Phim
       </Button>
 
-      <Modal show={showModal} onHide={handleCancel} centered backdrop="static">
+      <Modal 
+        show={showModal} 
+        onHide={handleCancel} 
+        size="lg"
+        centered 
+        backdrop="static"
+        className="admin-modal"
+      >
         <Modal.Header closeButton>
           <Modal.Title>{currentMovieType ? "Sửa Loại Phim" : "Thêm Loại Phim"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form className="admin-form">
             <Form.Group className="mb-3" controlId="formMovieTypeName">
               <Form.Label>* Tên Loại Phim</Form.Label>
               <Form.Control

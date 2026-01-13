@@ -11,6 +11,8 @@ import {
 } from "react-bootstrap";
 import { FaEdit, FaTrashAlt, FaPlus } from "react-icons/fa";
 import { fetchData, postData, updateData, deleteData } from "../API/ApiService";
+import ImageCropModal from "./ImageCropModal";
+import "../../CSS/AdminPages.css";
 const API_BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
 
 function AdminMovies() {
@@ -25,6 +27,9 @@ function AdminMovies() {
   const [screens, setScreens] = useState([]);
   const [cinemas, setCinemas] = useState([]);
   const [uploadingField, setUploadingField] = useState(null);
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState(null);
+  const [cropField, setCropField] = useState(null);
   const [newMovie, setNewMovie] = useState({
     title: "",
     genre_ids: [],
@@ -41,7 +46,6 @@ function AdminMovies() {
     status: "active",
     showtimes: [],
   });
-  console.log("newMovie.movie_type:", newMovie.movie_type);
   useEffect(() => {
     fetchData("movies")
       .then((data) => setMovies(data))
@@ -73,7 +77,6 @@ function AdminMovies() {
     setNewMovie({ ...newMovie, [name]: value });
   };
   const handleGenreChange = (e) => {
-    const { value } = e.target;
     setNewMovie({
       ...newMovie,
       genre_ids: Array.from(e.target.selectedOptions, (option) => option.value),
@@ -227,12 +230,25 @@ function AdminMovies() {
     setShowModal(true);
   };
 
-  const uploadImageToCloud = async (file, field) => {
+  const handleFileSelect = (file, field) => {
     if (!file) return;
-    setUploadingField(field);
+    // Tạo URL preview cho ảnh
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setCropImageSrc(reader.result);
+      setCropField(field);
+      setShowCropModal(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = async (croppedImageBlob) => {
+    if (!croppedImageBlob || !cropField) return;
+    
+    setUploadingField(cropField);
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", croppedImageBlob, "cropped-image.jpg");
       const response = await fetch(`${API_BASE}/api/upload-image`, {
         method: "POST",
         body: formData,
@@ -243,15 +259,18 @@ function AdminMovies() {
       const data = await response.json();
       setNewMovie((prev) => ({
         ...prev,
-        [field]: data.url,
+        [cropField]: data.url,
       }));
     } catch (error) {
       console.error("Upload image error:", error);
       alert("Upload ảnh thất bại, vui lòng thử lại.");
     } finally {
       setUploadingField(null);
+      setCropField(null);
+      setCropImageSrc(null);
     }
   };
+
 
   const handleTitleClick = (movie) => {
     setSelectedMovie(movie);
@@ -282,12 +301,12 @@ function AdminMovies() {
   const getGenreNames = (genreIds) =>
     genreIds && Array.isArray(genreIds)
       ? genreIds
-          .map((id) => genres.find((genre) => genre.id == id)?.name)
+          .map((id) => genres.find((genre) => genre.id === id)?.name)
           .join(", ")
       : "N/A";
 
   const getLanguageName = (languageId) =>
-    languages.find((language) => language.id == languageId)?.name;
+    languages.find((language) => language.id === languageId)?.name;
   const groupShowtimesByDate = (showtimes) => {
     return showtimes.reduce((acc, showtime) => {
       const date = showtime.date;
@@ -395,14 +414,21 @@ function AdminMovies() {
       </Table>
 
       {/* Modal for Add/Edit Movie */}
-      <Modal show={showModal} onHide={resetForm}>
+      <Modal 
+        show={showModal} 
+        onHide={resetForm}
+        size="xl"
+        centered
+        className="admin-modal"
+        backdrop="static"
+      >
         <Modal.Header closeButton>
           <Modal.Title>
             {editMovie ? "Chỉnh Sửa Phim" : "Thêm Phim Mới"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form className="admin-form">
             <Form.Group className="mb-3">
               <Form.Label>Tiêu Đề</Form.Label>
               <Form.Control
@@ -430,11 +456,11 @@ function AdminMovies() {
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Form.Group className="mb-3">
+            <Form.Group className="mb-3 full-width">
               <Form.Label>Mô Tả</Form.Label>
               <Form.Control
                 as="textarea"
-                rows={3}
+                rows={4}
                 name="description"
                 value={newMovie.description}
                 onChange={handleInputChange}
@@ -503,18 +529,17 @@ function AdminMovies() {
                 type="file"
                 accept="image/*"
                 className="mt-2"
-                onChange={(e) => uploadImageToCloud(e.target.files[0], "poster")}
+                onChange={(e) => handleFileSelect(e.target.files[0], "poster")}
                 disabled={uploadingField === "poster"}
               />
               {uploadingField === "poster" && (
                 <small className="text-muted">Đang upload poster...</small>
               )}
               {newMovie.poster && (
-                <div className="mt-2 text-center">
+                <div className="admin-image-preview">
                   <img
                     src={newMovie.poster}
                     alt="Poster preview"
-                    style={{ maxWidth: "120px", borderRadius: "8px" }}
                   />
                 </div>
               )}
@@ -547,7 +572,7 @@ function AdminMovies() {
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Form.Group className="mb-3">
+            <Form.Group className="mb-3 full-width">
               <Form.Label>Video URL</Form.Label>
               <Form.Control
                 type="text"
@@ -556,7 +581,7 @@ function AdminMovies() {
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Form.Group className="mb-3">
+            <Form.Group className="mb-3 full-width">
               <Form.Label>Banner</Form.Label>
               <Form.Control
                 type="text"
@@ -569,18 +594,17 @@ function AdminMovies() {
                 type="file"
                 accept="image/*"
                 className="mt-2"
-                onChange={(e) => uploadImageToCloud(e.target.files[0], "banner")}
+                onChange={(e) => handleFileSelect(e.target.files[0], "banner")}
                 disabled={uploadingField === "banner"}
               />
               {uploadingField === "banner" && (
                 <small className="text-muted">Đang upload banner...</small>
               )}
               {newMovie.banner && (
-                <div className="mt-2 text-center">
+                <div className="admin-image-preview">
                   <img
                     src={newMovie.banner}
                     alt="Banner preview"
-                    style={{ maxWidth: "100%", borderRadius: "8px" }}
                   />
                 </div>
               )}
@@ -767,12 +791,12 @@ function AdminMovies() {
                               <td>{formatTime(showtime.end_time)}</td>
                               <td>
                                 {screens.find(
-                                  (screen) => screen.id == showtime.screen_id
+                                  (screen) => screen.id === showtime.screen_id
                                 )?.name || "N/A"}
                               </td>
                               <td>
                                 {cinemas.find(
-                                  (cinema) => cinema.id == showtime.cinema_id
+                                  (cinema) => cinema.id === showtime.cinema_id
                                 )?.name || "N/A"}
                               </td>
 
@@ -816,6 +840,21 @@ function AdminMovies() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Image Crop Modal */}
+      <ImageCropModal
+        show={showCropModal}
+        onClose={() => {
+          setShowCropModal(false);
+          setCropImageSrc(null);
+          setCropField(null);
+        }}
+        imageSrc={cropImageSrc}
+        onCropComplete={handleCropComplete}
+        aspectRatio={1}
+        targetWidth={cropField === "poster" ? 500 : cropField === "banner" ? 1920 : 500}
+        targetHeight={cropField === "poster" ? 500 : cropField === "banner" ? 1080 : 500}
+      />
     </Container>
   );
 }

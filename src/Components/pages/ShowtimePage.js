@@ -14,6 +14,18 @@ function ShowTime() {
   const [selectedMovieId, setSelectedMovieId] = useState(null);
   const navigate = useNavigate();
 
+  // Helper function to check if showtime has passed
+  const isShowtimePassed = (showtime) => {
+    const now = new Date();
+    const showtimeDate = new Date(showtime.date);
+    const showtimeTime = showtime.start_time.split(":").map(Number);
+    
+    const showtimeDateTime = new Date(showtimeDate);
+    showtimeDateTime.setHours(showtimeTime[0], showtimeTime[1], showtimeTime[2] || 0, 0);
+    
+    return showtimeDateTime < now;
+  };
+
   useEffect(() => {
     fetch("http://localhost:3001/movies")
       .then((response) => response.json())
@@ -22,8 +34,14 @@ function ShowTime() {
         const initialDates = {};
         data.forEach((movie) => {
           if (movie.showtimes?.length > 0) {
-            const minDate = movie.showtimes.map((st) => st.date).sort()[0];
-            initialDates[movie.id] = minDate;
+            // Get the earliest date that has at least one valid (not passed) showtime
+            const validShowtimes = movie.showtimes.filter(
+              (st) => !isShowtimePassed(st)
+            );
+            if (validShowtimes.length > 0) {
+              const minDate = validShowtimes.map((st) => st.date).sort()[0];
+              initialDates[movie.id] = minDate;
+            }
           }
         });
         setSelectedDates(initialDates);
@@ -50,15 +68,14 @@ function ShowTime() {
     const uniqueDates = [...new Set(showtimes.map((time) => time.date))];
     return uniqueDates.sort();
   };
-  console.log(cinema);
 
   const getGenreNames = (genreIds) =>
     genreIds
-      .map((id) => genres.find((genre) => genre.id == id)?.name)
+      .map((id) => genres.find((genre) => genre.id === id)?.name)
       .join(", ");
 
   const getLanguageName = (languageId) =>
-    languages.find((language) => language.id == languageId)?.name;
+    languages.find((language) => language.id === languageId)?.name;
 
   const formatTime = (timeString) => {
     const time = new Date(`1970-01-01T${timeString}`);
@@ -125,22 +142,51 @@ function ShowTime() {
               <h3>{getLanguageName(movie.language_id)}</h3>
               <div className="date-navigation">
                 {movie.showtimes?.length > 0 &&
-                  getUniqueDates(movie.showtimes).map((date, idx) => (
-                    <div
-                      key={idx}
-                      className={`date-item ${
-                        selectedDates[movie.id] === date ? "active" : ""
-                      }`}
-                      onClick={() => handleDateClick(movie.id, date)}
-                    >
-                      {formatDate(date)}
-                    </div>
-                  ))}
+                  getUniqueDates(movie.showtimes)
+                    .filter((date) => {
+                      // Filter out dates that have no valid showtimes (all showtimes have passed)
+                      const now = new Date();
+                      const showtimesForDate = movie.showtimes.filter((st) => {
+                        if (st.date !== date) return false;
+                        const showtimeDate = new Date(st.date);
+                        const showtimeTime = st.start_time.split(":").map(Number);
+                        const showtimeDateTime = new Date(showtimeDate);
+                        showtimeDateTime.setHours(showtimeTime[0], showtimeTime[1], showtimeTime[2] || 0, 0);
+                        return showtimeDateTime >= now;
+                      });
+                      return showtimesForDate.length > 0;
+                    })
+                    .map((date, idx) => (
+                      <div
+                        key={idx}
+                        className={`date-item ${
+                          selectedDates[movie.id] === date ? "active" : ""
+                        }`}
+                        onClick={() => handleDateClick(movie.id, date)}
+                      >
+                        {formatDate(date)}
+                      </div>
+                    ))}
               </div>
               <div className="showtimess">
                 {movie.showtimes
                   ?.filter(
-                    (showtime) => showtime.date === selectedDates[movie.id]
+                    (showtime) => {
+                      // Filter by date
+                      if (showtime.date !== selectedDates[movie.id]) {
+                        return false;
+                      }
+                      
+                      // Check if showtime has passed
+                      const now = new Date();
+                      const showtimeDate = new Date(showtime.date);
+                      const showtimeTime = showtime.start_time.split(":").map(Number);
+                      
+                      const showtimeDateTime = new Date(showtimeDate);
+                      showtimeDateTime.setHours(showtimeTime[0], showtimeTime[1], showtimeTime[2] || 0, 0);
+                      
+                      return showtimeDateTime >= now;
+                    }
                   )
                   .map((showtime, idx) => (
                     <div

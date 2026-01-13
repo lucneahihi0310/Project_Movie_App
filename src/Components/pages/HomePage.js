@@ -2,10 +2,11 @@ import Carousel from "react-bootstrap/Carousel";
 import { FaPlay } from "react-icons/fa";
 import "../../CSS/HomePage.css";
 import { useState, useEffect } from "react";
-import { Modal, Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Modal } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 function HomePage() {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [movieType, setMovieType] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -16,20 +17,55 @@ function HomePage() {
   const [selectedMovie, setSelectedMovie] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:3001/movies")
-      .then((response) => response.json())
-      .then((data) => setData(data))
-      .catch((error) => console.error("Error fetching movies:", error));
+    const fetchMovies = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/movies");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const moviesData = await response.json();
+        setData(Array.isArray(moviesData) ? moviesData : []);
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+        setData([]);
+      }
+    };
 
-    fetch("http://localhost:3001/genres")
-      .then((response) => response.json())
-      .then((data) => setGenres(data))
-      .catch((error) => console.error("Error fetching genres:", error));
+    const fetchGenres = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/genres");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const genresData = await response.json();
+        setGenres(Array.isArray(genresData) ? genresData : []);
+      } catch (error) {
+        console.error("Error fetching genres:", error);
+        setGenres([]);
+      }
+    };
 
-    fetch("http://localhost:3001/movietypes")
-      .then((response) => response.json())
-      .then((data) => setMovieType(data))
-      .catch((error) => console.error("Error fetching movie types:", error));
+    const fetchMovieTypes = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/movietypes");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const typesData = await response.json();
+        setMovieType(Array.isArray(typesData) ? typesData : []);
+        // Set default selectedMovieType to first movie type if available
+        if (Array.isArray(typesData) && typesData.length > 0) {
+          setSelectedMovieType(typesData[0].id);
+        }
+      } catch (error) {
+        console.error("Error fetching movie types:", error);
+        setMovieType([]);
+      }
+    };
+
+    fetchMovies();
+    fetchGenres();
+    fetchMovieTypes();
   }, []);
 
   const handleMovieTypeFilter = (type) => {
@@ -37,12 +73,12 @@ function HomePage() {
   };
 
   const filteredData = data.filter(
-    (movie) => movie.movie_type == selectedMovieType
+    (movie) => String(movie.movie_type) === String(selectedMovieType)
   );
 
   const getGenreNames = (genreIds) =>
     genreIds
-      .map((id) => genres.find((genre) => genre.id == id)?.name)
+      .map((id) => genres.find((genre) => genre.id === id)?.name)
       .join(", ");
 
   const openModal = (movie) => {
@@ -66,6 +102,12 @@ function HomePage() {
               className="d-block w-100"
               src={movie.banner}
               alt={`Slide ${index + 1}`}
+              style={{ 
+                objectFit: "cover",
+                objectPosition: "center",
+                width: "100%",
+                height: "100%"
+              }}
             />
           </Carousel.Item>
         ))}
@@ -75,17 +117,14 @@ function HomePage() {
         <nav className="navi">
           {movieType.length > 0 ? (
             movieType.map((type) => (
-              <a
+              <button
                 key={type.id}
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleMovieTypeFilter(type);
-                }}
-                className={selectedMovieType == type.id ? "actived" : ""}
+                type="button"
+                onClick={() => handleMovieTypeFilter(type)}
+                className={selectedMovieType === type.id ? "actived" : ""}
               >
                 {type.name}
-              </a>
+              </button>
             ))
           ) : (
             <p>Loading movie types...</p>
@@ -96,10 +135,13 @@ function HomePage() {
           {filteredData.length > 0 ? (
             filteredData.map((movie) => {
               return (
-                <div className="movie-item" key={movie.id}>
+                <div 
+                  className="movie-item" 
+                  key={movie.id}
+                  onClick={() => navigate(`/movie/${movie.id}`)}
+                >
                   <div className="image-container">
                     <img
-                      style={{ height: "400px" }}
                       src={
                         movie.poster || "https://via.placeholder.com/200x300"
                       }
@@ -107,24 +149,29 @@ function HomePage() {
                     />
                     <div
                       className="overlay-icon"
-                      onClick={() => openModal(movie)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openModal(movie);
+                      }}
                     >
                       <FaPlay size={40} color="white" />
                     </div>
                   </div>
-                  <Link to={`/movie/${movie.id}`}> {movie.title}</Link>
-                  <ul>
-                    <li>
-                      <span>Thể loại:</span> {getGenreNames(movie.genre_ids)}
-                    </li>
-                    <li>
-                      <span>Thời lượng:</span> {movie.duration || "N/A"} phút
-                    </li>
-                    <li>
-                      <span>Ngày khởi chiếu:</span>{" "}
-                      {movie.release_date || "N/A"}
-                    </li>
-                  </ul>
+                  <div className="movie-content">
+                    <h3 className="movie-title">{movie.title}</h3>
+                    <ul>
+                      <li>
+                        <span>Thể loại:</span> {getGenreNames(movie.genre_ids)}
+                      </li>
+                      <li>
+                        <span>Thời lượng:</span> {movie.duration || "N/A"} phút
+                      </li>
+                      <li>
+                        <span>Ngày khởi chiếu:</span>{" "}
+                        {movie.release_date || "N/A"}
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               );
             })

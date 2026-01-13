@@ -1,14 +1,18 @@
-require("dotenv").config();
+const path = require("path");
+// Load .env từ thư mục gốc của project (3 cấp lên từ src/Components/API/)
+require("dotenv").config({ path: path.join(__dirname, "../../../.env") });
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const fs = require("fs");
-const path = require("path");
 const crypto = require("crypto");
 const cron = require("node-cron");
 const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcrypt');
 const { upload, uploadToCloudinary } = require("./utils/cloudinary");
 const { sendEmail } = require("./utils/email");
+
+const saltRounds = 10;
 
 const app = express();
 app.use(bodyParser.json());
@@ -35,7 +39,35 @@ const sendHtmlEmail = async ({ to, subject, html, text }) => {
 
 // Hàm đọc dữ liệu từ file database.json
 function getDatabase() {
-    return JSON.parse(fs.readFileSync(databasePath, "utf8"));
+    try {
+        const data = fs.readFileSync(databasePath, "utf8");
+        if (!data || data.trim() === "") {
+            console.error("Database file is empty!");
+            return { accounts: [], movies: [], genres: [], languages: [], movietypes: [], screens: [], cinema: [], seatLocks: [], tickets: [] };
+        }
+        return JSON.parse(data);
+    } catch (error) {
+        console.error("Error reading database:", error);
+        // Return empty database structure if file is corrupted
+        return { accounts: [], movies: [], genres: [], languages: [], movietypes: [], screens: [], cinema: [], seatLocks: [], tickets: [] };
+    }
+}
+
+// Hàm ghi dữ liệu vào file database.json an toàn
+function saveDatabase(database) {
+    try {
+        // Validate JSON trước khi ghi
+        const jsonString = JSON.stringify(database, null, 2);
+        // Test parse để đảm bảo JSON hợp lệ
+        JSON.parse(jsonString);
+        // Ghi file với atomic write (ghi vào file tạm rồi rename)
+        const tempPath = databasePath + ".tmp";
+        fs.writeFileSync(tempPath, jsonString, "utf8");
+        fs.renameSync(tempPath, databasePath);
+    } catch (error) {
+        console.error("Error saving database:", error);
+        throw error;
+    }
 }
 
 // API xử lý quên mật khẩu
@@ -91,7 +123,7 @@ app.post("/api/forgot-password", async (req, res) => {
             html: mailOptions.html,
             text: `Mã reset của bạn: ${resetToken} (hết hạn sau 5 phút)`,
         });
-        fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+        saveDatabase(database);
         res.json({ message: "Email đặt lại mật khẩu đã được gửi!" });
     } catch (error) {
         console.error("Error sending email:", error);
@@ -121,17 +153,94 @@ app.post("/api/reset-password", (req, res) => {
     if (Date.now() > user.resetTokenExpiration) {
         delete user.resetToken;
         delete user.resetTokenExpiration;
-        fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+        saveDatabase(database);
         return res.status(400).json({ message: "Mã reset đã hết hạn!" });
     }
 
     // Cập nhật mật khẩu
-    user.password = newPassword;
+    user.password = bcrypt.hashSync(newPassword, saltRounds);
     delete user.resetToken;
     delete user.resetTokenExpiration;
-    fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+    saveDatabase(database);
 
     res.json({ message: "Mật khẩu đã được thay đổi thành công!" });
+});
+
+// API đăng ký
+app.post("/api/register", async (req, res) => {
+    const { full_name, email, password, phone, dob, gender, address } = req.body;
+
+    const database = getDatabase();
+    const accounts = database.accounts;
+
+    // Kiểm tra email đã tồn tại chưa
+    const existingUser = accounts.find((u) => u.email === email);
+    if (existingUser) {
+        return res.status(400).json({ message: "Email đã được sử dụng!" });
+    }
+
+    // Hash mật khẩu
+    const hashedPassword = bcrypt.hashSync(password, saltRounds);
+
+    // Tạo user mới
+    const newUser = {
+        id: uuidv4(),
+        full_name,
+        email,
+        password: hashedPassword,
+        phone,
+        dob,
+        gender,
+        address,
+        role: "user",
+        status: "active",
+        tickets: [],
+        created_at: new Date().toISOString(),
+    };
+
+    accounts.push(newUser);
+    saveDatabase(database);
+
+    res.status(201).json({ message: "Đăng ký thành công!", user: { id: newUser.id, full_name: newUser.full_name, email: newUser.email, role: newUser.role } });
+});
+
+// API đăng nhập
+app.post("/api/login", (req, res) => {
+    const { email, password } = req.body;
+
+    const database = getDatabase();
+    const accounts = database.accounts;
+
+    // Tìm user theo email
+    const user = accounts.find((u) => u.email === email);
+    if (!user) {
+        return res.status(401).json({ message: "Email hoặc mật khẩu không đúng!" });
+    }
+
+    // Kiểm tra mật khẩu
+    let isPasswordValid = false;
+    if (user.password.startsWith('$2b$')) {
+        // Hashed password
+        isPasswordValid = bcrypt.compareSync(password, user.password);
+    } else {
+        // Plain text (for migration)
+        isPasswordValid = password === user.password;
+        if (isPasswordValid) {
+            // Hash it now
+            user.password = bcrypt.hashSync(password, saltRounds);
+            saveDatabase(database);
+        }
+    }
+
+    if (!isPasswordValid) {
+        return res.status(401).json({ message: "Email hoặc mật khẩu không đúng!" });
+    }
+
+    if (user.status === "inactive") {
+        return res.status(401).json({ message: "Tài khoản đã bị khóa!" });
+    }
+
+    res.json({ message: "Đăng nhập thành công!", user: { id: user.id, full_name: user.full_name, email: user.email, role: user.role } });
 });
 
 // Cron job để kiểm tra và xóa các token hết hạn
@@ -144,8 +253,7 @@ cron.schedule("* * * * *", () => {
             delete user.resetToken;
             delete user.resetTokenExpiration;
 
-            fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
-            console.log(`Reset token của người dùng ${user.email} đã hết hạn và bị xóa.`);
+            saveDatabase(database);
         }
     });
 });
@@ -155,7 +263,7 @@ function initializeSeatLocks() {
     const database = getDatabase();
     if (!database.seatLocks) {
         database.seatLocks = [];
-        fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+        saveDatabase(database);
     }
 }
 
@@ -198,7 +306,7 @@ app.post("/api/lock-seats", (req, res) => {
     }));
 
     database.seatLocks = [...filteredLocks, ...newLocks];
-    fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+    saveDatabase(database);
 
     res.json({
         message: "Ghế đã được giữ thành công!",
@@ -226,7 +334,7 @@ app.get("/api/locked-seats", (req, res) => {
 
     // Lưu lại sau khi lọc
     database.seatLocks = seatLocks;
-    fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+    saveDatabase(database);
 
     // Trả về danh sách ghế đang bị lock
     const lockedSeats = seatLocks.map((lock) => lock.seat);
@@ -249,7 +357,7 @@ app.post("/api/unlock-seats", (req, res) => {
     );
 
     database.seatLocks = seatLocks;
-    fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+    saveDatabase(database);
 
     res.json({ message: "Đã mở khóa ghế thành công!" });
 });
@@ -288,8 +396,7 @@ cron.schedule("* * * * *", () => {
 
     if (beforeCount !== afterCount) {
         database.seatLocks = seatLocks;
-        fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
-        console.log(`Đã xóa ${beforeCount - afterCount} seat lock hết hạn.`);
+        saveDatabase(database);
     }
 });
 
@@ -532,7 +639,7 @@ app.post("/api/confirm-booking", async (req, res) => {
     database.seatLocks = seatLocks;
 
     // Lưu thông tin vào database.json
-    fs.writeFileSync(databasePath, JSON.stringify(database, null, 2));
+    saveDatabase(database);
 
     res.json({ message: "Đặt vé thành công và email đã được gửi!", ticketId });
 });
@@ -541,5 +648,4 @@ app.post("/api/confirm-booking", async (req, res) => {
 // Chạy server
 const PORT = 5000;
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
 });

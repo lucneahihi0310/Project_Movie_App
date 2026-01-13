@@ -47,6 +47,48 @@ function Booking() {
   const [lockedSeats, setLockedSeats] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("cod"); // "cod" hoặc "vnpay"
 
+  // Helper function to update reserved seats
+  const updateReservedSeats = async () => {
+    if (!movieData?.selectedShowtime || !cinemas.length) return;
+    
+    try {
+      const accountData = await fetchData("accounts");
+      const formatTimeForFilter = (timeString) => {
+        if (!timeString) return "";
+        const [hours, minutes] = timeString.split(":").map(Number);
+        return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+      };
+
+      const formatDateForFilter = (dateString) => {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+      };
+
+      const getCinemaNameForFilter = (cinemaId) => {
+        return cinemas.find((cinema) => cinema.id === cinemaId)?.name || "Unknown Cinema";
+      };
+
+      const reservedSeats = accountData
+        .flatMap(account => account.tickets || [])
+        .filter(ticket =>
+          ticket.status === "active" && // Chỉ lấy ghế đã thanh toán
+          ticket.movie === movieData.title &&
+          ticket.cinema === getCinemaNameForFilter(movieData.selectedShowtime.cinema_id) &&
+          ticket.date === formatDateForFilter(movieData.selectedShowtime.date) &&
+          ticket.startTime === formatTimeForFilter(movieData.selectedShowtime.start_time)
+        )
+        .flatMap(ticket => ticket.seats || []);
+
+      setReservedSeats(reservedSeats);
+    } catch (error) {
+      console.error("Error updating reserved seats:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchMovieData = async () => {
       try {
@@ -89,18 +131,18 @@ function Booking() {
         // Fetch reserved seats for the current movie, showtime, and date
         // Chỉ lấy tickets đã thanh toán (status === "active")
         if (showtime && movie && cinemaData.length > 0) {
-          const reservedSeats = accountData
+        const reservedSeats = accountData
             .flatMap(account => account.tickets || [])
-            .filter(ticket =>
+          .filter(ticket =>
               ticket.status === "active" && // Chỉ lấy ghế đã thanh toán
               ticket.movie === movie.title &&
               ticket.cinema === getCinemaNameForFilter(showtime.cinema_id) &&
               ticket.date === formatDateForFilter(showtime.date) &&
               ticket.startTime === formatTimeForFilter(showtime.start_time)
-            )
+          )
             .flatMap(ticket => ticket.seats || []);
 
-          setReservedSeats(reservedSeats);
+        setReservedSeats(reservedSeats);
 
           // Fetch locked seats
           const lockParams = new URLSearchParams({
@@ -247,7 +289,7 @@ function Booking() {
         // Cập nhật locked seats để hiển thị ngay
         setLockedSeats((prev) => [...new Set([...prev, ...selectedSeats])]);
         setShowModal(true);
-      } else {
+    } else {
         alert("Có lỗi xảy ra khi giữ ghế, vui lòng thử lại.");
       }
     } catch (error) {
@@ -258,17 +300,17 @@ function Booking() {
 
   const getGenreNames = (genreIds) => {
     return genreIds
-      .map((id) => genres.find((genre) => genre.id == id)?.name)
+      .map((id) => genres.find((genre) => genre.id === id)?.name)
       .join(", ") || "Unknown Genre";
   };
   const getScreenName = (screenId) => {
-    return screen.find((screen) => screen.id == screenId)?.name || "Unknown Screen";
+    return screen.find((screen) => screen.id === screenId)?.name || "Unknown Screen";
   }
   const getLanguageName = (languageId) => {
-    return languages.find((language) => language.id == languageId)?.name || "Unknown Language";
+    return languages.find((language) => language.id === languageId)?.name || "Unknown Language";
   };
   const getCinemaName = (cinemaId) => {
-    return cinemas.find((cinema) => cinema.id == cinemaId)?.name || "Unknown Cinema";
+    return cinemas.find((cinema) => cinema.id === cinemaId)?.name || "Unknown Cinema";
   };
   const formatTime = (timeString) => {
     if (!timeString) return "N/A";
@@ -384,6 +426,14 @@ function Booking() {
         setSelectedSeats([]);
         // Xóa locked seats khỏi state
         setLockedSeats((prev) => prev.filter(seat => !bookedSeats.includes(seat)));
+        
+        // Thêm ghế vừa đặt vào reservedSeats ngay lập tức
+        setReservedSeats((prev) => [...new Set([...prev, ...bookedSeats])]);
+        
+        // Reload reserved seats sau khi đặt vé thành công (với delay nhỏ để đảm bảo database đã được cập nhật)
+        setTimeout(async () => {
+          await updateReservedSeats();
+        }, 500);
       } else {
         alert("Có lỗi xảy ra, vui lòng thử lại.");
       }

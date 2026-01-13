@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Container, Row, Col, Form, Button, Modal, Table } from "react-bootstrap";
 import { fetchData, updateData } from "../API/ApiService";
-import { PencilSquare, Lock, Key } from 'react-bootstrap-icons';
+import { Lock } from 'react-bootstrap-icons';
 import { InputGroup, FormControl } from 'react-bootstrap';
 
 function UserProfile() {
@@ -235,6 +235,7 @@ function UserProfile() {
 
   useEffect(() => {
     getUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (loading) {
@@ -339,12 +340,13 @@ function UserProfile() {
 
               <Row style={{ marginTop: "2rem" }}>
                 <Col>
-                  <a href="#" onClick={(e) => {
-                    e.preventDefault();
-                    handleShow();
-                  }}>
+                  <button 
+                    type="button"
+                    onClick={handleShow}
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: "inherit", textDecoration: "underline" }}
+                  >
                     <Lock size={18} /> Đổi mật khẩu
-                  </a>
+                  </button>
                 </Col>
               </Row>
 

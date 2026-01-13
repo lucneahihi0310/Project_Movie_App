@@ -168,7 +168,6 @@ const LoginRegister = () => {
 
     try {
       const response = await postData("accounts", data);
-      console.log("Registration successful", response);
       setShowSuccessModal(true);
       setCurrentForm("login");
     } catch (error) {

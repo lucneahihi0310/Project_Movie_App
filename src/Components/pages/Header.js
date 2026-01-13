@@ -65,40 +65,43 @@ function Header() {
 
   return (
     <>
-      <Container fluid className="bg-black">
-        <Row className="d-flex justify-content-end py-2">
-          {isLoggedIn ? (
-            <Col className="text-right text-white Sig">
-              <Link to={`/profile/${userId}`} className="text-white text-decoration-none">
-                <span className="me-3 fancy-font">
-                  {greeting}, {username}!
-                </span>
-              </Link>
-              <Link
-                to="#"
-                onClick={handleLogout}
-                className="text-white text-decoration-none"
-              >
-                <i className="bi bi-box-arrow-right"></i>
-              </Link>
-            </Col>
-          ) : (
-            <Col className="text-right Sig">
-              <Link to="/login" className="text-white me-3">
-                Đăng Nhập
-              </Link>
-              <Link to="/login" className="text-white">
-                Đăng Ký
-              </Link>
-            </Col>
-          )}
+      <div className="header-container">
+        <Container fluid className="bg-black" style={{ padding: "4px 0" }}>
+          <Row>
+            <Col className="Sig">
+            {isLoggedIn ? (
+              <>
+                <Link to={`/profile/${userId}`} className="text-decoration-none">
+                  <span className="fancy-font">
+                    {greeting}, {username}!
+                  </span>
+                </Link>
+                <Link
+                  to="#"
+                  onClick={handleLogout}
+                  className="text-decoration-none"
+                  title="Đăng xuất"
+                >
+                  <i className="bi bi-box-arrow-right"></i>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="text-decoration-none">
+                  Đăng Nhập
+                </Link>
+                <Link to="/login" className="text-decoration-none">
+                  Đăng Ký
+                </Link>
+              </>
+            )}
+          </Col>
         </Row>
       </Container>
 
       <Navbar
         expand="lg"
-        className="bg-white border-bottom"
-        style={{ marginBottom: "30px" }}
+        className="navbar"
       >
         <Container>
           <Navbar.Brand
@@ -111,9 +114,10 @@ function Header() {
 
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="fw-bold fs-5 custom-nav">
+            <Nav className="custom-nav">
               <Nav.Link
-                href="/showtime"
+                as={Link}
+                to="/showtime"
                 className={isActive("/showtime")}
               >
                 Lịch Chiếu Theo Rạp
@@ -206,6 +210,7 @@ function Header() {
           </Navbar.Collapse>
         </Container>
       </Navbar>
+      </div>
     </>
   );
 }

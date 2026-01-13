@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Form, Modal, Container, Alert } from "react-bootstrap";
 import { fetchData, postData, updateData, deleteData } from "../API/ApiService";
+import "../../CSS/AdminPages.css";
 
 const AccountManager = () => {
   const [accounts, setAccounts] = useState([]);
@@ -278,8 +279,10 @@ const AccountManager = () => {
       <Modal
         show={showModal}
         onHide={handleCloseModal}
+        size="xl"
         centered
         backdrop="static"
+        className="admin-modal"
       >
         <Modal.Header closeButton>
           <Modal.Title>
@@ -287,7 +290,7 @@ const AccountManager = () => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form className="admin-form">
             <Form.Group className="mb-3">
               <Form.Label>* Họ và Tên</Form.Label>
               <Form.Control

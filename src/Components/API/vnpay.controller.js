@@ -220,7 +220,7 @@ exports.ipn = async (req, res) => {
 
             <!-- Payment Success Notice -->
             <div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; padding: 15px; margin-bottom: 20px; text-align: center;">
-              <p style="color: #155724; font-size: 18px; font-weight: bold; margin: 0;">✓ Thanh toán thành công qua VNPay</p>
+              <p style="color: #155724; font-size: 18px; font-weight: bold; margin: 0;">Thanh toán thành công qua VNPay</p>
             </div>
 
             <!-- Ticket Information Section -->

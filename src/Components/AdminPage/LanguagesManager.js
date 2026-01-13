@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, Form, Modal, Container, Alert } from "react-bootstrap";
 import { fetchData, postData, updateData, deleteData } from "../API/ApiService";
 import "../../CSS/LanguagesManager.css";
+import "../../CSS/AdminPages.css";
 
 const LanguagesManager = () => {
   const [languages, setLanguages] = useState([]);
@@ -210,8 +211,10 @@ const LanguagesManager = () => {
       <Modal
         show={showModal}
         onHide={handleCancel}
+        size="lg"
         centered
         backdrop="static"
+        className="admin-modal"
       >
         <Modal.Header closeButton>
           <Modal.Title>
@@ -219,7 +222,7 @@ const LanguagesManager = () => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form className="admin-form">
             <Form.Group className="mb-3" controlId="formLanguageName">
               <Form.Label>* Tên Ngôn Ngữ</Form.Label>
               <Form.Control

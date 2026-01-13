@@ -1,4 +1,6 @@
-require("dotenv").config();
+const path = require("path");
+// Load .env từ thư mục gốc của project (3 cấp lên từ src/Components/API/utils/)
+require("dotenv").config({ path: path.join(__dirname, "../../../../.env") });
 const { Resend } = require("resend");
 
 const getResendClient = () => {

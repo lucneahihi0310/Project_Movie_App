@@ -31,7 +31,7 @@ function PaymentSuccess() {
       <Modal show={showModal} onHide={handleClose} centered>
         <Modal.Header closeButton>
           <Modal.Title style={{ color: "#28a745" }}>
-            ✓ Thanh toán thành công!
+            Thanh toán thành công!
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -41,7 +41,7 @@ function PaymentSuccess() {
               color: "#28a745", 
               marginBottom: "20px" 
             }}>
-              ✓
+              
             </div>
             <h3 style={{ color: "#333", marginBottom: "15px" }}>
               Cảm ơn bạn đã thanh toán!

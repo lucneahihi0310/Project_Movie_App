@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, Button, Form, InputGroup, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { postData, fetchData } from "../API/ApiService";
+import { postData, fetchData, postAuthData } from "../API/ApiService";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../../CSS/LoginRegister.css";
 
@@ -47,33 +47,25 @@ const LoginRegister = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const users = await fetchData("accounts");
-      const existUser = users.find(
-        (user) => user.email === email && user.password === password
-      );
+      const response = await postAuthData("/api/login", { email, password });
 
-      if (existUser) {
-        if (existUser.status === "inactive") {
-          setErrorMessage("Tài khoản đã bị khóa!");
-          return;
-        }
+      if (response.user) {
+        const user = response.user;
         if (remember) {
           const userData = {
-            id: existUser.id,
-            email: existUser.email,
-            phone: existUser.phone,
-            password: existUser.password,
-            full_name: existUser.full_name,
-            role: existUser.role
+            id: user.id,
+            email: user.email,
+            full_name: user.full_name,
+            role: user.role
           };
           localStorage.setItem("rememberedAccount", JSON.stringify(userData));
         } else {
           localStorage.removeItem("rememberedAccount");
         }
-        sessionStorage.setItem("account", JSON.stringify(existUser));
+        sessionStorage.setItem("account", JSON.stringify(user));
         window.location.replace("/");
       } else {
-        setErrorMessage("Tài khoản hoặc mật khẩu không đúng!");
+        setErrorMessage(response.message || "Đăng nhập thất bại!");
       }
     } catch (error) {
       console.error("Lỗi khi đăng nhập:", error);
@@ -159,12 +151,10 @@ const LoginRegister = () => {
     const isValid = await validateFields();
     if (!isValid) return;
 
-
-    const data = { full_name, email, password, dob, phone, gender, address, role: "2", status: "active", tickets: [] };
+    const data = { full_name, email, password, phone, dob, gender, address };
 
     try {
-      const response = await postData("accounts", data);
-      console.log("Registration successful", response);
+      const response = await postAuthData("/api/register", data);
 
       setShowSuccessModal(true);
 

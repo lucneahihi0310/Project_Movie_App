@@ -49,12 +49,31 @@ const MovieDetail = () => {
       .catch((error) => console.error("Error fetching showtimes:", error));
   }, [id]);
 
+  // Helper function to check if showtime has passed
+  const isShowtimePassedForEffect = (showtime) => {
+    const now = new Date();
+    const showtimeDate = new Date(showtime.date);
+    const showtimeTime = showtime.start_time.split(":").map(Number);
+    
+    const showtimeDateTime = new Date(showtimeDate);
+    showtimeDateTime.setHours(showtimeTime[0], showtimeTime[1], showtimeTime[2] || 0, 0);
+    
+    return showtimeDateTime < now;
+  };
+
   useEffect(() => {
     if (movie?.showtimes?.length > 0) {
-      const earliestDate = movie.showtimes
-        .map((showtime) => showtime.date)
-        .sort()[0];
-      setSelectedDate(earliestDate);
+      // Get the earliest date that has at least one valid (not passed) showtime
+      const validShowtimes = movie.showtimes.filter(
+        (showtime) => !isShowtimePassedForEffect(showtime)
+      );
+      
+      if (validShowtimes.length > 0) {
+        const earliestDate = validShowtimes
+          .map((showtime) => showtime.date)
+          .sort()[0];
+        setSelectedDate(earliestDate);
+      }
     }
   }, [movie]);
 
@@ -64,11 +83,11 @@ const MovieDetail = () => {
 
   const getGenreNames = (genreIds) =>
     genreIds
-      .map((id) => genres.find((genre) => genre.id == id)?.name)
+      .map((id) => genres.find((genre) => genre.id === id)?.name)
       .join(", ");
 
   const getLanguageName = (languageId) =>
-    languages.find((language) => language.id == languageId)?.name;
+    languages.find((language) => language.id === languageId)?.name;
 
   const handleDateClick = (date) => {
     setSelectedDate(date);
@@ -94,15 +113,29 @@ const MovieDetail = () => {
     });
   };
 
+  // Helper function to check if showtime has passed
+  const isShowtimePassed = (showtime) => {
+    const now = new Date();
+    const showtimeDate = new Date(showtime.date);
+    const showtimeTime = showtime.start_time.split(":").map(Number);
+    
+    // Set showtime datetime
+    const showtimeDateTime = new Date(showtimeDate);
+    showtimeDateTime.setHours(showtimeTime[0], showtimeTime[1], showtimeTime[2] || 0, 0);
+    
+    // Compare with current time
+    return showtimeDateTime < now;
+  };
+
   const filteredShowtimes = movie.showtimes.filter(
-    (showtime) => showtime.date == selectedDate
+    (showtime) => showtime.date === selectedDate && !isShowtimePassed(showtime)
   );
 
   return (
     <div className="movie-detail">
       <main className="content">
         <div className="breadcrumb" style={{ fontSize: "1.5rem" }}>
-          <a href="#">Home</a> &gt;{" "}
+          <button type="button" onClick={() => window.location.href = '/'} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: "inherit", textDecoration: "underline" }}>Home</button> &gt;{" "}
           <span className="highlight">{movie.title}</span>
         </div>
 
@@ -161,6 +194,13 @@ const MovieDetail = () => {
             {movie.showtimes
               .map((s) => s.date)
               .filter((value, index, self) => self.indexOf(value) === index)
+              .filter((date) => {
+                // Filter out dates that have no valid showtimes (all showtimes have passed)
+                const showtimesForDate = movie.showtimes.filter(
+                  (st) => st.date === date && !isShowtimePassed(st)
+                );
+                return showtimesForDate.length > 0;
+              })
               .sort((a, b) => new Date(a) - new Date(b))
               .map((date) => (
                 <div
@@ -199,8 +239,9 @@ const MovieDetail = () => {
             <div className="video-container">
               <iframe
                 src={movie.video_url}
-                frameborder="0"
-                allowfullscreen
+                title="Movie Trailer"
+                frameBorder="0"
+                allowFullScreen
               ></iframe>
             </div>
           </div>
